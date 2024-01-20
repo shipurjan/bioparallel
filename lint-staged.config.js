@@ -3,7 +3,7 @@ module.exports = {
     "**/*.(ts|tsx)": () => "pnpm exec tsc --noEmit",
 
     // This will lint and format TypeScript and                                             //JavaScript files
-    "**/*.(ts|tsx|js)": filenames => [
+    "**/*.(ts|tsx|js|jsx)": filenames => [
         `pnpm exec eslint --fix ${filenames.join(" ")}`,
         `pnpm exec prettier --write ${filenames.join(" ")}`,
     ],
