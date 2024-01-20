@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+pnpm tsc:check
+pnpm eslint:fix
+pnpm prettier:write
+pnpm exec lint-staged
