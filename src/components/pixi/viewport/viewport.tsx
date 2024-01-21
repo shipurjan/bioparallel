@@ -3,13 +3,13 @@
 import { PixiComponent, useApp } from "@pixi/react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import * as PIXI from "pixi.js";
-import { ReactNode } from "react";
+import { ReactNode, forwardRef } from "react";
 
-export type ViewportProps = {
-    children?: ReactNode;
+export type PixiViewportProps = {
+    children: ReactNode;
 };
 
-export type PixiComponentViewportProps = ViewportProps & {
+export type PixiComponentViewportProps = PixiViewportProps & {
     app: PIXI.Application;
 };
 
@@ -49,9 +49,10 @@ const PixiViewportComponent = PixiComponent("Viewport", {
     },
 });
 
-export function Viewport({
-    ...props
-}: Omit<PixiComponentViewportProps, "app">) {
-    const app = useApp();
-    return <PixiViewportComponent app={app} {...props} />;
-}
+export type ViewportProps = Omit<PixiComponentViewportProps, "app">;
+export const Viewport = forwardRef<PixiViewport, PixiViewportProps>(
+    function Viewport({ ...props }: PixiViewportProps, ref) {
+        const app = useApp();
+        return <PixiViewportComponent ref={ref} app={app} {...props} />;
+    }
+);
