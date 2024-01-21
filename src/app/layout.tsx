@@ -1,16 +1,27 @@
-import type { Metadata } from "next";
+"use client";
+
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ReactNode } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 
 const inter = Inter({ subsets: ["latin-ext"] });
 
-export const metadata: Metadata = {
-    title: "bioparallel",
-    description: "Application for forensic trace comparison",
-};
+function Dynamic({ children }: { children: ReactNode }) {
+    const [hasMounted, setHasMounted] = useState(false);
+
+    useEffect(() => {
+        setHasMounted(true);
+    }, []);
+
+    if (!hasMounted) {
+        return null;
+    }
+
+    // eslint-disable-next-line react/jsx-no-useless-fragment
+    return <>{children}</>;
+}
 
 export default function RootLayout({
     children,
@@ -30,7 +41,7 @@ export default function RootLayout({
                         id="app"
                         className="select-none h-full w-full flex flex-col items-center justify-between"
                     >
-                        {children}
+                        <Dynamic>{children}</Dynamic>
                     </div>
                     <Toaster />
                 </ThemeProvider>

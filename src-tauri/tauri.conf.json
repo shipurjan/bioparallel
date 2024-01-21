@@ -12,7 +12,22 @@
     },
     "tauri": {
         "allowlist": {
-            "all": false
+            "all": false,
+            "window": {
+                "setMinSize": true
+            },
+            "fs": {
+                "scope": {
+                    "allow": ["**"],
+                    "deny": [],
+                    "requireLiteralLeadingDot": false
+                },
+                "readFile": true
+            },
+            "dialog": {
+                "open": true,
+                "save": true
+            }
         },
         "bundle": {
             "active": true,
@@ -23,13 +38,13 @@
             },
             "externalBin": [],
             "icon": [
-                "icons/32x32.png",
-                "icons/128x128.png",
-                "icons/128x128@2x.png",
-                "icons/icon.icns",
-                "icons/icon.ico"
+                "../public/logo_32.png",
+                "../public/logo_128.png",
+                "../public/logo_256.png",
+                "../public/logo_512.png",
+                "../public/logo.ico"
             ],
-            "identifier": "com.tauri.dev",
+            "identifier": "com.parallel.bio",
             "longDescription": "",
             "macOS": {
                 "entitlements": null,
@@ -55,11 +70,30 @@
         },
         "windows": [
             {
-                "fullscreen": false,
-                "height": 600,
-                "resizable": true,
                 "title": "bioparallel",
-                "width": 800
+                "label": "bioparallel",
+                "width": 1280,
+                "height": 720,
+                "minWidth": 640,
+                "minHeight": 360,
+                "resizable": true,
+                "fullscreen": false,
+                "visible": false,
+                "fileDropEnabled": false,
+                "alwaysOnTop": false
+            },
+            {
+                "width": 384,
+                "height": 216,
+                "resizable": false,
+                "maximizable": false,
+                "minimizable": false,
+                "closable": false,
+                "center": true,
+                "decorations": false,
+                "transparent": true,
+                "url": "splashscreen.html",
+                "label": "splashscreen"
             }
         ]
     }
