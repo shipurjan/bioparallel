@@ -21,6 +21,7 @@ const PixiViewportComponent = PixiComponent("Viewport", {
         const viewport = new PixiViewport({
             events: app.renderer.events,
             ticker: app.ticker,
+            threshold: 2,
             passiveWheel: false,
             allowPreserveDragOutside: true,
         });
@@ -28,14 +29,15 @@ const PixiViewportComponent = PixiComponent("Viewport", {
         viewport
             .drag({
                 wheel: false,
+                mouseButtons: "middle-left",
             })
             .wheel({
+                percent: 0,
+                interrupt: true,
                 wheelZoom: true,
             })
-            .pinch()
             .clampZoom({
                 minScale: 1 / 4,
-                maxScale: 4,
             });
 
         return viewport;

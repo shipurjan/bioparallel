@@ -8,10 +8,13 @@ import {
     CardHeader,
     CardTitle,
 } from "@/components/ui/card";
+import { DarkModeToggle } from "@/components/ui/dark-mode-toggle";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useTheme } from "next-themes";
 import Link from "next/link";
 
 export default function Home() {
+    const { theme } = useTheme();
     return (
         <main className="flex w-full h-full min-h-dvh flex-col items-center justify-between">
             <Tabs
@@ -33,7 +36,10 @@ export default function Home() {
                             </CardDescription>
                         </CardHeader>
                         <CardContent className="space-y-2">
-                            <div className="space-y-1">Settings...</div>
+                            <DarkModeToggle /> Current theme:{" "}
+                            {theme &&
+                                theme.slice(0, 1).toUpperCase() +
+                                    theme.slice(1)}
                         </CardContent>
                     </Card>
                 </TabsContent>
