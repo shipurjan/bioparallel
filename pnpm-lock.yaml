@@ -4,12 +4,17 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+patchedDependencies:
+  pixi-viewport@5.0.2:
+    hash: bc2v4aquw7vvznt7vhimoyykby
+    path: patches/pixi-viewport@5.0.2.patch
+
 dependencies:
   '@pixi/layers':
     specifier: 2.1.0
     version: 2.1.0(@pixi/canvas-renderer@7.3.3)(@pixi/core@7.3.3)(@pixi/display@7.3.3)
   '@pixi/react':
-    specifier: ^7.1.1
+    specifier: 7.1.1
     version: 7.1.1(@babel/runtime@7.23.8)(@pixi/app@7.3.3)(@pixi/constants@7.3.3)(@pixi/core@7.3.3)(@pixi/display@7.3.3)(@pixi/extensions@7.3.3)(@pixi/graphics@7.3.3)(@pixi/math@7.3.3)(@pixi/mesh-extras@7.3.3)(@pixi/mesh@7.3.3)(@pixi/particle-container@7.3.3)(@pixi/sprite-animated@7.3.3)(@pixi/sprite-tiling@7.3.3)(@pixi/sprite@7.3.3)(@pixi/text-bitmap@7.3.3)(@pixi/text@7.3.3)(@pixi/ticker@7.3.3)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
   '@radix-ui/react-dropdown-menu':
     specifier: 2.0.6
@@ -42,8 +47,8 @@ dependencies:
     specifier: 0.2.1
     version: 0.2.1(next@14.1.0)(react-dom@18.2.0)(react@18.2.0)
   pixi-viewport:
-    specifier: ^5.0.2
-    version: 5.0.2
+    specifier: 5.0.2
+    version: 5.0.2(patch_hash=bc2v4aquw7vvznt7vhimoyykby)
   pixi.js:
     specifier: 7.3.3
     version: 7.3.3
@@ -4587,9 +4592,10 @@ packages:
     resolution: {integrity: sha512-saLsH7WeYYPiD25LDuLRRY/i+6HaPYr6G1OUlN39otzkSTxKnubR9RTxS3/Kk50s1g2JTgFwWQDQyplC5/SHZg==}
     engines: {node: '>= 6'}
 
-  /pixi-viewport@5.0.2:
+  /pixi-viewport@5.0.2(patch_hash=bc2v4aquw7vvznt7vhimoyykby):
     resolution: {integrity: sha512-U77KnCTl81xEgxEQRFEuI7MYVySWwCVkA41EnM8KiOYwgVOwdBUa7318O+u61IOnTwnoYLzaihy/kpoONKU13Q==}
     dev: false
+    patched: true
 
   /pixi.js@7.3.3:
     resolution: {integrity: sha512-EuAyWZBL5lKViCgYkB6dbwkiI/MNht8O8F8956up9vwGEGf659QRHxfVQoRj8zdNGOBbe51XAxQMfLaW/l0Ekg==}

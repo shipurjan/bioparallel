@@ -1,0 +1,33 @@
+diff --git a/dist/pixi_viewport.js b/dist/pixi_viewport.js
+index 5ccc10e1aafecea082d5a9f7953b31b96f13f0d1..26e5abe699db784194686c4eeccf8390073e7cd2 100644
+--- a/dist/pixi_viewport.js
++++ b/dist/pixi_viewport.js
+@@ -1142,7 +1142,7 @@ class $ {
+     ), this.isMouseDown = !1;
+   }
+   destroy() {
+-    this.viewport.options.events.domElement.removeEventListener("wheel", this.wheelFunction);
++    this.viewport.options.events.domElement?.removeEventListener("wheel", this.wheelFunction);
+   }
+   down(r) {
+     if (this.viewport.pause || !this.viewport.worldVisible)
+@@ -1304,8 +1304,8 @@ class tt {
+   }
+ }
+ const et = {
+-  screenWidth: window.innerWidth,
+-  screenHeight: window.innerHeight,
++  screenWidth: typeof window === 'undefined' ? 0 : window.innerWidth,
++  screenHeight: typeof window === 'undefined' ? 0 : window.innerHeight,
+   worldWidth: null,
+   worldHeight: null,
+   threshold: 5,
+@@ -1343,7 +1343,7 @@ class ht extends P {
+     }, this.screenWidth = this.options.screenWidth, this.screenHeight = this.options.screenHeight, this._worldWidth = this.options.worldWidth, this._worldHeight = this.options.worldHeight, this.forceHitArea = this.options.forceHitArea, this.threshold = this.options.threshold, this.options.disableOnContextMenu && this.options.events.domElement.addEventListener("contextmenu", this._disableOnContextMenu), this.options.noTicker || (this.tickerFunction = () => this.update(this.options.ticker.elapsedMS), this.options.ticker.add(this.tickerFunction)), this.input = new $(this), this.plugins = new tt(this);
+   }
+   destroy(t) {
+-    !this.options.noTicker && this.tickerFunction && this.options.ticker.remove(this.tickerFunction), this.options.disableOnContextMenu && this.options.events.domElement.removeEventListener("contextmenu", this._disableOnContextMenu), this.input.destroy(), super.destroy(t);
++    !this.options.noTicker && this.tickerFunction && this.options.ticker.remove(this.tickerFunction), this.options.disableOnContextMenu && this.options.events.domElement?.removeEventListener("contextmenu", this._disableOnContextMenu), this.input.destroy(), super.destroy(t);
+   }
+   update(t) {
+     this.pause || (this.plugins.update(t), this.lastViewport && (this.lastViewport.x !== this.x || this.lastViewport.y !== this.y ? this.moving = !0 : this.moving && (this.emit("moved-end", this), this.moving = !1), this.lastViewport.scaleX !== this.scale.x || this.lastViewport.scaleY !== this.scale.y ? this.zooming = !0 : this.zooming && (this.emit("zoomed-end", this), this.zooming = !1)), this.forceHitArea || (this._hitAreaDefault = new v(this.left, this.top, this.worldScreenWidth, this.worldScreenHeight), this.hitArea = this._hitAreaDefault), this._dirty = this._dirty || !this.lastViewport || this.lastViewport.x !== this.x || this.lastViewport.y !== this.y || this.lastViewport.scaleX !== this.scale.x || this.lastViewport.scaleY !== this.scale.y, this.lastViewport = {

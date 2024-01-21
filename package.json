@@ -74,5 +74,10 @@
         "prettier": "3.2.4",
         "tailwindcss": "3.4.1",
         "typescript": "5.3.3"
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "pixi-viewport@5.0.2": "patches/pixi-viewport@5.0.2.patch"
+        }
     }
 }
