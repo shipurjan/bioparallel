@@ -17,8 +17,7 @@ export function Canvas() {
 
     const viewportRef = useCallback((viewport: PixiViewport | null) => {
         if (!viewport) return;
-
-        console.log(viewport);
+        console.debug(viewport);
     }, []);
 
     const divRef = useCallback((node: HTMLDivElement | null) => {

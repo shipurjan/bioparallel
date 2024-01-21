@@ -1,66 +1,42 @@
 "use client";
 
-import { Canvas } from "@/components/pixi/canvas/canvas";
 import { LoadListener } from "@/components/load-listener/load-listener";
-import { Button } from "@/components/ui/button";
-import {
-    ResizableHandle,
-    ResizablePanel,
-    ResizablePanelGroup,
-} from "@/components/ui/resizable";
-import Link from "next/link";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dashboard } from "@/components/tabs/dashboard/dashboard";
+import { Settings } from "@/components/tabs/settings/settings";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
+    const initialTab = "dashboard";
+    const [currentTab, setCurrentTab] = useState(initialTab);
+
     return (
         <main className="flex w-full min-h-dvh h-full flex-col items-center justify-between">
             <LoadListener />
-            <Button asChild>
-                <Link href="/settings">Settings</Link>
-            </Button>
-            <ResizablePanelGroup
-                direction="vertical"
-                className="flex-grow rounded-lg border"
+
+            <Tabs
+                onValueChange={setCurrentTab}
+                defaultValue={initialTab}
+                className="w-full flex flex-col items-center flex-grow"
             >
-                <ResizablePanel defaultSize={75} minSize={2}>
-                    <ResizablePanelGroup
-                        direction="horizontal"
-                        className="rounded-lg border"
-                    >
-                        <ResizablePanel defaultSize={50} minSize={2}>
-                            <div className="flex h-full w-full items-center justify-center">
-                                <Canvas />
-                            </div>
-                        </ResizablePanel>
-
-                        <ResizableHandle />
-                        <ResizablePanel defaultSize={50} minSize={2}>
-                            <div className="flex h-full w-full items-center justify-center">
-                                <Canvas />
-                            </div>
-                        </ResizablePanel>
-                    </ResizablePanelGroup>
-                </ResizablePanel>
-                <ResizableHandle />
-                <ResizablePanel defaultSize={25} minSize={2}>
-                    <ResizablePanelGroup
-                        direction="horizontal"
-                        className="rounded-lg border"
-                    >
-                        <ResizablePanel defaultSize={50} minSize={2}>
-                            <div className="flex h-full w-full items-center justify-center">
-                                <span className="font-semibold">Info1</span>
-                            </div>
-                        </ResizablePanel>
-
-                        <ResizableHandle />
-                        <ResizablePanel defaultSize={50} minSize={2}>
-                            <div className="flex h-full w-full items-center justify-center">
-                                <span className="font-semibold">Info2</span>
-                            </div>
-                        </ResizablePanel>
-                    </ResizablePanelGroup>
-                </ResizablePanel>
-            </ResizablePanelGroup>
+                <TabsList className="w-fit">
+                    <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
+                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                </TabsList>
+                <TabsContent
+                    forceMount
+                    value="dashboard"
+                    className={cn("flex flex-col flex-grow w-full", {
+                        hidden: currentTab !== "dashboard",
+                    })}
+                >
+                    <Dashboard />
+                </TabsContent>
+                <TabsContent value="settings" className="w-full">
+                    <Settings />
+                </TabsContent>
+            </Tabs>
         </main>
     );
 }
