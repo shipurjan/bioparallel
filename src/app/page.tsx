@@ -1,3 +1,4 @@
+import { LoadListener } from "@/components/load-listener/load-listener";
 import { Button } from "@/components/ui/button";
 import {
     ResizableHandle,
@@ -9,6 +10,7 @@ import Link from "next/link";
 export default function Home() {
     return (
         <main className="flex w-full min-h-dvh h-full flex-col items-center justify-between">
+            <LoadListener />
             <Button asChild>
                 <Link href="/settings">Settings</Link>
             </Button>

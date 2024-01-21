@@ -17,6 +17,7 @@ export default function RootLayout({
 }: Readonly<{
     children: ReactNode;
 }>) {
+    console.log("Layout loaded!");
     return (
         <html lang="pl" suppressHydrationWarning>
             <body className={inter.className}>
