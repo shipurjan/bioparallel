@@ -1,7 +1,11 @@
 import { Stage } from "@pixi/react";
+import { Viewport } from "@/components/pixi/viewport/viewport";
+import { useTheme } from "next-themes";
 
-export type AppProps = Stage["props"];
-export function App({ children, options, ...props }: AppProps) {
+export type AppProps = Omit<Stage["props"], "children">;
+export function App({ options, ...props }: AppProps) {
+    const theme = useTheme();
+
     const backgroundColor = getComputedStyle(document.body).getPropertyValue(
         "--background"
     );
@@ -14,9 +18,10 @@ export function App({ children, options, ...props }: AppProps) {
         resolution: 1,
         ...options,
     };
+
     return (
         <Stage {...props} options={defaultOptions}>
-            {children}
+            <Viewport theme={theme} />
         </Stage>
     );
 }

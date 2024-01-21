@@ -14,7 +14,6 @@ import {
 
 export function DarkModeToggle() {
     const { setTheme } = useTheme();
-
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>

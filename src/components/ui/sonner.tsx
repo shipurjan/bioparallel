@@ -8,7 +8,6 @@ type ToasterProps = ComponentProps<typeof Sonner>;
 
 function Toaster({ ...props }: ToasterProps) {
     const { theme = "system" } = useTheme();
-
     return (
         <Sonner
             theme={theme as NonNullable<ToasterProps["theme"]>}

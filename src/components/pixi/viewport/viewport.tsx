@@ -3,7 +3,9 @@
 import { PixiComponent, useApp } from "@pixi/react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import * as PIXI from "pixi.js";
-import { ReactNode, forwardRef } from "react";
+import { ReactNode, useRef } from "react";
+import { useTheme } from "next-themes";
+import { Canvas } from "../canvas/canvas";
 
 export type PixiViewportProps = {
     children: ReactNode;
@@ -49,10 +51,22 @@ const PixiViewportComponent = PixiComponent("Viewport", {
     },
 });
 
-export type ViewportProps = Omit<PixiComponentViewportProps, "app">;
-export const Viewport = forwardRef<PixiViewport, PixiViewportProps>(
-    function Viewport({ ...props }: PixiViewportProps, ref) {
-        const app = useApp();
-        return <PixiViewportComponent ref={ref} app={app} {...props} />;
-    }
-);
+export type ViewportProps = {
+    theme: ReturnType<typeof useTheme>;
+};
+export function Viewport({ theme }: ViewportProps) {
+    const app = useApp();
+    const viewportRef = useRef<PixiViewport>(null);
+
+    return (
+        <PixiViewportComponent ref={viewportRef} app={app}>
+            {viewportRef.current !== null && (
+                <Canvas
+                    viewport={viewportRef.current}
+                    app={app}
+                    theme={theme}
+                />
+            )}
+        </PixiViewportComponent>
+    );
+}

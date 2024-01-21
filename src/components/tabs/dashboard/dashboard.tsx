@@ -1,4 +1,4 @@
-import { Canvas } from "@/components/pixi/canvas/canvas";
+import { CanvasContainer } from "@/components/pixi/canvas-container/canvas-container";
 import {
     ResizableHandle,
     ResizablePanel,
@@ -18,14 +18,14 @@ export function Dashboard() {
                 >
                     <ResizablePanel defaultSize={50} minSize={2}>
                         <div className="flex h-full w-full items-center justify-center">
-                            <Canvas />
+                            <CanvasContainer />
                         </div>
                     </ResizablePanel>
 
                     <ResizableHandle />
                     <ResizablePanel defaultSize={50} minSize={2}>
                         <div className="flex h-full w-full items-center justify-center">
-                            <Canvas />
+                            <CanvasContainer />
                         </div>
                     </ResizablePanel>
                 </ResizablePanelGroup>
