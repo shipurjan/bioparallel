@@ -1,3 +1,6 @@
+"use client";
+
+import { Canvas } from "@/components/pixi/canvas/canvas";
 import { LoadListener } from "@/components/load-listener/load-listener";
 import { Button } from "@/components/ui/button";
 import {
@@ -24,15 +27,15 @@ export default function Home() {
                         className="rounded-lg border"
                     >
                         <ResizablePanel defaultSize={50}>
-                            <div className="flex h-full items-center justify-center p-6">
-                                <span className="font-semibold">Canvas1</span>
+                            <div className="flex h-full items-center justify-center">
+                                <Canvas />
                             </div>
                         </ResizablePanel>
 
                         <ResizableHandle />
                         <ResizablePanel defaultSize={50}>
-                            <div className="flex h-full items-center justify-center p-6">
-                                <span className="font-semibold">Canvas2</span>
+                            <div className="flex h-full items-center justify-center">
+                                <Canvas />
                             </div>
                         </ResizablePanel>
                     </ResizablePanelGroup>

@@ -1,3 +1,5 @@
+"use client";
+
 /* eslint-disable react/require-default-props */
 import * as React from "react";
 import { Slot } from "@radix-ui/react-slot";
