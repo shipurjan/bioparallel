@@ -1,41 +1,62 @@
-"use client";
-
-import { Graphics } from "@pixi/react";
-import { Viewport as PixiViewport } from "pixi-viewport";
+import { Graphics, Stage } from "@pixi/react";
+import { PictureLayerViewport } from "@/components/pixi/layers/picture-layer/viewport";
+import { MarkerLayerViewport } from "@/components/pixi/layers/marker-layer/viewport";
 import { Graphics as PixiGraphics } from "pixi.js";
-import { useCallback, useEffect } from "react";
-import * as PIXI from "pixi.js";
-import { useTheme } from "next-themes";
+import { useCallback, useRef, useState } from "react";
+import { Viewport } from "pixi-viewport";
+import { isDevEnvironment } from "@/lib/utils";
+import { useKeyDown } from "@/hooks/useKeyDown";
+import { DebugLayerViewport } from "../layers/debug-layer/viewport";
+import { DebugLayerComponent } from "../layers/debug-layer/component";
 
-export type CanvasProps = {
-    viewport: PixiViewport;
-    app: PIXI.Application<PIXI.ICanvas>;
-    theme: ReturnType<typeof useTheme>;
-};
-export function Canvas({ viewport, app, theme }: CanvasProps) {
-    // eslint-disable-next-line no-void
-    void viewport;
+export type CanvasProps = Omit<Stage["props"], "children">;
+export function Canvas({ options, ...props }: CanvasProps) {
+    const [isDebugInfo, setIsDebugInfo] = useState(isDevEnvironment);
+    useKeyDown(() => {
+        if (isDevEnvironment) {
+            setIsDebugInfo(s => !s);
+        }
+    }, ["h"]);
 
-    useEffect(() => {
-        const style = getComputedStyle(document.body);
-        const backgroundHSL = style.getPropertyValue("--background");
-        const backgroundColor = `hsl(${backgroundHSL})`;
+    const markerViewportRef = useRef<Viewport>(null);
+    const pictureViewportRef = useRef<Viewport>(null);
 
-        // eslint-disable-next-line no-param-reassign
-        app.renderer.background.color = backgroundColor;
-    }, [app.renderer.background, theme.resolvedTheme]);
-
-    const draw = useCallback(
-        (g: PixiGraphics) => {
-            g.beginFill(
-                theme.resolvedTheme === "dark" ? 0xffffff : 0x000000,
-                1
-            );
-            g.drawCircle(0, 0, 60);
-            g.endFill();
-        },
-        [theme.resolvedTheme]
+    const backgroundColor = getComputedStyle(document.body).getPropertyValue(
+        "--background"
     );
+    const defaultOptions: typeof options = {
+        background: `hsl(${backgroundColor})`,
+        antialias: true,
+        autoDensity: true,
+        autoStart: true,
+        powerPreference: "high-performance",
+        resolution: 1,
+        ...options,
+    };
 
-    return <Graphics draw={draw} />;
+    const draw = useCallback((g: PixiGraphics) => {
+        g.beginFill(0xffffff);
+        g.drawCircle(100, 100, 60);
+        g.endFill();
+    }, []);
+
+    return (
+        <Stage {...props} options={defaultOptions}>
+            <MarkerLayerViewport ref={markerViewportRef}>
+                <Graphics draw={draw} />
+            </MarkerLayerViewport>
+            <PictureLayerViewport ref={pictureViewportRef}>
+                <Graphics draw={draw} />
+            </PictureLayerViewport>
+            <DebugLayerViewport>
+                {isDevEnvironment &&
+                    isDebugInfo &&
+                    pictureViewportRef.current !== null && (
+                        <DebugLayerComponent
+                            viewport={pictureViewportRef.current}
+                        />
+                    )}
+            </DebugLayerViewport>
+        </Stage>
+    );
 }

@@ -14,7 +14,8 @@
         "allowlist": {
             "all": false,
             "window": {
-                "setMinSize": true
+                "setMinSize": true,
+                "create": true
             },
             "fs": {
                 "scope": {

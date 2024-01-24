@@ -9,3 +9,6 @@ export type Prettify<T> = {
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
 }
+
+export const isDevEnvironment =
+    process && process.env.NODE_ENV === "development";

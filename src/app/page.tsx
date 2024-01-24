@@ -1,6 +1,5 @@
 "use client";
 
-import { LoadListener } from "@/components/load-listener/load-listener";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dashboard } from "@/components/tabs/dashboard/dashboard";
 import { Settings } from "@/components/tabs/settings/settings";
@@ -13,8 +12,6 @@ export default function Home() {
 
     return (
         <main className="flex w-full min-h-dvh h-full flex-col items-center justify-between">
-            <LoadListener />
-
             <Tabs
                 onValueChange={setCurrentTab}
                 defaultValue={initialTab}

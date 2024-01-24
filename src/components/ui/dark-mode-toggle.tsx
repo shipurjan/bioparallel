@@ -3,7 +3,6 @@
 import * as React from "react";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
-
 import { Button } from "@/components/ui/button";
 import {
     DropdownMenu,
@@ -14,6 +13,11 @@ import {
 
 export function DarkModeToggle() {
     const { setTheme } = useTheme();
+
+    const changeTheme = (theme: string) => {
+        setTheme(theme);
+    };
+
     return (
         <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -24,13 +28,13 @@ export function DarkModeToggle() {
                 </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme("light")}>
+                <DropdownMenuItem onClick={() => changeTheme("light")}>
                     Light
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("dark")}>
+                <DropdownMenuItem onClick={() => changeTheme("dark")}>
                     Dark
                 </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme("system")}>
+                <DropdownMenuItem onClick={() => changeTheme("system")}>
                     System
                 </DropdownMenuItem>
             </DropdownMenuContent>

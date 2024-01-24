@@ -17,11 +17,10 @@ export function Dashboard() {
                     className="rounded-lg border"
                 >
                     <ResizablePanel defaultSize={50} minSize={2}>
-                        <div className="flex h-full w-full items-center justify-center">
+                        <div className="flex flex-col h-full w-full items-center justify-center">
                             <CanvasContainer />
                         </div>
                     </ResizablePanel>
-
                     <ResizableHandle />
                     <ResizablePanel defaultSize={50} minSize={2}>
                         <div className="flex h-full w-full items-center justify-center">

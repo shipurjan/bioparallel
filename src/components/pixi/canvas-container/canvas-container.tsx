@@ -1,5 +1,5 @@
 import { HTMLAttributes, useCallback, useState } from "react";
-import { App } from "../app/app";
+import { Canvas } from "../canvas/canvas";
 
 export type CanvasContainerProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
@@ -18,7 +18,7 @@ export function CanvasContainer({ ...props }: CanvasContainerProps) {
 
     return (
         <div className="w-full h-full" ref={divRef} {...props}>
-            <App width={divSize.width} height={divSize.height} />
+            <Canvas width={divSize.width} height={divSize.height} />
         </div>
     );
 }
