@@ -2,7 +2,7 @@
 
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode } from "react";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppMount } from "@/hooks/useAppMount";
@@ -10,11 +10,7 @@ import { useAppMount } from "@/hooks/useAppMount";
 const inter = Inter({ subsets: ["latin-ext"] });
 
 function Dynamic({ children }: { children: ReactNode }) {
-    const [hasMounted, setHasMounted] = useState(false);
-
-    useEffect(() => {
-        setHasMounted(true);
-    }, []);
+    const hasMounted = useAppMount();
 
     useAppMount();
 

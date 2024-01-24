@@ -1,8 +1,11 @@
 import { invoke } from "@tauri-apps/api/tauri";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 export const useAppMount = () => {
+    const [hasMounted, setHasMounted] = useState(false);
     useEffect(() => {
+        setHasMounted(true);
+
         const callback = async () => {
             await new Promise(r => {
                 setTimeout(r, 10);
@@ -12,4 +15,6 @@ export const useAppMount = () => {
         };
         callback();
     }, []);
+
+    return hasMounted;
 };
