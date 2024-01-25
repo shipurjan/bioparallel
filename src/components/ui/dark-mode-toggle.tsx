@@ -10,12 +10,19 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useSettingsStore } from "@/stores/useSettings";
 
 export function DarkModeToggle() {
     const { setTheme } = useTheme();
+    const { setSettings } = useSettingsStore(state => ({
+        setSettings: state.set,
+    }));
 
     const changeTheme = (theme: string) => {
         setTheme(theme);
+        setSettings(settings => {
+            return { ...settings, theme };
+        });
     };
 
     return (
