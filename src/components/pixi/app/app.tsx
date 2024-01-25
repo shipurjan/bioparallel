@@ -4,20 +4,27 @@ import { Graphics, useApp, useTick } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
 import { useCallback, useEffect, useRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import { GLOBAL } from "@/refs/pixi";
+import { useGlobalCanvasRef } from "@/refs/pixi";
+import { CanvasMetadata } from "@/hooks/useCanvasContext";
 import { Viewport } from "../viewport/viewport";
 
 export type PixiAppProps = {
     width: number;
     height: number;
+    canvasMetadata: CanvasMetadata;
 };
-export function PixiApp({ width, height }: PixiAppProps) {
+export function PixiApp({
+    width,
+    height,
+    canvasMetadata: { id },
+}: PixiAppProps) {
     const app = useApp();
+    const globalCanvasRef = useGlobalCanvasRef(id);
     const viewportRef = useRef<PixiViewport>(null);
 
     useTick(() => {
-        GLOBAL.app = app;
-        GLOBAL.viewport = viewportRef.current;
+        globalCanvasRef.app = app;
+        globalCanvasRef.viewport = viewportRef.current;
     });
 
     useEffect(() => {

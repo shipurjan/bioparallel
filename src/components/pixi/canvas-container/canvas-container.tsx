@@ -1,7 +1,7 @@
 import { HTMLAttributes, useCallback, useState } from "react";
 import { Canvas } from "../canvas/canvas";
 
-export type CanvasContainerProps = HTMLAttributes<HTMLDivElement>;
+export type CanvasContainerProps = Omit<HTMLAttributes<HTMLDivElement>, "id">;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
     const [divSize, setDivSize] = useState({ width: 0, height: 0 });
 

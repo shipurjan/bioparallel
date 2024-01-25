@@ -21,8 +21,10 @@ export function InformationTabs() {
                 <MarkingsInfo />
             </TabsContent>
             {IS_DEV_ENVIRONMENT && (
-                <TabsContent value="debug" className="w-full">
-                    <DebugInfo />
+                <TabsContent value="debug" className="w-full overflow-auto">
+                    <div className="w-full h-fit overflow-auto">
+                        <DebugInfo />
+                    </div>
                 </TabsContent>
             )}
         </Tabs>

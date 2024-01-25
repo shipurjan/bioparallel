@@ -1,10 +1,12 @@
 "use client";
 
 import { Stage } from "@pixi/react";
+import { useCanvasContext } from "@/hooks/useCanvasContext";
 import { PixiApp } from "../app/app";
 
 export type CanvasProps = Omit<Stage["props"], "children">;
 export function Canvas({ options, ...props }: CanvasProps) {
+    const canvasMetadata = useCanvasContext();
     const backgroundColor = getComputedStyle(document.body).getPropertyValue(
         "--background"
     );
@@ -20,7 +22,11 @@ export function Canvas({ options, ...props }: CanvasProps) {
 
     return (
         <Stage {...props} options={defaultOptions}>
-            <PixiApp width={props.width ?? 0} height={props.height ?? 0} />
+            <PixiApp
+                width={props.width ?? 0}
+                height={props.height ?? 0}
+                canvasMetadata={canvasMetadata}
+            />
         </Stage>
     );
 }
