@@ -1,6 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 /* eslint-disable security/detect-object-injection */
-import { Fragment, HTMLAttributes } from "react";
+import { HTMLAttributes } from "react";
 import {
     Table,
     TableBody,
@@ -42,6 +42,13 @@ function getPrimitiveValues(obj: unknown | undefined): string[] {
     );
 }
 
+const getTableValues = (
+    obj: unknown | undefined,
+    permanentKeys?: string[]
+): string[] => {
+    return [...new Set([...(permanentKeys ?? []), ...getPrimitiveValues(obj)])];
+};
+
 export const DebugInfoTables = (
     obj: unknown,
     tableKeys: TableKeys,
@@ -49,40 +56,36 @@ export const DebugInfoTables = (
     className: string
 ) =>
     tableKeys.map(({ keys, values }) => (
-        <Fragment key={keys.join(".")}>
-            <Table className="caption-top w-fit max-w-16 overflow-hidden">
-                <TableCaption
-                    className={cn("mt-8 text-xl font-bold", className)}
-                >
-                    {`${name}.${keys.join(".")}`}
-                </TableCaption>
-                <TableBody className="">
-                    {values.length === 0 ? (
-                        <TableRow className="flex">
-                            <TableCell className="grow font-semibold text-right">
-                                {keys[keys.length - 1]}
+        <Table className="caption-top grow overflow-hidden">
+            <TableCaption className={cn("text-xl font-bold", className)}>
+                {`${name}${keys.length === 0 ? "" : "."}${keys.join(".")}`}
+            </TableCaption>
+            <TableBody className="">
+                {values.length === 0 ? (
+                    <TableRow className="flex">
+                        <TableCell className="grow font-semibold text-right">
+                            {keys[keys.length - 1]}
+                        </TableCell>
+                        <TableCell className="grow">
+                            {JSON.stringify(getNestedValue(obj, keys))}
+                        </TableCell>
+                    </TableRow>
+                ) : (
+                    values.map(value => (
+                        <TableRow key={value} className="flex">
+                            <TableCell className=" grow font-semibold text-right">
+                                {value}
                             </TableCell>
                             <TableCell className="grow">
-                                {JSON.stringify(getNestedValue(obj, keys))}
+                                {JSON.stringify(
+                                    getNestedValue(obj, [...keys, value])
+                                )}
                             </TableCell>
                         </TableRow>
-                    ) : (
-                        values.map(value => (
-                            <TableRow key={value} className="flex">
-                                <TableCell className=" grow font-semibold text-right">
-                                    {value}
-                                </TableCell>
-                                <TableCell className="grow">
-                                    {JSON.stringify(
-                                        getNestedValue(obj, [...keys, value])
-                                    )}
-                                </TableCell>
-                            </TableRow>
-                        ))
-                    )}
-                </TableBody>
-            </Table>
-        </Fragment>
+                    ))
+                )}
+            </TableBody>
+        </Table>
     ));
 
 export type DebugInfoProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
@@ -99,47 +102,69 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
     const appKeys: TableKeys = [
         {
             keys: ["stage"],
-            values: getPrimitiveValues(app?.stage),
+            values: getTableValues(app?.stage),
         },
         {
             keys: ["stage", "_bounds"],
-            values: getPrimitiveValues(app?.stage._bounds),
+            values: getTableValues(app?.stage._bounds),
         },
         {
             keys: ["renderer", "options"],
-            values: getPrimitiveValues(app?.renderer.options),
+            values: getTableValues(app?.renderer.options),
         },
         {
             keys: ["ticker"],
-            values: getPrimitiveValues(app?.ticker),
+            values: getTableValues(app?.ticker, ["FPS"]),
         },
     ];
 
     const viewportKeys: TableKeys = [
         {
+            keys: ["corner"],
+            values: getTableValues(viewport?.corner),
+        },
+        {
+            keys: ["center"],
+            values: getTableValues(viewport?.center),
+        },
+        {
             keys: [],
-            values: getPrimitiveValues(viewport),
+            values: getTableValues(viewport, [
+                "x",
+                "y",
+                "screenWidth",
+                "screenHeight",
+                "worldWidth",
+                "worldHeight",
+                "worldScreenWidth",
+                "worldScreenHeight",
+                "left",
+                "right",
+                "top",
+                "bottom",
+                "scaled",
+            ]),
         },
         {
             keys: ["_bounds"],
-            values: getPrimitiveValues(viewport?._bounds),
+            values: getTableValues(viewport?._bounds),
         },
     ];
 
     const OOBKeys: TableKeys = [
         {
             keys: [],
-            values: getPrimitiveValues(OOB),
+            values: getTableValues(OOB),
         },
         {
             keys: ["cornerPoint"],
-            values: getPrimitiveValues(OOB?.cornerPoint),
+            values: getTableValues(OOB?.cornerPoint),
         },
     ];
 
     return (
         <div
-            className="w-full h-full flex flex-wrap items-start gap-3 px-16"
+            className="w-full h-full flex flex-wrap justify-between items-start gap-0 px-2"
             {...props}
         >
             {app && DebugInfoTables(app, appKeys, "app", "text-red-400")}
