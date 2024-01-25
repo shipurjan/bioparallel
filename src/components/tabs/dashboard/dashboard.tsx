@@ -1,3 +1,4 @@
+import { InformationTabs } from "@/components/information-tabs/information-tabs";
 import { CanvasContainer } from "@/components/pixi/canvas-container/canvas-container";
 import {
     ResizableHandle,
@@ -36,15 +37,15 @@ export function Dashboard() {
                     className="rounded-lg border"
                 >
                     <ResizablePanel defaultSize={50} minSize={2}>
-                        <div className="flex h-full w-full items-center justify-center">
-                            <span className="font-semibold">Info1</span>
+                        <div className="flex h-full w-full">
+                            <InformationTabs />
                         </div>
                     </ResizablePanel>
 
                     <ResizableHandle />
                     <ResizablePanel defaultSize={50} minSize={2}>
-                        <div className="flex h-full w-full items-center justify-center">
-                            <span className="font-semibold">Info2</span>
+                        <div className="flex h-full w-full">
+                            <InformationTabs />
                         </div>
                     </ResizablePanel>
                 </ResizablePanelGroup>
