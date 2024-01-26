@@ -63,7 +63,6 @@ export function Dashboard() {
                             </CanvasContext.Provider>
                         </div>
                     </ResizablePanel>
-
                     <ResizableHandle />
                     <ResizablePanel defaultSize={25} minSize={2}>
                         <div className="flex h-full w-full">

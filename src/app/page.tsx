@@ -11,7 +11,10 @@ export default function Home() {
     const [currentTab, setCurrentTab] = useState(initialTab);
 
     return (
-        <main className="flex w-full min-h-dvh h-full flex-col items-center justify-between">
+        <main
+            data-testid="dashboard-container"
+            className="flex w-full min-h-dvh h-full flex-col items-center justify-between"
+        >
             <Tabs
                 onValueChange={setCurrentTab}
                 defaultValue={initialTab}
