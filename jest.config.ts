@@ -14,6 +14,8 @@ const createJestConfig = nextJest({
 
 // Add any custom config to be passed to Jest
 const config: Config = {
+    silent: false,
+    verbose: true,
     testEnvironment: "jest-environment-jsdom",
     moduleFileExtensions: ["js", "jsx", "ts", "tsx"],
     // Add more setup options before each test is run

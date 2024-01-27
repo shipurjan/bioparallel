@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dashboard } from "@/components/tabs/dashboard/dashboard";
 import { Settings } from "@/components/tabs/settings/settings";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/shadcn";
 
 export default function Home() {
     const initialTab = "dashboard";
@@ -12,7 +12,7 @@ export default function Home() {
 
     return (
         <main
-            data-testid="dashboard-container"
+            data-testid="page-container"
             className="flex w-full min-h-dvh h-full flex-col items-center justify-between"
         >
             <Tabs
@@ -21,8 +21,12 @@ export default function Home() {
                 className="w-full flex flex-col items-center flex-grow"
             >
                 <TabsList className="w-fit">
-                    <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                    <TabsTrigger data-testid="dashboard-tab" value="dashboard">
+                        Dashboard
+                    </TabsTrigger>
+                    <TabsTrigger data-testid="settings-tab" value="settings">
+                        Settings
+                    </TabsTrigger>
                 </TabsList>
                 <TabsContent
                     forceMount

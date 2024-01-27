@@ -2,4 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 pnpm tsc:check
+pnpm test:unit
 pnpm exec lint-staged

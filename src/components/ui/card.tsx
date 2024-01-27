@@ -3,7 +3,7 @@
 /* eslint-disable react/prop-types */
 import * as React from "react";
 
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/shadcn";
 
 const Card = React.forwardRef<
     HTMLDivElement,

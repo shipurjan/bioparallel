@@ -11,7 +11,7 @@ import {
 import { useGlobalCanvasRef } from "@/lib/refs/pixi";
 import { useCanvasContext } from "@/lib/hooks/useCanvasContext";
 import { useThrottledUpdate } from "@/lib/hooks/useThrottledUpdate";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/shadcn";
 
 export type TableKeys = {
     keys: string[];

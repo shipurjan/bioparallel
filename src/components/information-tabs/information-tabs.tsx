@@ -1,5 +1,5 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { IS_DEV_ENVIRONMENT } from "@/lib/utils";
+import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { MarkingsInfo } from "./markings-info/markings-info";
 import { DebugInfo } from "./debug-info/debug-info";
 
