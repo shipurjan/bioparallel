@@ -4,8 +4,8 @@ import { Graphics, useApp, useTick } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
 import { useCallback, useEffect, useRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import { useGlobalCanvasRef } from "@/refs/pixi";
-import { CanvasMetadata } from "@/hooks/useCanvasContext";
+import { useGlobalCanvasRef } from "@/lib/refs/pixi";
+import { CanvasMetadata } from "@/lib/hooks/useCanvasContext";
 import { Viewport } from "../viewport/viewport";
 
 export type PixiAppProps = {

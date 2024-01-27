@@ -1,7 +1,7 @@
 "use client";
 
 import { Stage } from "@pixi/react";
-import { useCanvasContext } from "@/hooks/useCanvasContext";
+import { useCanvasContext } from "@/lib/hooks/useCanvasContext";
 import { PixiApp } from "../app/app";
 
 export type CanvasProps = Omit<Stage["props"], "children">;

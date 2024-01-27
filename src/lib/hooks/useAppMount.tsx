@@ -1,4 +1,4 @@
-import { useSettingsStore } from "@/stores/useSettings";
+import { useSettingsStore } from "@/lib/stores/useSettings";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";

@@ -8,9 +8,9 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table";
-import { useGlobalCanvasRef } from "@/refs/pixi";
-import { useCanvasContext } from "@/hooks/useCanvasContext";
-import { useThrottledUpdate } from "@/hooks/useThrottledUpdate";
+import { useGlobalCanvasRef } from "@/lib/refs/pixi";
+import { useCanvasContext } from "@/lib/hooks/useCanvasContext";
+import { useThrottledUpdate } from "@/lib/hooks/useThrottledUpdate";
 import { cn } from "@/lib/utils";
 
 export type TableKeys = {

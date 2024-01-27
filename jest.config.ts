@@ -21,7 +21,7 @@ const config: Config = {
     moduleNameMapper: {
         "^@/(.*)$": "<rootDir>/src/$1",
     },
-    testPathIgnorePatterns: ["/node_modules/", "/__tests__/e2e/"],
+    testPathIgnorePatterns: ["/node_modules/"],
     testRegex: ".*.(test|spec).(j|t)s[x]?$",
 };
 
