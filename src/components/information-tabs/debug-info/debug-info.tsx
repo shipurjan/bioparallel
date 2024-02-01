@@ -56,7 +56,10 @@ export const DebugInfoTables = (
     className: string
 ) =>
     tableKeys.map(({ keys, values }) => (
-        <Table className="caption-top grow overflow-hidden">
+        <Table
+            key={`${name}${keys.length === 0 ? "" : "."}${keys.join(".")}`}
+            className="caption-top grow overflow-hidden"
+        >
             <TableCaption className={cn("text-xl font-bold", className)}>
                 {`${name}${keys.length === 0 ? "" : "."}${keys.join(".")}`}
             </TableCaption>
