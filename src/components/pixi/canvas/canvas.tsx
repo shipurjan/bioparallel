@@ -1,5 +1,6 @@
 "use client";
 
+import * as PIXI from "pixi.js";
 import { Stage } from "@pixi/react";
 import { useCanvasContext } from "@/lib/hooks/useCanvasContext";
 import { PixiApp } from "../app/app";
@@ -10,6 +11,8 @@ export function Canvas({ options, ...props }: CanvasProps) {
     const backgroundColor = getComputedStyle(document.body).getPropertyValue(
         "--background"
     );
+
+    PIXI.BaseTexture.defaultOptions.scaleMode = 0;
 
     const defaultOptions: typeof options = {
         background: `hsl(${backgroundColor})`,

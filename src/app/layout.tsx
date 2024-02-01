@@ -7,6 +7,7 @@ import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppMount } from "@/lib/hooks/useAppMount";
 import { DEFAULT_THEME } from "@/lib/stores/useSettings";
+import { cn } from "@/lib/utils/shadcn";
 
 const inter = Inter({ subsets: ["latin-ext"] });
 
@@ -29,8 +30,23 @@ export default function RootLayout({
     children: ReactNode;
 }>) {
     return (
-        <html lang="pl" suppressHydrationWarning>
-            <body className={inter.className}>
+        <html
+            lang="pl"
+            suppressHydrationWarning
+            onDragOver={e => {
+                e.preventDefault();
+            }}
+            onDrop={e => {
+                e.preventDefault();
+            }}
+            onContextMenu={e => {
+                e.preventDefault();
+            }}
+            onSelect={e => {
+                e.preventDefault();
+            }}
+        >
+            <body className={cn(" overflow-x-hidden", inter.className)}>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme={DEFAULT_THEME}

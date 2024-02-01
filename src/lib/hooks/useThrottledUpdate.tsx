@@ -1,12 +1,13 @@
-import { useEffect, useReducer } from "react";
+import { useEffect } from "react";
+import { useUpdater } from "./forceUpdate";
 
 export const useThrottledUpdate = (intervalMs: number) => {
-    const [, forceUpdate] = useReducer(x => x + 1, 0);
+    const forceUpdate = useUpdater();
     useEffect(() => {
         const interval = setInterval(() => {
             forceUpdate();
         }, intervalMs);
 
         return () => clearInterval(interval);
-    }, [intervalMs]);
+    }, [forceUpdate, intervalMs]);
 };

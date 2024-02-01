@@ -104,6 +104,15 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
 
     const appKeys: TableKeys = [
         {
+            keys: ["screen"],
+            values: getTableValues(app?.screen, [
+                "left",
+                "right",
+                "top",
+                "bottom",
+            ]),
+        },
+        {
             keys: ["stage"],
             values: getTableValues(app?.stage),
         },
