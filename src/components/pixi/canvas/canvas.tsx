@@ -10,6 +10,7 @@ export function Canvas({ options, ...props }: CanvasProps) {
     const backgroundColor = getComputedStyle(document.body).getPropertyValue(
         "--background"
     );
+
     const defaultOptions: typeof options = {
         background: `hsl(${backgroundColor})`,
         antialias: true,

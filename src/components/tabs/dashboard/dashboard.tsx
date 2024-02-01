@@ -1,5 +1,5 @@
 import { InformationTabs } from "@/components/information-tabs/information-tabs";
-import { CanvasContainer } from "@/components/pixi/canvas-container/canvas-container";
+import { CanvasContainer } from "@/components/pixi/canvas/container";
 import {
     ResizableHandle,
     ResizablePanel,

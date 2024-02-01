@@ -1,5 +1,3 @@
-/* eslint-disable no-underscore-dangle */
-/* eslint-disable security/detect-object-injection */
 import { HTMLAttributes } from "react";
 import {
     Table,
@@ -22,6 +20,7 @@ function getNestedValue(obj: unknown, keys: string[]): string | number {
     const value = keys.reduce(
         // eslint-disable-next-line security/detect-object-injection
         // @ts-expect-error keys are always strings
+        // eslint-disable-next-line security/detect-object-injection
         (acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined),
         obj
     ) as string | number;
@@ -37,6 +36,7 @@ function getPrimitiveValues(obj: unknown | undefined): string[] {
     if (obj === undefined) return [];
     return Object.keys(obj as Record<string, unknown>).filter(e =>
         ["string", "number", "boolean"].includes(
+            // eslint-disable-next-line security/detect-object-injection
             typeof (obj as Record<string, unknown>)[e]
         )
     );
@@ -94,8 +94,8 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
     const globalCanvasRef = useGlobalCanvasRef(id);
     const { app, viewport } = globalCanvasRef;
 
-    // Odśwież informacje o canvasie co 100ms
-    useThrottledUpdate(100);
+    // Odśwież informacje o canvasie co tick
+    useThrottledUpdate(app?.ticker.deltaMS ?? 100);
 
     const OOB = viewport?.OOB();
 
@@ -106,6 +106,7 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
         },
         {
             keys: ["stage", "_bounds"],
+            // eslint-disable-next-line no-underscore-dangle
             values: getTableValues(app?.stage._bounds),
         },
         {
@@ -147,6 +148,7 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
         },
         {
             keys: ["_bounds"],
+            // eslint-disable-next-line no-underscore-dangle
             values: getTableValues(viewport?._bounds),
         },
     ];

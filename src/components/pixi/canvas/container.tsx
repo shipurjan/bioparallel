@@ -1,5 +1,5 @@
 import { HTMLAttributes, useCallback, useState } from "react";
-import { Canvas } from "../canvas/canvas";
+import { Canvas } from "./canvas";
 
 export type CanvasContainerProps = Omit<HTMLAttributes<HTMLDivElement>, "id">;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
