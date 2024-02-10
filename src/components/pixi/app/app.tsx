@@ -4,13 +4,11 @@ import { Graphics, useApp } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
 import { useCallback, useRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import { CanvasMetadata } from "@/lib/hooks/useCanvasContext";
-import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
+import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { Viewport } from "../viewport/viewport";
 import { useThemeController } from "./hooks/useThemeController";
 import { useGlobalRefs } from "./hooks/useGlobalRefs";
 import { useViewportResizer } from "./hooks/useViewportResizer";
-import { ViewportGrid } from "./debug/viewport-grid";
 
 export type PixiAppProps = {
     width: number;
@@ -34,6 +32,7 @@ export function PixiApp({
             g.clear();
             g.beginFill(colors.foreground);
             g.drawCircle(100, 100, 60);
+            g.drawCircle(200, 250, 50);
             g.endFill();
             viewportRef.current?.resize(width, height);
         },
@@ -42,9 +41,6 @@ export function PixiApp({
 
     return (
         <Viewport ref={viewportRef}>
-            {IS_DEV_ENVIRONMENT && viewportRef.current && (
-                <ViewportGrid viewport={viewportRef.current} />
-            )}
             <Graphics draw={draw} />
         </Viewport>
     );

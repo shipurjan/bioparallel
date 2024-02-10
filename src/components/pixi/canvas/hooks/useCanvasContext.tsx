@@ -1,7 +1,7 @@
 import { createContext, useContext } from "react";
 
 export type CanvasMetadata = {
-    id: string;
+    id: "left" | "right";
 };
 
 export const CanvasContext = createContext<CanvasMetadata | undefined>(

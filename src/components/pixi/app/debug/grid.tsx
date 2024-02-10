@@ -1,5 +1,4 @@
 import { Graphics } from "@pixi/react";
-import { Viewport } from "pixi-viewport";
 import { ColorSource, Graphics as PixiGraphics } from "pixi.js";
 import { useCallback } from "react";
 
@@ -19,26 +18,20 @@ function drawGrid(
     }
 }
 
-export type ViewportGridProps = {
-    viewport: Viewport;
+export type GridProps = {
+    width: number;
+    height: number;
+    color: string;
+    gridLinesCount: number;
 };
-export function ViewportGrid({ viewport }: ViewportGridProps) {
+export function Grid({ color, width, height, gridLinesCount }: GridProps) {
     const draw = useCallback(
         (g: PixiGraphics) => {
             g.clear();
-            const GRID_LINES = 4;
-            drawGrid(
-                g,
-                "red",
-                GRID_LINES,
-                // eslint-disable-next-line no-underscore-dangle
-                viewport.screenWidth,
-                // eslint-disable-next-line no-underscore-dangle
-                viewport.screenHeight
-            );
+            drawGrid(g, color, gridLinesCount, width, height);
         },
         // eslint-disable-next-line no-underscore-dangle
-        [viewport.screenHeight, viewport.screenWidth]
+        [color, gridLinesCount, height, width]
     );
 
     return <Graphics draw={draw} />;

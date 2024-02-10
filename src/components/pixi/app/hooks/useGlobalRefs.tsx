@@ -1,16 +1,17 @@
-import { CanvasMetadata } from "@/lib/hooks/useCanvasContext";
-import { GlobalCanvasRef, useGlobalCanvasRef } from "@/lib/refs/pixi";
+import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { CanvasRef } from "@/lib/refs/pixi";
 import { useEffect } from "react";
+import { useCanvas } from "@/components/pixi/canvas/hooks/useCanvas";
 
 export const useGlobalRefs = (
     id: CanvasMetadata["id"],
-    app: GlobalCanvasRef["app"],
-    viewport: GlobalCanvasRef["viewport"]
+    app: CanvasRef["app"],
+    viewport: CanvasRef["viewport"]
 ) => {
-    const globalCanvasRef = useGlobalCanvasRef(id);
+    const { canvas } = useCanvas(id);
 
     useEffect(() => {
-        globalCanvasRef.app = app;
-        globalCanvasRef.viewport = viewport;
-    }, [app, globalCanvasRef, viewport]);
+        canvas.app = app;
+        canvas.viewport = viewport;
+    }, [app, canvas, viewport]);
 };

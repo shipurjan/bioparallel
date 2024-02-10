@@ -6,10 +6,9 @@ import {
     TableCell,
     TableRow,
 } from "@/components/ui/table";
-import { useGlobalCanvasRef } from "@/lib/refs/pixi";
-import { useCanvasContext } from "@/lib/hooks/useCanvasContext";
-import { useThrottledUpdate } from "@/lib/hooks/useThrottledUpdate";
+import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { cn } from "@/lib/utils/shadcn";
+import { useCanvas } from "@/components/pixi/canvas/hooks/useCanvas";
 
 export type TableKeys = {
     keys: string[];
@@ -94,11 +93,12 @@ export const DebugInfoTables = (
 export type DebugInfoProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
 export function DebugInfo({ ...props }: DebugInfoProps) {
     const { id } = useCanvasContext();
-    const globalCanvasRef = useGlobalCanvasRef(id);
-    const { app, viewport } = globalCanvasRef;
+    const {
+        canvas: { app, viewport },
+    } = useCanvas(id, { autoUpdate: true });
 
     // Odśwież informacje o canvasie co tick
-    useThrottledUpdate(app?.ticker.deltaMS ?? 100);
+    // useThrottledUpdate(app?.ticker.deltaMS ?? 100);
 
     const OOB = viewport?.OOB();
 
@@ -141,16 +141,26 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
             values: getTableValues(viewport?.center),
         },
         {
+            keys: ["position"],
+            values: getTableValues(viewport?.position, ["x", "y"]),
+        },
+        {
             keys: [],
             values: getTableValues(viewport, [
                 "x",
                 "y",
+                "width",
+                "height",
                 "screenWidth",
                 "screenHeight",
                 "worldWidth",
                 "worldHeight",
                 "worldScreenWidth",
                 "worldScreenHeight",
+                "screenWorldWidth",
+                "screenWorldHeight",
+                "screenWidthInWorldPixels",
+                "screenHeightInWorldPixels",
                 "left",
                 "right",
                 "top",

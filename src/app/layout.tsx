@@ -46,7 +46,7 @@ export default function RootLayout({
                 e.preventDefault();
             }}
         >
-            <body className={cn(" overflow-x-hidden", inter.className)}>
+            <body className={cn("overflow-x-hidden", inter.className)}>
                 <ThemeProvider
                     attribute="class"
                     defaultTheme={DEFAULT_THEME}

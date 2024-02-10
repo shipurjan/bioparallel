@@ -1,16 +1,18 @@
 import { HTMLAttributes, useCallback, useState } from "react";
-import { getDroppedFileData } from "@/lib/utils/canvas/getDroppedFileData";
-import { useGlobalCanvasRef } from "@/lib/refs/pixi";
-import { useCanvasContext } from "@/lib/hooks/useCanvasContext";
+import { getDroppedFileData } from "@/lib/utils/canvas/get-dropped-file-data";
+import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
 import { Canvas } from "./canvas";
+import { useCanvas } from "./hooks/useCanvas";
 
 export type CanvasContainerProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
     const [divSize, setDivSize] = useState({ width: 0, height: 0 });
     const { id } = useCanvasContext();
-    const { viewport } = useGlobalCanvasRef(id);
+    const {
+        canvas: { viewport },
+    } = useCanvas(id);
 
     const divRef = useCallback((node: HTMLDivElement | null) => {
         if (!node) return;

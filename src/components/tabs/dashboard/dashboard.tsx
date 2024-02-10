@@ -5,7 +5,10 @@ import {
     ResizablePanel,
     ResizablePanelGroup,
 } from "@/components/ui/resizable";
-import { CanvasContext, CanvasMetadata } from "@/lib/hooks/useCanvasContext";
+import {
+    CanvasContext,
+    CanvasMetadata,
+} from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { useMemo } from "react";
 
 export function Dashboard() {

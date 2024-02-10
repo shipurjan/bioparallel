@@ -1,4 +1,11 @@
 {
-    "cSpell.words": ["bioparallel", "canvasa", "pixi"],
+    "cSpell.words": [
+        "bioparallel",
+        "canvasa",
+        "canvasie",
+        "pixi",
+        "shadcn",
+        "tauri"
+    ],
     "github.copilot.chat.localeOverride": "pl"
 }
