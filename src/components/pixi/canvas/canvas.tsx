@@ -4,7 +4,7 @@ import * as PIXI from "pixi.js";
 import { Stage } from "@pixi/react";
 import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { PixiApp } from "../app/app";
-import { Overlay } from "../overlay/overlay";
+import { DebugOverlay } from "../overlays/debug-overlay";
 
 export type CanvasProps = Omit<Stage["props"], "children">;
 export function Canvas({ options, ...props }: CanvasProps) {
@@ -27,7 +27,7 @@ export function Canvas({ options, ...props }: CanvasProps) {
 
     return (
         <Stage {...props} options={defaultOptions}>
-            <Overlay canvasMetadata={canvasMetadata} />
+            <DebugOverlay canvasMetadata={canvasMetadata} />
             <PixiApp
                 width={props.width ?? 0}
                 height={props.height ?? 0}

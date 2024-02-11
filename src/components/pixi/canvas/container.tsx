@@ -4,14 +4,13 @@ import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContex
 import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
 import { Canvas } from "./canvas";
-import { useCanvas } from "./hooks/useCanvas";
+import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 
 export type CanvasContainerProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
     const [divSize, setDivSize] = useState({ width: 0, height: 0 });
     const { id } = useCanvasContext();
-    const canvas = useCanvas(id);
-    const { viewport } = canvas;
+    const viewport = useGlobalViewport(id);
 
     const divRef = useCallback((node: HTMLDivElement | null) => {
         if (!node) return;

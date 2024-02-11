@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/table";
 import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { cn } from "@/lib/utils/shadcn";
-import { useCanvas } from "@/components/pixi/canvas/hooks/useCanvas";
-import { useThrottledCanvasUpdater } from "@/components/pixi/canvas/hooks/useCanvasUpdater";
+import { useGlobalViewport } from "@/components/pixi/viewport/hooks/useGlobalViewport";
+import { useGlobalApp } from "@/components/pixi/app/hooks/useGlobalApp";
 
 export type TableKeys = {
     keys: string[];
@@ -94,10 +94,8 @@ export const DebugInfoTables = (
 export type DebugInfoProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
 export function DebugInfo({ ...props }: DebugInfoProps) {
     const { id } = useCanvasContext();
-    const canvas = useCanvas(id);
-    const { app, viewport } = canvas;
-
-    useThrottledCanvasUpdater(id);
+    const app = useGlobalApp(id, { autoUpdate: true, throttledUpdate: true });
+    const viewport = useGlobalViewport(id);
 
     const OOB = viewport?.OOB();
 

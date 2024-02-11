@@ -5,7 +5,7 @@ import { useCanvas } from "./useCanvas";
 
 const typeChecker =
     (id: CanvasMetadata["id"], type: "app" | "viewport") =>
-    (_: UpdateState["value"], newValue: UpdateState["value"]) => {
+    (_oldValue: UpdateState["value"], newValue: UpdateState["value"]) => {
         if (newValue === null) return true;
         const { id: newId, type: newType } = newValue;
 
@@ -20,8 +20,7 @@ export const useCanvasUpdater = (
 };
 
 export const useThrottledCanvasUpdater = (id: CanvasMetadata["id"]) => {
-    const canvas = useCanvas(id);
-    const { app } = canvas;
+    const { app } = useCanvas(id, true);
     return useThrottledUpdate(app?.ticker.deltaMS ?? 16.66);
 };
 

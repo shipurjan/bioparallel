@@ -1,22 +1,21 @@
 import { Container } from "@pixi/react";
 import { Grid } from "../app/debug/grid";
-import { useCanvas } from "../canvas/hooks/useCanvas";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
-import { useCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
+import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
+import { useGlobalApp } from "../app/hooks/useGlobalApp";
 
 export type OverlayProps = {
     canvasMetadata: CanvasMetadata;
 };
-export function Overlay({ canvasMetadata: { id } }: OverlayProps) {
-    useCanvasUpdater(id, "viewport");
-    const canvas = useCanvas(id);
-    const { viewport, app } = canvas;
+export function DebugOverlay({ canvasMetadata: { id } }: OverlayProps) {
+    const viewport = useGlobalViewport(id, { autoUpdate: true });
+    const app = useGlobalApp(id);
 
     if (viewport === null || app == null) {
         return null;
     }
 
-    const position: [number, number] = [
+    const childrenPosition: [number, number] = [
         // eslint-disable-next-line no-underscore-dangle
         viewport.position.x + viewport._localBounds.minX * viewport.scale.x,
         // eslint-disable-next-line no-underscore-dangle
@@ -24,12 +23,18 @@ export function Overlay({ canvasMetadata: { id } }: OverlayProps) {
     ];
 
     return (
-        <Container position={position}>
+        <Container position={childrenPosition}>
             <Grid
                 width={viewport.width}
                 height={viewport.height}
-                color="blue"
+                color="hsla(0, 50%, 50%, 0.5)"
                 gridLinesCount={2}
+            />
+            <Grid
+                width={viewport.screenWorldWidth}
+                height={viewport.screenWorldHeight}
+                color="hsla(90, 50%, 50%, 0.5)"
+                gridLinesCount={3}
             />
         </Container>
     );

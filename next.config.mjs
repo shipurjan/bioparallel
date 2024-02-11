@@ -5,6 +5,10 @@ const nextConfig = {
         forceSwcTransforms: true,
         swcTraceProfiling: true,
     },
+    images: {
+        unoptimized: true,
+    },
+    transpilePackages: ["@tauri-apps/api"],
 };
 
 export default nextConfig;
