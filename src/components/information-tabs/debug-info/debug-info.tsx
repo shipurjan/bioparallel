@@ -9,6 +9,7 @@ import {
 import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { cn } from "@/lib/utils/shadcn";
 import { useCanvas } from "@/components/pixi/canvas/hooks/useCanvas";
+import { useThrottledCanvasUpdater } from "@/components/pixi/canvas/hooks/useCanvasUpdater";
 
 export type TableKeys = {
     keys: string[];
@@ -93,12 +94,10 @@ export const DebugInfoTables = (
 export type DebugInfoProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
 export function DebugInfo({ ...props }: DebugInfoProps) {
     const { id } = useCanvasContext();
-    const {
-        canvas: { app, viewport },
-    } = useCanvas(id, { autoUpdate: true });
+    const canvas = useCanvas(id);
+    const { app, viewport } = canvas;
 
-    // Odśwież informacje o canvasie co tick
-    // useThrottledUpdate(app?.ticker.deltaMS ?? 100);
+    useThrottledCanvasUpdater(id);
 
     const OOB = viewport?.OOB();
 

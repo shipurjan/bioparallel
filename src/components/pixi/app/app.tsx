@@ -15,16 +15,12 @@ export type PixiAppProps = {
     height: number;
     canvasMetadata: CanvasMetadata;
 };
-export function PixiApp({
-    width,
-    height,
-    canvasMetadata: { id },
-}: PixiAppProps) {
+export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
     const app = useApp();
     const viewportRef = useRef<PixiViewport>(null);
 
     const colors = useThemeController(app);
-    useGlobalRefs(id, app, viewportRef.current);
+    useGlobalRefs(canvasMetadata.id, app, viewportRef.current);
     useViewportResizer(viewportRef.current, width, height);
 
     const draw = useCallback(
@@ -40,7 +36,7 @@ export function PixiApp({
     );
 
     return (
-        <Viewport ref={viewportRef}>
+        <Viewport canvasMetadata={canvasMetadata} ref={viewportRef}>
             <Graphics draw={draw} />
         </Viewport>
     );

@@ -4,14 +4,22 @@ import { useApp } from "@pixi/react";
 import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { ReactPixiViewport } from "./react-pixi-viewport";
+import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
+import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
 
 export type ViewportProps = {
     children: ReactNode;
+    canvasMetadata: CanvasMetadata;
 };
 
 export const Viewport = forwardRef<PixiViewport, ViewportProps>(
-    ({ children }: ViewportProps, ref) => {
+    ({ children, canvasMetadata }: ViewportProps, ref) => {
         const app = useApp();
+
+        const updateCanvas = useDryCanvasUpdater();
+        const eventCallback = () => {
+            updateCanvas(canvasMetadata.id, "viewport");
+        };
 
         return (
             <ReactPixiViewport
@@ -37,6 +45,21 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         .clampZoom({
                             minScale: 1 / 4,
                         });
+
+                    viewport.addEventListener("frame-end", eventCallback, {
+                        passive: true,
+                    });
+
+                    setTimeout(() => {
+                        viewport.removeEventListener(
+                            "frame-end",
+                            eventCallback
+                        );
+                    }, app.ticker.deltaMS);
+
+                    viewport.addEventListener("moved", eventCallback, {
+                        passive: true,
+                    });
 
                     return viewport;
                 }}

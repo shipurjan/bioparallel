@@ -5,7 +5,8 @@
         "canvasie",
         "pixi",
         "shadcn",
-        "tauri"
+        "tauri",
+        "testid"
     ],
     "github.copilot.chat.localeOverride": "pl"
 }

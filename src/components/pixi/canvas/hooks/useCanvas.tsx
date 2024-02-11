@@ -1,17 +1,8 @@
-import { DispatchWithoutAction } from "react";
 import { CANVAS_REFS } from "@/lib/refs/pixi";
-import { useThrottledUpdate } from "@/lib/hooks/useThrottledUpdate";
-import { useUpdater } from "@/lib/hooks/forceUpdate";
 import { CanvasMetadata } from "./useCanvasContext";
 
-export const useCanvas = <U extends true | false | undefined = undefined>(
-    id: CanvasMetadata["id"],
-    options?: {
-        autoUpdate?: U;
-    }
-) => {
-    const { autoUpdate } = options ?? {};
-    const canvas = (() => {
+export const useCanvas = (id: CanvasMetadata["id"]) => {
+    return (() => {
         switch (id) {
             case "left":
                 return CANVAS_REFS.leftCanvas;
@@ -21,19 +12,4 @@ export const useCanvas = <U extends true | false | undefined = undefined>(
                 throw new Error(`Invalid id: ${id}`);
         }
     })();
-
-    const interval = canvas.app?.ticker.deltaTime ?? 1;
-
-    useThrottledUpdate(autoUpdate === true ? interval : undefined);
-    const forceUpdate = useUpdater();
-    const updateCanvas = (
-        autoUpdate === false || autoUpdate === undefined
-            ? forceUpdate
-            : undefined
-    ) as U extends true ? undefined : DispatchWithoutAction;
-
-    return {
-        canvas,
-        update: updateCanvas,
-    };
 };

@@ -61,10 +61,10 @@ fn main() {
             close_splashscreen_if_exists,
             read_file
         ])
-        .setup(|app| {
+        .setup(|_app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
-                let window = app.get_window("bioparallel").unwrap();
+                let window = _app.get_window("bioparallel").unwrap();
                 window.open_devtools();
             }
             Ok(())

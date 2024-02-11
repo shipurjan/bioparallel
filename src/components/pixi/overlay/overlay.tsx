@@ -2,14 +2,15 @@ import { Container } from "@pixi/react";
 import { Grid } from "../app/debug/grid";
 import { useCanvas } from "../canvas/hooks/useCanvas";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
+import { useCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
 
 export type OverlayProps = {
     canvasMetadata: CanvasMetadata;
 };
 export function Overlay({ canvasMetadata: { id } }: OverlayProps) {
-    const {
-        canvas: { viewport, app },
-    } = useCanvas(id, { autoUpdate: true });
+    useCanvasUpdater(id, "viewport");
+    const canvas = useCanvas(id);
+    const { viewport, app } = canvas;
 
     if (viewport === null || app == null) {
         return null;

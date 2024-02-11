@@ -1,4 +1,4 @@
-import { useSettingsStore } from "@/lib/stores/useSettings";
+import { useSettingsStore } from "@/lib/stores/useSettingsStore";
 import { useEffect, useState } from "react";
 
 function getColor(property: string) {

@@ -10,9 +10,8 @@ export type CanvasContainerProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
     const [divSize, setDivSize] = useState({ width: 0, height: 0 });
     const { id } = useCanvasContext();
-    const {
-        canvas: { viewport },
-    } = useCanvas(id);
+    const canvas = useCanvas(id);
+    const { viewport } = canvas;
 
     const divRef = useCallback((node: HTMLDivElement | null) => {
         if (!node) return;

@@ -8,7 +8,7 @@ export const useGlobalRefs = (
     app: CanvasRef["app"],
     viewport: CanvasRef["viewport"]
 ) => {
-    const { canvas } = useCanvas(id);
+    const canvas = useCanvas(id);
 
     useEffect(() => {
         canvas.app = app;

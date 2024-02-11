@@ -10,7 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSettingsStore } from "@/lib/stores/useSettings";
+import { useSettingsStore } from "@/lib/stores/useSettingsStore";
 
 export type DarkModeToggleProps = ButtonProps & {
     "data-testid": string | undefined;

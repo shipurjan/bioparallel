@@ -6,7 +6,7 @@ import { ReactNode } from "react";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";
 import { useAppMount } from "@/lib/hooks/useAppMount";
-import { DEFAULT_THEME } from "@/lib/stores/useSettings";
+import { DEFAULT_THEME } from "@/lib/stores/useSettingsStore";
 import { cn } from "@/lib/utils/shadcn";
 
 const inter = Inter({ subsets: ["latin-ext"] });
