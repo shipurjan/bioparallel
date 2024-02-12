@@ -28,7 +28,8 @@ export function Settings() {
                         </CardDescription>
                     </CardHeader>
                     <CardContent className="space-y-2">
-                        <DarkModeToggle /> Current theme:{" "}
+                        <DarkModeToggle data-testid="dark-mode-toggle" />{" "}
+                        Current theme:{" "}
                         {theme &&
                             theme.slice(0, 1).toUpperCase() + theme.slice(1)}
                     </CardContent>

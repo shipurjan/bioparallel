@@ -14,13 +14,13 @@
         "allowlist": {
             "all": false,
             "window": {
-                "setMinSize": true
+                "setMinSize": true,
+                "create": true
             },
             "fs": {
                 "scope": {
                     "allow": ["**"],
-                    "deny": [],
-                    "requireLiteralLeadingDot": false
+                    "deny": []
                 },
                 "readFile": true
             },

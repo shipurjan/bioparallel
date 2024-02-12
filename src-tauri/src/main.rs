@@ -6,8 +6,8 @@ use tauri_plugin_window_state::StateFlags;
 
 #[derive(Clone, serde::Serialize)]
 struct Payload {
-  args: Vec<String>,
-  cwd: String,
+    args: Vec<String>,
+    cwd: String,
 }
 
 #[tauri::command]
@@ -35,14 +35,40 @@ async fn close_splashscreen_if_exists(window: tauri::Window) {
     }
 }
 
+#[tauri::command]
+async fn read_file(path: std::path::PathBuf) -> Result<Vec<u8>, String> {
+    match std::fs::read(path) {
+        Ok(data) => Ok(data),
+        Err(err) => Err(format!("Failed to read file: {}", err)),
+    }
+}
+
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             println!("{}, {argv:?}, {cwd}", app.package_info().name);
-            app.emit_all("single-instance", Payload { args: argv, cwd }).unwrap();
+            app.emit_all("single-instance", Payload { args: argv, cwd })
+                .unwrap();
         }))
-        .plugin(tauri_plugin_window_state::Builder::default().with_state_flags(StateFlags::all() & !StateFlags::VISIBLE).build())
-        .invoke_handler(tauri::generate_handler![show_main_window_if_hidden, close_splashscreen_if_exists])
+        .plugin(tauri_plugin_store::Builder::default().build())
+        .plugin(
+            tauri_plugin_window_state::Builder::default()
+                .with_state_flags(StateFlags::all() & !StateFlags::VISIBLE)
+                .build(),
+        )
+        .invoke_handler(tauri::generate_handler![
+            show_main_window_if_hidden,
+            close_splashscreen_if_exists,
+            read_file
+        ])
+        .setup(|_app| {
+            #[cfg(debug_assertions)] // only include this code on debug builds
+            {
+                let window = _app.get_window("bioparallel").unwrap();
+                window.open_devtools();
+            }
+            Ok(())
+        })
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }

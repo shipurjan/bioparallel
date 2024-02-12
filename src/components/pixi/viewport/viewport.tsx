@@ -1,72 +1,71 @@
 "use client";
 
-import { PixiComponent, useApp } from "@pixi/react";
+import { useApp } from "@pixi/react";
+import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import * as PIXI from "pixi.js";
-import { ReactNode, useRef } from "react";
-import { useTheme } from "next-themes";
-import { Canvas } from "../canvas/canvas";
-
-export type PixiViewportProps = {
-    children: ReactNode;
-};
-
-export type PixiComponentViewportProps = PixiViewportProps & {
-    app: PIXI.Application;
-};
-
-const PixiViewportComponent = PixiComponent("Viewport", {
-    create: ({ app }: PixiComponentViewportProps) => {
-        const events = new PIXI.EventSystem(app.renderer);
-        events.domElement = app.renderer.view as HTMLCanvasElement;
-
-        const viewport = new PixiViewport({
-            events: app.renderer.events,
-            ticker: app.ticker,
-            threshold: 2,
-            passiveWheel: false,
-            allowPreserveDragOutside: true,
-        });
-
-        viewport
-            .drag({
-                wheel: false,
-                mouseButtons: "middle-left",
-            })
-            .wheel({
-                percent: 0,
-                interrupt: true,
-                wheelZoom: true,
-            })
-            .clampZoom({
-                minScale: 1 / 4,
-            });
-
-        return viewport;
-    },
-    willUnmount: (viewport: PixiViewport) => {
-        // eslint-disable-next-line no-param-reassign
-        viewport.options.noTicker = true;
-        viewport.destroy({ children: true });
-    },
-});
+import { ReactPixiViewport } from "./react-pixi-viewport";
+import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
+import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
 
 export type ViewportProps = {
-    theme: ReturnType<typeof useTheme>;
+    children: ReactNode;
+    canvasMetadata: CanvasMetadata;
 };
-export function Viewport({ theme }: ViewportProps) {
-    const app = useApp();
-    const viewportRef = useRef<PixiViewport>(null);
 
-    return (
-        <PixiViewportComponent ref={viewportRef} app={app}>
-            {viewportRef.current !== null && (
-                <Canvas
-                    viewport={viewportRef.current}
-                    app={app}
-                    theme={theme}
-                />
-            )}
-        </PixiViewportComponent>
-    );
-}
+export const Viewport = forwardRef<PixiViewport, ViewportProps>(
+    ({ children, canvasMetadata }: ViewportProps, ref) => {
+        const app = useApp();
+
+        const updateCanvas = useDryCanvasUpdater();
+        const eventCallback = () => {
+            updateCanvas(canvasMetadata.id, "viewport");
+        };
+
+        return (
+            <ReactPixiViewport
+                ref={ref}
+                options={{
+                    events: app.renderer.events,
+                    ticker: app.ticker,
+                    threshold: 2,
+                    passiveWheel: false,
+                    allowPreserveDragOutside: true,
+                }}
+                sideEffects={viewport => {
+                    viewport
+                        .drag({
+                            wheel: false,
+                            mouseButtons: "middle-left",
+                        })
+                        .wheel({
+                            percent: 0,
+                            interrupt: true,
+                            wheelZoom: true,
+                        })
+                        .clampZoom({
+                            minScale: 1 / 4,
+                        });
+
+                    viewport.addEventListener("frame-end", eventCallback, {
+                        passive: true,
+                    });
+
+                    setTimeout(() => {
+                        viewport.removeEventListener(
+                            "frame-end",
+                            eventCallback
+                        );
+                    }, app.ticker.deltaMS);
+
+                    viewport.addEventListener("moved", eventCallback, {
+                        passive: true,
+                    });
+
+                    return viewport;
+                }}
+            >
+                {children}
+            </ReactPixiViewport>
+        );
+    }
+);

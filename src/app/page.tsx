@@ -1,28 +1,35 @@
 "use client";
 
-import { LoadListener } from "@/components/load-listener/load-listener";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dashboard } from "@/components/tabs/dashboard/dashboard";
 import { Settings } from "@/components/tabs/settings/settings";
 import { useState } from "react";
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils/shadcn";
 
 export default function Home() {
     const initialTab = "dashboard";
     const [currentTab, setCurrentTab] = useState(initialTab);
 
     return (
-        <main className="flex w-full min-h-dvh h-full flex-col items-center justify-between">
-            <LoadListener />
-
+        <main
+            data-testid="page-container"
+            className="flex w-full min-h-dvh h-full flex-col items-center justify-between"
+        >
+            <button type="button" onClick={() => {}}>
+                Button
+            </button>
             <Tabs
                 onValueChange={setCurrentTab}
                 defaultValue={initialTab}
                 className="w-full flex flex-col items-center flex-grow"
             >
                 <TabsList className="w-fit">
-                    <TabsTrigger value="dashboard">Dashboard</TabsTrigger>
-                    <TabsTrigger value="settings">Settings</TabsTrigger>
+                    <TabsTrigger data-testid="dashboard-tab" value="dashboard">
+                        Dashboard
+                    </TabsTrigger>
+                    <TabsTrigger data-testid="settings-tab" value="settings">
+                        Settings
+                    </TabsTrigger>
                 </TabsList>
                 <TabsContent
                     forceMount

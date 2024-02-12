@@ -14,7 +14,6 @@
         "skipLibCheck": true,
         "sourceMap": true,
         "target": "es2018",
-
         // Strict mode (9)
         "strict": true,
         "alwaysStrict": true,
@@ -25,34 +24,37 @@
         "strictFunctionTypes": true,
         "strictPropertyInitialization": true,
         "useUnknownInCatchVariables": true,
-
         // No unused code (4)
         "noUnusedLocals": true,
         "noUnusedParameters": true,
         "allowUnusedLabels": false,
         "allowUnreachableCode": false,
-
         // No implicit code (2)
         "noImplicitOverride": true,
         "noImplicitReturns": true,
-
         // Others (5)
         "noUncheckedIndexedAccess": true,
         "noPropertyAccessFromIndexSignature": true,
         "noFallthroughCasesInSwitch": true,
         "exactOptionalPropertyTypes": true,
         "forceConsistentCasingInFileNames": true,
-
         "incremental": true,
         "plugins": [
             {
                 "name": "next",
             },
         ],
+        "baseUrl": "./",
         "paths": {
-            "@/*": ["./src/*"],
+            "@/*": ["src/*"],
         },
     },
-    "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+    "include": [
+        "next-env.d.ts",
+        "**/*.ts",
+        "**/*.tsx",
+        ".next/types/**/*.ts",
+        "dist/types/**/*.ts",
+    ],
     "exclude": ["node_modules", "src-tauri"],
 }

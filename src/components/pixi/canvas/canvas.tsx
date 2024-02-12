@@ -1,41 +1,38 @@
 "use client";
 
-import { Graphics } from "@pixi/react";
-import { Viewport as PixiViewport } from "pixi-viewport";
-import { Graphics as PixiGraphics } from "pixi.js";
-import { useCallback, useEffect } from "react";
 import * as PIXI from "pixi.js";
-import { useTheme } from "next-themes";
+import { Stage } from "@pixi/react";
+import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { PixiApp } from "../app/app";
+import { DebugOverlay } from "../overlays/debug-overlay";
 
-export type CanvasProps = {
-    viewport: PixiViewport;
-    app: PIXI.Application<PIXI.ICanvas>;
-    theme: ReturnType<typeof useTheme>;
-};
-export function Canvas({ viewport, app, theme }: CanvasProps) {
-    // eslint-disable-next-line no-void
-    void viewport;
-
-    useEffect(() => {
-        const style = getComputedStyle(document.body);
-        const backgroundHSL = style.getPropertyValue("--background");
-        const backgroundColor = `hsl(${backgroundHSL})`;
-
-        // eslint-disable-next-line no-param-reassign
-        app.renderer.background.color = backgroundColor;
-    }, [app.renderer.background, theme.resolvedTheme]);
-
-    const draw = useCallback(
-        (g: PixiGraphics) => {
-            g.beginFill(
-                theme.resolvedTheme === "dark" ? 0xffffff : 0x000000,
-                1
-            );
-            g.drawCircle(0, 0, 60);
-            g.endFill();
-        },
-        [theme.resolvedTheme]
+export type CanvasProps = Omit<Stage["props"], "children">;
+export function Canvas({ options, ...props }: CanvasProps) {
+    const canvasMetadata = useCanvasContext();
+    const backgroundColor = getComputedStyle(document.body).getPropertyValue(
+        "--background"
     );
 
-    return <Graphics draw={draw} />;
+    PIXI.BaseTexture.defaultOptions.scaleMode = 0;
+
+    const defaultOptions: typeof options = {
+        background: `hsl(${backgroundColor})`,
+        antialias: true,
+        autoDensity: true,
+        autoStart: true,
+        powerPreference: "high-performance",
+        resolution: 1,
+        ...options,
+    };
+
+    return (
+        <Stage {...props} options={defaultOptions}>
+            <DebugOverlay canvasMetadata={canvasMetadata} />
+            <PixiApp
+                width={props.width ?? 0}
+                height={props.height ?? 0}
+                canvasMetadata={canvasMetadata}
+            />
+        </Stage>
+    );
 }
