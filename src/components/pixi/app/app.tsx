@@ -30,9 +30,8 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
             g.drawCircle(100, 100, 60);
             g.drawCircle(200, 250, 50);
             g.endFill();
-            viewportRef.current?.resize(width, height);
         },
-        [colors.foreground, height, width]
+        [colors.foreground]
     );
 
     return (
