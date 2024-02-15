@@ -13,11 +13,8 @@ export const useAppMount = () => {
         setTheme(theme);
 
         const callback = async () => {
-            await new Promise(r => {
-                setTimeout(r, 10);
-            });
-            invoke("close_splashscreen_if_exists");
-            invoke("show_main_window_if_hidden");
+            await invoke("close_splashscreen_if_exists");
+            await invoke("show_main_window_if_hidden");
         };
         callback();
     }, [setTheme, theme]);

@@ -14,8 +14,6 @@ const inter = Inter({ subsets: ["latin-ext"] });
 function Dynamic({ children }: { children: ReactNode }) {
     const hasMounted = useAppMount();
 
-    useAppMount();
-
     if (!hasMounted) {
         return null;
     }
