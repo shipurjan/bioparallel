@@ -1,10 +1,18 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dashboard } from "@/components/tabs/dashboard/dashboard";
 import { Settings } from "@/components/tabs/settings/settings";
 import { useState } from "react";
 import { cn } from "@/lib/utils/shadcn";
+import dynamic from "next/dynamic";
+
+const Dashboard = dynamic(
+    () =>
+        import("@/components/tabs/dashboard/dashboard").then(
+            mod => mod.Dashboard
+        ),
+    { ssr: false }
+);
 
 export default function Home() {
     const initialTab = "dashboard";
