@@ -17,14 +17,12 @@ export function InformationTabs() {
                     <TabsTrigger value="debug">Debug</TabsTrigger>
                 )}
             </TabsList>
-            <TabsContent value="markings" className="w-full">
+            <TabsContent value="markings" className="w-full overflow-auto">
                 <MarkingsInfo />
             </TabsContent>
             {IS_DEV_ENVIRONMENT && (
                 <TabsContent value="debug" className="w-full overflow-auto">
-                    <div className="w-full h-fit overflow-auto">
-                        <DebugInfo />
-                    </div>
+                    <DebugInfo />
                 </TabsContent>
             )}
         </Tabs>

@@ -23,9 +23,6 @@ export default function Home() {
             data-testid="page-container"
             className="flex w-full min-h-dvh h-full flex-col items-center justify-between"
         >
-            <button type="button" onClick={() => {}}>
-                Button
-            </button>
             <Tabs
                 onValueChange={setCurrentTab}
                 defaultValue={initialTab}

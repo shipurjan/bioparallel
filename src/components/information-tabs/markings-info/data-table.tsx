@@ -15,6 +15,7 @@ import {
     TableHeader,
     TableRow,
 } from "@/components/ui/table";
+import { useState } from "react";
 
 interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
@@ -25,16 +26,30 @@ export function DataTable<TData, TValue>({
     columns,
     data,
 }: DataTableProps<TData, TValue>) {
+    const [rowSelection, setRowSelection] = useState({});
+
     const table = useReactTable({
         data,
         columns,
         getCoreRowModel: getCoreRowModel(),
+        onRowSelectionChange: setRowSelection,
+        state: {
+            rowSelection,
+        },
     });
 
     return (
         <div className="rounded-md border">
+            <div className="flex-1 text-center text-sm text-muted-foreground">
+                {(table.getFilteredSelectedRowModel().rows.length > 0 && (
+                    <>
+                        {table.getFilteredSelectedRowModel().rows.length} /{" "}
+                        {table.getFilteredRowModel().rows.length} selected
+                    </>
+                )) || <>{table.getFilteredRowModel().rows.length} elements</>}
+            </div>
             <Table>
-                <TableHeader>
+                <TableHeader className=" leading-loose text-base">
                     {table.getHeaderGroups().map(headerGroup => (
                         <TableRow key={headerGroup.id}>
                             {headerGroup.headers.map(header => {
@@ -74,7 +89,7 @@ export function DataTable<TData, TValue>({
                         <TableRow>
                             <TableCell
                                 colSpan={columns.length}
-                                className="h-24 text-center"
+                                className="h-16 text-center"
                             >
                                 No results.
                             </TableCell>
