@@ -3,23 +3,74 @@
 import { useApp } from "@pixi/react";
 import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
+import { FederatedPointerEvent } from "pixi.js";
+import { Marking, useMarkingsStore } from "@/lib/stores/useMarkingsStore";
+import { useShallowViewportStore } from "@/lib/stores/useShallowViewportStore";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
+import { getNormalizedPosition } from "../overlays/utils/get-viewport-local-position";
 
 export type ViewportProps = {
     children: ReactNode;
     canvasMetadata: CanvasMetadata;
 };
 
+function getNormalizedClickPosition(
+    event: FederatedPointerEvent,
+    viewport: PixiViewport
+) {
+    return getNormalizedPosition(viewport, {
+        x: event.screenX,
+        y: event.screenY,
+    });
+}
+
 export const Viewport = forwardRef<PixiViewport, ViewportProps>(
-    ({ children, canvasMetadata }: ViewportProps, ref) => {
+    ({ children, canvasMetadata: { id } }: ViewportProps, ref) => {
         const app = useApp();
 
         const updateCanvas = useDryCanvasUpdater();
-        const eventCallback = () => {
-            updateCanvas(canvasMetadata.id, "viewport");
+        const updateViewport = () => {
+            updateCanvas(id, "viewport");
         };
+
+        let dragStartMousePos: null | {
+            x: number;
+            y: number;
+        } = null;
+
+        const addStoreMarking = useMarkingsStore(state => state.add);
+        const setShallowViewportSize = useShallowViewportStore(id)(
+            state => state.setSize
+        );
+
+        function addMarking(e: FederatedPointerEvent, viewport: PixiViewport) {
+            if (dragStartMousePos === null) return;
+            if (e.button !== 0) return;
+
+            const diffX = Math.abs(e.pageX - dragStartMousePos.x);
+            const diffY = Math.abs(e.pageY - dragStartMousePos.y);
+            const DELTA = 3;
+
+            if (diffX >= DELTA || diffY >= DELTA) return;
+
+            const clickPos = getNormalizedClickPosition(e, viewport);
+
+            if (clickPos === undefined) return;
+
+            const marking: Marking =
+                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                {
+                    canvasId: id,
+                    size: 8,
+                    position: {
+                        x: clickPos.x,
+                        y: clickPos.y,
+                    },
+                };
+            addStoreMarking([marking]);
+        }
 
         return (
             <ReactPixiViewport
@@ -46,20 +97,50 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                             minScale: 1 / 4,
                         });
 
-                    viewport.addEventListener("frame-end", eventCallback, {
+                    viewport.addEventListener("frame-end", updateViewport, {
                         passive: true,
                     });
 
                     setTimeout(() => {
                         viewport.removeEventListener(
                             "frame-end",
-                            eventCallback
+                            updateViewport
                         );
                     }, app.ticker.deltaMS);
 
-                    viewport.addEventListener("moved", eventCallback, {
+                    viewport.addEventListener("moved", updateViewport, {
                         passive: true,
                     });
+
+                    viewport.addEventListener(
+                        "zoomed",
+                        () => {
+                            setShallowViewportSize({
+                                screenWorldHeight: viewport.screenWorldHeight,
+                                screenWorldWidth: viewport.screenWorldWidth,
+                                worldHeight: viewport.worldHeight,
+                                worldWidth: viewport.worldWidth,
+                            });
+                        },
+                        {
+                            passive: true,
+                        }
+                    );
+
+                    viewport.addEventListener("mousedown", e => {
+                        dragStartMousePos = {
+                            x: e.pageX,
+                            y: e.pageY,
+                        };
+                    });
+
+                    viewport.addEventListener(
+                        "mouseup",
+                        e => addMarking(e, viewport),
+                        {
+                            passive: true,
+                        }
+                    );
 
                     return viewport;
                 }}
