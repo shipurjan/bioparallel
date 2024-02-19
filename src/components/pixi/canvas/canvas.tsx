@@ -30,7 +30,7 @@ export function Canvas({ options, ...props }: CanvasProps) {
     useEffect(() => {
         // wyłącz antyaliasing tekstur
         PIXI.BaseTexture.defaultOptions.scaleMode = 0;
-        // załaduj bitmapowe czcionki
+        // załaduj bitmapowe czcionki, rozmiary 6-32 i 64
         const fontSizes = [...range(6, 32), 64];
         Promise.all(
             fontSizes.map(fontSize =>

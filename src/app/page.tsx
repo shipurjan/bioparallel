@@ -5,6 +5,7 @@ import { Settings } from "@/components/tabs/settings/settings";
 import { useState } from "react";
 import { cn } from "@/lib/utils/shadcn";
 import dynamic from "next/dynamic";
+import { GlobalToolbar } from "@/components/toolbar/toolbar";
 
 const Dashboard = dynamic(
     () =>
@@ -39,10 +40,14 @@ export default function Home() {
                 <TabsContent
                     forceMount
                     value="dashboard"
-                    className={cn("flex flex-col flex-grow w-full", {
-                        hidden: currentTab !== "dashboard",
-                    })}
+                    className={cn(
+                        "flex flex-col justify-center items-center flex-grow w-full",
+                        {
+                            hidden: currentTab !== "dashboard",
+                        }
+                    )}
                 >
+                    <GlobalToolbar />
                     <Dashboard />
                 </TabsContent>
                 <TabsContent value="settings" className="w-full">

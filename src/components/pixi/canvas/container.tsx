@@ -5,6 +5,7 @@ import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
 import { Canvas } from "./canvas";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
+import { CanvasToolbar } from "./canvas-toolbar";
 
 export type CanvasContainerProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
@@ -25,7 +26,7 @@ export function CanvasContainer({ ...props }: CanvasContainerProps) {
 
     return (
         <div
-            className="w-full h-full cursor-default active:cursor-move"
+            className="w-full h-full relative cursor-default active:cursor-move"
             ref={divRef}
             onDragEnter={e => {
                 e.preventDefault();
@@ -51,6 +52,7 @@ export function CanvasContainer({ ...props }: CanvasContainerProps) {
             }}
             {...props}
         >
+            <CanvasToolbar />
             <Canvas
                 aria-label="canvas"
                 width={divSize.width}

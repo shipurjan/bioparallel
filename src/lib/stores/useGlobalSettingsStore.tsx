@@ -7,16 +7,16 @@ const settingsStore = new Store("settings.dat");
 
 export const DEFAULT_THEME = "system";
 
-export type Settings = {
+export type GlobalSettings = {
     theme: string;
 };
 
-type SettingsState = {
-    settings: Settings;
-    set: (callback: (newSettings: Settings) => Settings) => void;
+type GlobalSettingsState = {
+    settings: GlobalSettings;
+    set: (callback: (newSettings: GlobalSettings) => GlobalSettings) => void;
 };
 
-export const useSettingsStore = create<SettingsState>()(
+export const useGlobalSettingsStore = create<GlobalSettingsState>()(
     devtools(
         persist(
             set => ({

@@ -1,6 +1,6 @@
 import { Container } from "@pixi/react";
 import { useMarkingsStore } from "@/lib/stores/useMarkingsStore";
-import { useShallowViewportStore } from "@/lib/stores/useShallowViewportStore";
+import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
 import { useMemo } from "react";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";

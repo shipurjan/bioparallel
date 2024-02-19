@@ -1,4 +1,4 @@
-import { useSettingsStore } from "@/lib/stores/useSettingsStore";
+import { useGlobalSettingsStore } from "@/lib/stores/useGlobalSettingsStore";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 export const useAppMount = () => {
     const [hasMounted, setHasMounted] = useState(false);
     const { setTheme } = useTheme();
-    const { theme } = useSettingsStore(state => state.settings);
+    const { theme } = useGlobalSettingsStore(state => state.settings);
 
     useEffect(() => {
         setHasMounted(true);

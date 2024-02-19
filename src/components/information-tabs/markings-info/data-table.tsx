@@ -40,7 +40,7 @@ export function DataTable<TData, TValue>({
 
     return (
         <div className="rounded-md border">
-            <div className="flex-1 text-center text-sm text-muted-foreground">
+            <div className="flex-1 text-center text-sm text-muted bg-foreground">
                 {(table.getFilteredSelectedRowModel().rows.length > 0 && (
                     <>
                         {table.getFilteredSelectedRowModel().rows.length} /{" "}

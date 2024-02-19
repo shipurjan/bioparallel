@@ -10,7 +10,7 @@ import {
     DropdownMenuItem,
     DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useSettingsStore } from "@/lib/stores/useSettingsStore";
+import { useGlobalSettingsStore } from "@/lib/stores/useGlobalSettingsStore";
 
 export type DarkModeToggleProps = ButtonProps & {
     "data-testid": string | undefined;
@@ -20,7 +20,7 @@ export function DarkModeToggle({
     ...props
 }: DarkModeToggleProps) {
     const { setTheme } = useTheme();
-    const { setSettings } = useSettingsStore(state => ({
+    const { setSettings } = useGlobalSettingsStore(state => ({
         setSettings: state.set,
     }));
 
