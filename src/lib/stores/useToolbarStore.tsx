@@ -2,7 +2,12 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
 export type GlobalToolbarSettings = {
-    lockedViewport: boolean;
+    lockedViewport: {
+        state: boolean;
+        options: {
+            scaleSync: boolean;
+        };
+    };
 };
 
 type GlobalToolbarSettingsState = {
@@ -15,7 +20,12 @@ type GlobalToolbarSettingsState = {
 export const useGlobalToolbarStore = create<GlobalToolbarSettingsState>()(
     devtools(set => ({
         settings: {
-            lockedViewport: false,
+            lockedViewport: {
+                state: false,
+                options: {
+                    scaleSync: false,
+                },
+            },
         },
         set: callback => set(state => ({ settings: callback(state.settings) })),
     }))

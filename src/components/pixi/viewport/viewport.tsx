@@ -10,6 +10,7 @@ import { Marking, useMarkingsStore } from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
 import { useGlobalToolbarStore } from "@/lib/stores/useToolbarStore";
 import { MovedEvent } from "pixi-viewport/dist/types";
+import { round } from "@/lib/utils/math/round";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
@@ -17,7 +18,7 @@ import { getNormalizedPosition } from "../overlays/utils/get-viewport-local-posi
 import { useGlobalViewport } from "./hooks/useGlobalViewport";
 
 export type ViewportProps = {
-    children: ReactNode;
+    children?: ReactNode;
     canvasMetadata: CanvasMetadata;
 };
 
@@ -90,6 +91,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
         let prevScaled: ZoomValue = 1;
         let prevPos: Position = { x: 0, y: 0 };
 
+        let prevOppositeScaled: ZoomValue = 1;
+
         const followLockedViewport = (
             viewport: PixiViewport,
             event: MovedEvent,
@@ -109,13 +112,25 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         value,
                         offset: { x, y },
                     } = delta as Zoom;
-                    // FIXME: złe przesunięcie na zoomie
-                    viewport.moveCenter(
-                        viewport.center.x - x,
-                        viewport.center.y - y
-                    );
-                    // eslint-disable-next-line no-param-reassign
-                    viewport.setZoom(viewport.scaled * value);
+
+                    const oldScale = viewport.scaled;
+                    const newScale = round(oldScale * value, 3);
+
+                    if (newScale !== prevOppositeScaled) {
+                        viewport.setZoom(newScale);
+
+                        viewport.moveCorner(
+                            viewport.corner.x - x,
+                            viewport.corner.y - y
+                        );
+                    }
+
+                    viewport.emit("zoomed", {
+                        type: "wheel",
+                        viewport,
+                    });
+
+                    prevOppositeScaled = newScale;
                     break;
                 }
                 default:
@@ -172,7 +187,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
                         const isLocked =
                             useGlobalToolbarStore.getState().settings
-                                .lockedViewport;
+                                .lockedViewport.state;
                         if (!isLocked) {
                             prevScaled = viewport.scaled;
                             prevPos = {
@@ -186,20 +201,31 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                                 id === "left" ? "right" : "left"
                             );
 
+                            if (oppositeViewport === null) return;
+
                             const delta: Delta = (() => {
                                 switch (e.type) {
-                                    case "drag":
+                                    case "drag": {
+                                        const isScaleSync =
+                                            useGlobalToolbarStore.getState()
+                                                .settings.lockedViewport.options
+                                                .scaleSync;
                                         return {
                                             x:
                                                 (viewport.position._x -
                                                     prevPos.x) /
-                                                viewport.scaled,
+                                                (isScaleSync
+                                                    ? viewport.scaled
+                                                    : oppositeViewport.scaled),
                                             y:
                                                 (viewport.position._y -
                                                     prevPos.y) /
-                                                viewport.scaled,
+                                                (isScaleSync
+                                                    ? viewport.scaled
+                                                    : oppositeViewport.scaled),
                                         };
-                                    case "wheel":
+                                    }
+                                    case "wheel": {
                                         return {
                                             value: viewport.scaled / prevScaled,
                                             offset: {
@@ -213,6 +239,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                                                     viewport.scaled,
                                             },
                                         };
+                                    }
                                     default:
                                         return null;
                                 }
