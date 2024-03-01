@@ -6,56 +6,63 @@ import {
     LockClosedIcon,
     LockOpen1Icon,
     DimensionsIcon,
+    CursorArrowIcon,
+    Cross1Icon,
 } from "@radix-ui/react-icons";
 import { useGlobalToolbarStore } from "@/lib/stores/useToolbarStore";
-import { produce } from "immer";
-import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import {
+    enableMarkingCursorMode,
+    enableSelectionCursorMode,
+    toggleLockScaleSync,
+    toggleLockedViewport,
+} from "@/lib/utils/settings/toolbar-settings";
 import { ToolbarGroup } from "./group";
+import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 
 export type GlobalToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
-    const { toolbarSettings, setToolbarSettings } = useGlobalToolbarStore(
-        state => ({
-            toolbarSettings: state.settings,
-            setToolbarSettings: state.set,
-        })
-    );
+    const { toolbarSettings } = useGlobalToolbarStore(state => ({
+        toolbarSettings: state.settings,
+    }));
 
-    const { lockedViewport } = toolbarSettings;
-
-    const toggleLockedViewport = () =>
-        setToolbarSettings(
-            produce(settings => {
-                settings.lockedViewport.state = !settings.lockedViewport.state;
-            })
-        );
-
-    const toggleLockScaleSync = () =>
-        setToolbarSettings(
-            produce(settings => {
-                settings.lockedViewport.options.scaleSync =
-                    !settings.lockedViewport.options.scaleSync;
-            })
-        );
-
-    const o = toolbarSettings.lockedViewport.options;
-    const lockedViewportToggleGroupValue = [
-        ...(o.scaleSync ? ["scale_sync"] : []),
-    ];
+    const { lockedViewport, cursorMode } = toolbarSettings;
 
     return (
         <div
             className={cn(
-                "flex items-center gap-2.5 justify-center w-fit h-fit p-2 rounded-md",
+                "flex items-center gap-2 py-0.5 justify-center w-fit h-fit rounded-md",
                 className
             )}
             {...props}
         >
             <ToolbarGroup>
+                <ToggleGroup
+                    type="single"
+                    value={cursorMode.state}
+                    variant="outline"
+                    size="icon"
+                >
+                    <ToggleGroupItem
+                        value="select"
+                        title="Select (1)"
+                        onClick={enableSelectionCursorMode}
+                    >
+                        <CursorArrowIcon className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                        value="marking"
+                        title="Mark (2)"
+                        onClick={enableMarkingCursorMode}
+                    >
+                        <Cross1Icon className="h-4 w-4" />
+                    </ToggleGroupItem>
+                </ToggleGroup>
+            </ToolbarGroup>
+            <ToolbarGroup>
                 <Toggle
                     variant="outline"
-                    title="Lock viewports together"
-                    size="sm"
+                    title="Lock viewports together (L)"
+                    size="icon"
                     pressed={lockedViewport.state}
                     onClick={toggleLockedViewport}
                 >
@@ -65,21 +72,16 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                         <LockOpen1Icon className="h-4 w-4" />
                     )}
                 </Toggle>
-                <ToggleGroup
-                    type="multiple"
+
+                <Toggle
                     variant="outline"
-                    size="sm"
-                    value={lockedViewportToggleGroupValue}
-                    disabled={!lockedViewport.state}
+                    title="Synchronize movement with viewport scale (M)"
+                    size="icon"
+                    pressed={lockedViewport.options.scaleSync}
+                    onClick={toggleLockScaleSync}
                 >
-                    <ToggleGroupItem
-                        value="scale_sync"
-                        title="Synchronize movement with viewport scale"
-                        onClick={() => toggleLockScaleSync()}
-                    >
-                        <DimensionsIcon className="h-4 w-4" />
-                    </ToggleGroupItem>
-                </ToggleGroup>
+                    <DimensionsIcon className="h-4 w-4" />
+                </Toggle>
             </ToolbarGroup>
         </div>
     );

@@ -21,29 +21,31 @@ export const MarkingTexts = memo(({ markings }: MarkingTextsProps) => {
         return `${FONT_FAMILY_NAME} 64`;
     };
 
-    return markings.map(({ size: markingSize, id, position }) => {
-        const text = id;
-        const fontSize = Math.ceil(
-            +(
-                (markingSize * 2) /
-                (text.length === 1 ? 1 : text.length * 0.58)
-            ).toFixed(0)
-        );
-        const fontName = getFontName(fontSize);
+    return markings.map(
+        ({ size: markingSize, textColor: tint, id, position }) => {
+            const text = id;
+            const fontSize = Math.ceil(
+                +(
+                    (markingSize * 2) /
+                    (text.length === 1 ? 1 : text.length * 0.58)
+                ).toFixed(0)
+            );
+            const fontName = getFontName(fontSize);
 
-        return (
-            <BitmapText
-                key={id}
-                text={text}
-                x={position.x}
-                y={position.y}
-                anchor={[0.5, 0.43]}
-                style={{
-                    fontSize,
-                    fontName,
-                    tint: 0x000000,
-                }}
-            />
-        );
-    });
+            return (
+                <BitmapText
+                    key={id}
+                    text={text}
+                    x={position.x}
+                    y={position.y}
+                    anchor={[0.5, 0.43]}
+                    style={{
+                        fontSize,
+                        fontName,
+                        tint,
+                    }}
+                />
+            );
+        }
+    );
 });

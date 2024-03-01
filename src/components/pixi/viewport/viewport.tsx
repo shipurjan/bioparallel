@@ -51,28 +51,15 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
             updateCanvas(id, "viewport");
         };
 
-        let dragStartMousePos: null | {
-            x: number;
-            y: number;
-        } = null;
-
         const addStoreMarking = useMarkingsStore(state => state.add);
         const setShallowViewportSize = useShallowViewportStore(id)(
             state => state.setSize
         );
 
         function addMarking(e: FederatedPointerEvent, viewport: PixiViewport) {
-            if (dragStartMousePos === null) return;
             if (e.button !== 0) return;
 
-            const diffX = Math.abs(e.pageX - dragStartMousePos.x);
-            const diffY = Math.abs(e.pageY - dragStartMousePos.y);
-            const DELTA = 10;
-
-            if (diffX >= DELTA || diffY >= DELTA) return;
-
             const clickPos = getNormalizedClickPosition(e, viewport);
-
             if (clickPos === undefined) return;
 
             const marking: Marking =
@@ -84,6 +71,9 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         x: clickPos.x,
                         y: clickPos.y,
                     },
+                    backgroundColor: "#ff0000",
+                    textColor: "#000000",
+                    type: "point",
                 };
             addStoreMarking([marking]);
         }
@@ -159,13 +149,14 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                 sideEffects={viewport => {
                     viewport
                         .drag({
-                            wheel: false,
-                            mouseButtons: "middle-left",
+                            wheel: true,
+                            mouseButtons: "middle",
                         })
                         .wheel({
                             percent: 0,
                             interrupt: true,
                             wheelZoom: true,
+                            keyToPress: ["ControlLeft", "ControlRight"],
                         })
                         .clampZoom({
                             minScale: 1 / 4,
@@ -282,16 +273,16 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         }
                     );
 
-                    viewport.addEventListener("mousedown", e => {
-                        dragStartMousePos = {
-                            x: e.pageX,
-                            y: e.pageY,
-                        };
-                    });
-
                     viewport.addEventListener(
-                        "mouseup",
-                        e => addMarking(e, viewport),
+                        "mousedown",
+                        e => {
+                            const cursorMode =
+                                useGlobalToolbarStore.getState().settings
+                                    .cursorMode.state;
+                            if (cursorMode === "marking") {
+                                addMarking(e, viewport);
+                            }
+                        },
                         {
                             passive: true,
                         }

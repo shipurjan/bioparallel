@@ -5,6 +5,7 @@ import { Stage } from "@pixi/react";
 import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { useEffect, useState } from "react";
+import { cn } from "@/lib/utils/shadcn";
 import { PixiApp } from "../app/app";
 import { DebugOverlay } from "../overlays/debug-overlay";
 import { MarkingOverlay } from "../overlays/marking-overlay";
@@ -20,12 +21,13 @@ function range(min: number, max: number): number[] {
 }
 
 export type CanvasProps = Omit<Stage["props"], "children">;
-export function Canvas({ options, ...props }: CanvasProps) {
+export function Canvas({ options, className, ...props }: CanvasProps) {
     const canvasMetadata = useCanvasContext();
     const backgroundColor = getComputedStyle(document.body).getPropertyValue(
         "--background"
     );
     const [isFontLoaded, setIsFontLoaded] = useState(false);
+    const [isDragging, setIsDragging] = useState(false);
 
     useEffect(() => {
         // wyłącz antyaliasing tekstur
@@ -54,7 +56,25 @@ export function Canvas({ options, ...props }: CanvasProps) {
     if (!isFontLoaded) return null;
 
     return (
-        <Stage {...props} options={defaultOptions}>
+        <Stage
+            {...props}
+            options={defaultOptions}
+            className={cn(
+                {
+                    "!cursor-auto": !isDragging,
+                    "!cursor-move": isDragging,
+                },
+                className
+            )}
+            onMouseDown={e => {
+                // jeśli nie środkowy przycisk, zakończ
+                if (e.button !== 1) return;
+                setIsDragging(true);
+            }}
+            onMouseUp={() => {
+                setIsDragging(false);
+            }}
+        >
             {IS_DEV_ENVIRONMENT && (
                 <DebugOverlay canvasMetadata={canvasMetadata} />
             )}

@@ -16,7 +16,7 @@ export const MarkingCircles = memo(
             g.clear();
             if (viewport !== null) {
                 markings.forEach(marking => {
-                    g.beginFill("0xff0000");
+                    g.beginFill(marking.backgroundColor);
                     const { x, y } = marking.position;
                     g.drawCircle(x, y, marking.size);
                     g.endFill();

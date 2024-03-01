@@ -18,12 +18,13 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
     return (
         <div
             className={cn(
-                "absolute flex gap-2 top-0 left-1/2 -translate-x-1/2 w-fit h-fit bg-card/75 p-1 rounded-b-md",
+                "absolute flex gap-0.5 top-0 left-1/2 -translate-x-1/2 w-fit h-fit bg-card/75 p-1 rounded-b-md",
                 className
             )}
             {...props}
         >
             <Button
+                title="Fit world"
                 size="icon"
                 variant="outline"
                 onClick={() => {
@@ -34,6 +35,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                 <SizeIcon className="h-4 w-4" />
             </Button>
             <Button
+                title="Fit height"
                 size="icon"
                 variant="outline"
                 onClick={() => {
@@ -44,6 +46,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                 <HeightIcon className="h-4 w-4" />
             </Button>
             <Button
+                title="Fit width"
                 size="icon"
                 variant="outline"
                 onClick={() => {

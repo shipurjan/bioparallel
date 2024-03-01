@@ -39,6 +39,16 @@ export const columns: ColumnDef<ExtendedMarking>[] = [
         header: "ID",
     },
     {
+        accessorKey: "type",
+        header: "Type",
+        cell: ({ row }) => {
+            const marking = row.original;
+            return (
+                marking.type.slice(0, 1).toUpperCase() + marking.type.slice(1)
+            );
+        },
+    },
+    {
         accessorKey: "x",
         header: "x",
         cell: ({ row }) => {

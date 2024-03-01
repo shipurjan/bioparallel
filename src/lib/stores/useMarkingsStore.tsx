@@ -1,4 +1,5 @@
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { ColorSource } from "pixi.js";
 import { devtools } from "zustand/middleware";
 import { createWithEqualityFn } from "zustand/traditional";
 
@@ -9,7 +10,10 @@ export type InternalMarking = {
         x: number;
         y: number;
     };
+    backgroundColor: ColorSource;
+    textColor: ColorSource;
     size: number;
+    type: "point" | "angle";
     boundMarking?: InternalMarking["id"];
 };
 

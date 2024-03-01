@@ -26,7 +26,7 @@ export function CanvasContainer({ ...props }: CanvasContainerProps) {
 
     return (
         <div
-            className="w-full h-full relative cursor-default active:cursor-move"
+            className="w-full h-full relative"
             ref={divRef}
             onDragEnter={e => {
                 e.preventDefault();

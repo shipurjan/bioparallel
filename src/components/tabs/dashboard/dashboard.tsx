@@ -10,8 +10,11 @@ import {
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { useMemo } from "react";
+import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts";
 
 export function Dashboard() {
+    useKeyboardShortcuts();
+
     const leftCanvasMetadata: CanvasMetadata = useMemo(
         () => ({
             id: "left",
