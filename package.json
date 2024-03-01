@@ -54,6 +54,7 @@
         "tailwind-merge": "2.2.1",
         "tailwindcss-animate": "1.0.7",
         "tauri-plugin-store-api": "github:tauri-apps/tauri-plugin-store#v1",
+        "use-debounce": "^10.0.0",
         "zustand": "4.5.1"
     },
     "devDependencies": {

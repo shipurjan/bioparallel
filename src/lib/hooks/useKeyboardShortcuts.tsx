@@ -1,25 +1,22 @@
+import { Toolbar, useGlobalToolbarStore } from "../stores/useToolbarStore";
 import { useKeyDown } from "./useKeyDown";
-import {
-    enableMarkingCursorMode,
-    enableSelectionCursorMode,
-    toggleLockScaleSync,
-    toggleLockedViewport,
-} from "../utils/settings/toolbar-settings";
 
 export const useKeyboardShortcuts = () => {
+    useGlobalToolbarStore(state => state.settings);
+
     useKeyDown(() => {
-        enableSelectionCursorMode();
+        Toolbar.setCursorMode("select");
     }, ["1"]);
 
     useKeyDown(() => {
-        enableMarkingCursorMode();
+        Toolbar.setCursorMode("marking");
     }, ["2"]);
 
     useKeyDown(() => {
-        toggleLockedViewport();
+        Toolbar.toggleLockedViewport();
     }, ["l"]);
 
     useKeyDown(() => {
-        toggleLockScaleSync();
+        Toolbar.toggleLockScaleSync();
     }, ["m"]);
 };

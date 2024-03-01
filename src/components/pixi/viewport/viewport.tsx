@@ -8,7 +8,7 @@ import { Viewport as PixiViewport } from "pixi-viewport";
 import { FederatedPointerEvent } from "pixi.js";
 import { Marking, useMarkingsStore } from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
-import { useGlobalToolbarStore } from "@/lib/stores/useToolbarStore";
+import { Toolbar } from "@/lib/stores/useToolbarStore";
 import { MovedEvent } from "pixi-viewport/dist/types";
 import { round } from "@/lib/utils/math/round";
 import { ReactPixiViewport } from "./react-pixi-viewport";
@@ -71,8 +71,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         x: clickPos.x,
                         y: clickPos.y,
                     },
-                    backgroundColor: "#ff0000",
-                    textColor: "#000000",
+                    backgroundColor: Toolbar.settings.marking.backgroundColor,
+                    textColor: Toolbar.settings.marking.textColor,
                     type: "point",
                 };
             addStoreMarking([marking]);
@@ -176,9 +176,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                     viewport.addEventListener("moved", e => {
                         updateViewport();
 
-                        const isLocked =
-                            useGlobalToolbarStore.getState().settings
-                                .lockedViewport.state;
+                        const isLocked = Toolbar.settings.viewport.locked;
                         if (!isLocked) {
                             prevScaled = viewport.scaled;
                             prevPos = {
@@ -198,9 +196,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                                 switch (e.type) {
                                     case "drag": {
                                         const isScaleSync =
-                                            useGlobalToolbarStore.getState()
-                                                .settings.lockedViewport.options
-                                                .scaleSync;
+                                            Toolbar.settings.viewport.scaleSync;
                                         return {
                                             x:
                                                 (viewport.position._x -
@@ -277,8 +273,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         "mousedown",
                         e => {
                             const cursorMode =
-                                useGlobalToolbarStore.getState().settings
-                                    .cursorMode.state;
+                                Toolbar.settings.cursorMode.state;
                             if (cursorMode === "marking") {
                                 addMarking(e, viewport);
                             }

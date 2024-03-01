@@ -9,23 +9,30 @@ import {
     CursorArrowIcon,
     Cross1Icon,
 } from "@radix-ui/react-icons";
-import { useGlobalToolbarStore } from "@/lib/stores/useToolbarStore";
-import {
-    enableMarkingCursorMode,
-    enableSelectionCursorMode,
-    toggleLockScaleSync,
-    toggleLockedViewport,
-} from "@/lib/utils/settings/toolbar-settings";
+import { Toolbar, useGlobalToolbarStore } from "@/lib/stores/useToolbarStore";
+import { useDebouncedCallback } from "use-debounce";
 import { ToolbarGroup } from "./group";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
+import { Input } from "../ui/input";
 
 export type GlobalToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
-    const { toolbarSettings } = useGlobalToolbarStore(state => ({
-        toolbarSettings: state.settings,
-    }));
+    const { cursorMode, marking, viewport } = useGlobalToolbarStore(
+        state => state.settings
+    );
 
-    const { lockedViewport, cursorMode } = toolbarSettings;
+    const enableSelectCursorMode = () => Toolbar.setCursorMode("select");
+    const enableMarkingCursorMode = () => Toolbar.setCursorMode("marking");
+    const setMarkingBackgroundColor = useDebouncedCallback(
+        value => Toolbar.setMarkingBackgroundColor(value),
+        10
+    );
+    const setMarkingTextColor = useDebouncedCallback(
+        value => Toolbar.setMarkingTextColor(value),
+        10
+    );
+    const { toggleLockedViewport } = Toolbar;
+    const { toggleLockScaleSync } = Toolbar;
 
     return (
         <div
@@ -45,7 +52,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     <ToggleGroupItem
                         value="select"
                         title="Select (1)"
-                        onClick={enableSelectionCursorMode}
+                        onClick={enableSelectCursorMode}
                     >
                         <CursorArrowIcon className="h-4 w-4" />
                     </ToggleGroupItem>
@@ -59,14 +66,34 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 </ToggleGroup>
             </ToolbarGroup>
             <ToolbarGroup>
+                <Input
+                    className="w-6 h-6"
+                    title="Marking background color"
+                    type="color"
+                    value={marking.backgroundColor}
+                    onChange={e => {
+                        setMarkingBackgroundColor(e.target.value);
+                    }}
+                />
+                <Input
+                    className="w-6 h-6"
+                    title="Marking text color"
+                    type="color"
+                    value={marking.textColor}
+                    onChange={e => {
+                        setMarkingTextColor(e.target.value);
+                    }}
+                />
+            </ToolbarGroup>
+            <ToolbarGroup>
                 <Toggle
                     variant="outline"
                     title="Lock viewports together (L)"
                     size="icon"
-                    pressed={lockedViewport.state}
+                    pressed={viewport.locked}
                     onClick={toggleLockedViewport}
                 >
-                    {lockedViewport ? (
+                    {viewport.locked ? (
                         <LockClosedIcon className="h-4 w-4" />
                     ) : (
                         <LockOpen1Icon className="h-4 w-4" />
@@ -77,7 +104,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     variant="outline"
                     title="Synchronize movement with viewport scale (M)"
                     size="icon"
-                    pressed={lockedViewport.options.scaleSync}
+                    pressed={viewport.scaleSync}
                     onClick={toggleLockScaleSync}
                 >
                     <DimensionsIcon className="h-4 w-4" />
