@@ -13,6 +13,9 @@ export const useKeyDown = (
 ) => {
     const onKeyDown = useCallback(
         (event: KeyboardEvent) => {
+            const inputField = document.querySelector("input:focus");
+            if (inputField) return;
+
             if (
                 keys
                     .filter(key => !SPECIAL_KEYS.includes(key))

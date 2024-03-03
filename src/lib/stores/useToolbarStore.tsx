@@ -1,8 +1,12 @@
 /* eslint-disable no-param-reassign */
 
 import { produce } from "immer";
+import { Store } from "tauri-plugin-store-api";
 import { create } from "zustand";
-import { devtools } from "zustand/middleware";
+import { createJSONStorage, devtools, persist } from "zustand/middleware";
+import { tauriStorage } from "./zustand-tauri-store-adapter";
+
+const toolbarStore = new Store("toolbar-settings.dat");
 
 export type GlobalToolbarSettings = {
     cursorMode: {
@@ -39,46 +43,58 @@ type GlobalToolbarSettingsState = {
 };
 
 export const useGlobalToolbarStore = create<GlobalToolbarSettingsState>()(
-    devtools(set => ({
-        settings: {
-            cursorMode: {
-                state: "select",
-            },
-            marking: {
-                backgroundColor: "#ff0000",
-                textColor: "#000000",
-                size: 8,
-            },
-            viewport: {
-                locked: false,
-                scaleSync: false,
-            },
-        },
-        setCursorModeSettings: callback =>
-            set(
-                produce((state: GlobalToolbarSettingsState) => {
-                    state.settings.cursorMode = callback(
-                        state.settings.cursorMode
-                    );
-                })
-            ),
-        setMarkingSettings: callback =>
-            set(
-                produce((state: GlobalToolbarSettingsState) => {
-                    state.settings.marking = callback(state.settings.marking);
-                })
-            ),
-        setViewportSettings: callback =>
-            set(
-                produce((state: GlobalToolbarSettingsState) => {
-                    state.settings.viewport = callback(state.settings.viewport);
-                })
-            ),
-    }))
+    devtools(
+        persist(
+            set => ({
+                settings: {
+                    cursorMode: {
+                        state: "select",
+                    },
+                    marking: {
+                        backgroundColor: "#61bd67",
+                        textColor: "#0a130a",
+                        size: 10,
+                    },
+                    viewport: {
+                        locked: false,
+                        scaleSync: false,
+                    },
+                },
+                setCursorModeSettings: callback =>
+                    set(
+                        produce((state: GlobalToolbarSettingsState) => {
+                            state.settings.cursorMode = callback(
+                                state.settings.cursorMode
+                            );
+                        })
+                    ),
+                setMarkingSettings: callback =>
+                    set(
+                        produce((state: GlobalToolbarSettingsState) => {
+                            state.settings.marking = callback(
+                                state.settings.marking
+                            );
+                        })
+                    ),
+                setViewportSettings: callback =>
+                    set(
+                        produce((state: GlobalToolbarSettingsState) => {
+                            state.settings.viewport = callback(
+                                state.settings.viewport
+                            );
+                        })
+                    ),
+            }),
+            {
+                name: "toolbar-settings",
+                storage: createJSONStorage(() => tauriStorage(toolbarStore)),
+            }
+        )
+    )
 );
 
 class ToolbarClass {
-    // helper getter dla komponentów nie-React;
+    // helper getter dla komponentów nie-Reactowych;
     // dla komponentów React używaj useGlobalToolbarStore
     get settings() {
         return useGlobalToolbarStore.getState().settings;
@@ -109,10 +125,17 @@ class ToolbarClass {
     }
 
     setMarkingBackgroundColor(color: string) {
-        console.log("setting");
         useGlobalToolbarStore.getState().setMarkingSettings(
             produce(settings => {
                 settings.backgroundColor = color;
+            })
+        );
+    }
+
+    setMarkingSize(size: number) {
+        useGlobalToolbarStore.getState().setMarkingSettings(
+            produce(settings => {
+                settings.size = size;
             })
         );
     }

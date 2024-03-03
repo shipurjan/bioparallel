@@ -15,7 +15,7 @@ function getColors() {
 
 export const useColors = () => {
     const { theme } = useGlobalSettingsStore(state => ({
-        theme: state.settings.theme,
+        theme: state.settings.design.theme,
     }));
 
     const [colors, setColors] = useState(getColors());

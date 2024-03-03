@@ -2,7 +2,7 @@ import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext"
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 
-type ViewportSize = {
+export type ShallowViewportSize = {
     screenWorldWidth: number;
     screenWorldHeight: number;
     worldWidth: number;
@@ -10,8 +10,8 @@ type ViewportSize = {
 };
 
 type ShallowViewportState = {
-    size: ViewportSize;
-    setSize: (size: ViewportSize) => void;
+    size: ShallowViewportSize;
+    setSize: (size: ShallowViewportSize) => void;
 };
 
 const createShallowViewportStore = (id: CanvasMetadata["id"]) =>

@@ -52,8 +52,10 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
         };
 
         const addStoreMarking = useMarkingsStore(state => state.add);
-        const setShallowViewportSize = useShallowViewportStore(id)(
-            state => state.setSize
+        const { setSize: setShallowViewportSize } = useShallowViewportStore(id)(
+            state => ({
+                setSize: state.setSize,
+            })
         );
 
         function addMarking(e: FederatedPointerEvent, viewport: PixiViewport) {
@@ -62,19 +64,19 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
             const clickPos = getNormalizedClickPosition(e, viewport);
             if (clickPos === undefined) return;
 
-            const marking: Marking =
-                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                {
-                    canvasId: id,
-                    size: 8,
-                    position: {
-                        x: clickPos.x,
-                        y: clickPos.y,
-                    },
-                    backgroundColor: Toolbar.settings.marking.backgroundColor,
-                    textColor: Toolbar.settings.marking.textColor,
-                    type: "point",
-                };
+            const marking: Marking = {
+                canvasId: id,
+                size: Toolbar.settings.marking.size,
+                position: {
+                    x: clickPos.x,
+                    y: clickPos.y,
+                },
+                backgroundColor: Toolbar.settings.marking.backgroundColor,
+                textColor: Toolbar.settings.marking.textColor,
+                type: "point",
+                angle: 0,
+            };
+
             addStoreMarking([marking]);
         }
 

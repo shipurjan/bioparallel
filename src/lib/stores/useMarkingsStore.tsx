@@ -14,7 +14,12 @@ export type InternalMarking = {
     textColor: ColorSource;
     size: number;
     type: "point" | "angle";
+    angle: number;
     boundMarking?: InternalMarking["id"];
+};
+
+export type RenderableMarking = InternalMarking & {
+    visible: boolean;
 };
 
 export type Marking = Omit<InternalMarking, "id">;

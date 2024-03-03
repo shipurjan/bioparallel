@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 export const useAppMount = () => {
     const [hasMounted, setHasMounted] = useState(false);
     const { setTheme } = useTheme();
-    const { theme } = useGlobalSettingsStore(state => state.settings);
+    const { theme } = useGlobalSettingsStore(state => state.settings.design);
 
     useEffect(() => {
         setHasMounted(true);

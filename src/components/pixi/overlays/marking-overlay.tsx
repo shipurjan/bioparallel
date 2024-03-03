@@ -1,21 +1,22 @@
 import { Container } from "@pixi/react";
-import { useMarkingsStore } from "@/lib/stores/useMarkingsStore";
+import {
+    InternalMarking,
+    useMarkingsStore,
+} from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
 import { useMemo } from "react";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
 import { getViewportLocalPosition } from "./utils/get-viewport-local-position";
-import { MarkingTexts } from "./marking-texts";
-import { MarkingCircles } from "./marking-circles";
+import { Markings } from "./marking/marking";
 
 export type MarkingOverlayProps = {
     canvasMetadata: CanvasMetadata;
 };
 
-export function MarkingOverlay({
-    canvasMetadata: { id },
-}: MarkingOverlayProps) {
+export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
+    const { id } = canvasMetadata;
     const viewport = useGlobalViewport(id, { autoUpdate: true });
     const app = useGlobalApp(id);
     const { markings } = useMarkingsStore(
@@ -44,18 +45,17 @@ export function MarkingOverlay({
         })
     );
 
-    const relativeMarkings = useMemo(
+    const relativeMarkings: InternalMarking[] = useMemo(
         () =>
-            markings.map(marking => ({
-                ...marking,
-                position:
-                    viewport === null
-                        ? marking.position
-                        : {
-                              x: marking.position.x * viewportWidthRatio,
-                              y: marking.position.y * viewportHeightRatio,
-                          },
-            })),
+            viewport === null
+                ? markings
+                : markings.map(marking => ({
+                      ...marking,
+                      position: {
+                          x: marking.position.x * viewportWidthRatio,
+                          y: marking.position.y * viewportHeightRatio,
+                      },
+                  })),
         [markings, viewport, viewportHeightRatio, viewportWidthRatio]
     );
 
@@ -65,8 +65,10 @@ export function MarkingOverlay({
 
     return (
         <Container position={getViewportLocalPosition(viewport)}>
-            <MarkingCircles markings={relativeMarkings} viewport={viewport} />
-            <MarkingTexts markings={relativeMarkings} />
+            <Markings
+                canvasMetadata={canvasMetadata}
+                markings={relativeMarkings}
+            />
         </Container>
     );
 }

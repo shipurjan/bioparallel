@@ -21,8 +21,13 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
         state => state.settings
     );
 
-    const enableSelectCursorMode = () => Toolbar.setCursorMode("select");
-    const enableMarkingCursorMode = () => Toolbar.setCursorMode("marking");
+    const {
+        toggleLockedViewport,
+        toggleLockScaleSync,
+        setCursorMode,
+        setMarkingSize,
+    } = Toolbar;
+
     const setMarkingBackgroundColor = useDebouncedCallback(
         value => Toolbar.setMarkingBackgroundColor(value),
         10
@@ -31,8 +36,6 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
         value => Toolbar.setMarkingTextColor(value),
         10
     );
-    const { toggleLockedViewport } = Toolbar;
-    const { toggleLockScaleSync } = Toolbar;
 
     return (
         <div
@@ -51,15 +54,19 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 >
                     <ToggleGroupItem
                         value="select"
-                        title="Select (1)"
-                        onClick={enableSelectCursorMode}
+                        title="Select mode (1)"
+                        onClick={() => {
+                            setCursorMode("select");
+                        }}
                     >
                         <CursorArrowIcon className="h-4 w-4" />
                     </ToggleGroupItem>
                     <ToggleGroupItem
                         value="marking"
-                        title="Mark (2)"
-                        onClick={enableMarkingCursorMode}
+                        title="Mark mode (2)"
+                        onClick={() => {
+                            setCursorMode("marking");
+                        }}
                     >
                         <Cross1Icon className="h-4 w-4" />
                     </ToggleGroupItem>
@@ -82,6 +89,17 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     value={marking.textColor}
                     onChange={e => {
                         setMarkingTextColor(e.target.value);
+                    }}
+                />
+                <Input
+                    className="w-12 h-6 !p-0"
+                    min={6}
+                    max={32}
+                    title="Marking size"
+                    type="number"
+                    value={marking.size}
+                    onChange={e => {
+                        setMarkingSize(e.target.valueAsNumber);
                     }}
                 />
             </ToolbarGroup>
