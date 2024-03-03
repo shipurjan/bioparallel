@@ -1,4 +1,4 @@
-import { useSettingsStore } from "@/lib/stores/useSettingsStore";
+import { useGlobalSettingsStore } from "@/lib/stores/useGlobalSettingsStore";
 import { invoke } from "@tauri-apps/api/tauri";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
@@ -6,18 +6,15 @@ import { useEffect, useState } from "react";
 export const useAppMount = () => {
     const [hasMounted, setHasMounted] = useState(false);
     const { setTheme } = useTheme();
-    const { theme } = useSettingsStore(state => state.settings);
+    const { theme } = useGlobalSettingsStore(state => state.settings.design);
 
     useEffect(() => {
         setHasMounted(true);
         setTheme(theme);
 
         const callback = async () => {
-            await new Promise(r => {
-                setTimeout(r, 10);
-            });
-            invoke("close_splashscreen_if_exists");
-            invoke("show_main_window_if_hidden");
+            await invoke("close_splashscreen_if_exists");
+            await invoke("show_main_window_if_hidden");
         };
         callback();
     }, [setTheme, theme]);

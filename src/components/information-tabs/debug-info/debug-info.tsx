@@ -184,26 +184,28 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
     ];
 
     return (
-        <div
-            className="w-full h-full flex flex-wrap justify-between items-start gap-0 px-2"
-            {...props}
-        >
-            {app && DebugInfoTables(app, appKeys, "app", "text-red-400")}
-            <div className="basis-full" />
-            {OOB &&
-                DebugInfoTables(
-                    OOB,
-                    OOBKeys,
-                    "viewport.OOB()",
-                    "text-emerald-400"
-                )}
-            {viewport &&
-                DebugInfoTables(
-                    viewport,
-                    viewportKeys,
-                    "viewport",
-                    "text-sky-400"
-                )}
+        <div className="w-full h-fit overflow-auto">
+            <div
+                className="w-full h-full flex flex-wrap justify-between items-start gap-0 px-2"
+                {...props}
+            >
+                {app && DebugInfoTables(app, appKeys, "app", "text-red-400")}
+                <div className="basis-full" />
+                {OOB &&
+                    DebugInfoTables(
+                        OOB,
+                        OOBKeys,
+                        "viewport.OOB()",
+                        "text-emerald-400"
+                    )}
+                {viewport &&
+                    DebugInfoTables(
+                        viewport,
+                        viewportKeys,
+                        "viewport",
+                        "text-sky-400"
+                    )}
+            </div>
         </div>
     );
 }

@@ -1,10 +1,19 @@
 "use client";
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Dashboard } from "@/components/tabs/dashboard/dashboard";
 import { Settings } from "@/components/tabs/settings/settings";
 import { useState } from "react";
 import { cn } from "@/lib/utils/shadcn";
+import dynamic from "next/dynamic";
+import { GlobalToolbar } from "@/components/toolbar/toolbar";
+
+const Dashboard = dynamic(
+    () =>
+        import("@/components/tabs/dashboard/dashboard").then(
+            mod => mod.Dashboard
+        ),
+    { ssr: false }
+);
 
 export default function Home() {
     const initialTab = "dashboard";
@@ -15,9 +24,6 @@ export default function Home() {
             data-testid="page-container"
             className="flex w-full min-h-dvh h-full flex-col items-center justify-between"
         >
-            <button type="button" onClick={() => {}}>
-                Button
-            </button>
             <Tabs
                 onValueChange={setCurrentTab}
                 defaultValue={initialTab}
@@ -34,10 +40,14 @@ export default function Home() {
                 <TabsContent
                     forceMount
                     value="dashboard"
-                    className={cn("flex flex-col flex-grow w-full", {
-                        hidden: currentTab !== "dashboard",
-                    })}
+                    className={cn(
+                        "flex flex-col justify-center items-center flex-grow w-full",
+                        {
+                            hidden: currentTab !== "dashboard",
+                        }
+                    )}
                 >
+                    <GlobalToolbar />
                     <Dashboard />
                 </TabsContent>
                 <TabsContent value="settings" className="w-full">

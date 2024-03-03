@@ -57,4 +57,14 @@
     body {
         @apply bg-background text-foreground;
     }
+    input[type="color"] {
+        border: none;
+        padding: 0!important;
+    }
+    input[type="color"]::-webkit-color-swatch-wrapper {
+        padding: 0!important;
+    }
+    input[type="color"]::-webkit-color-swatch {
+        @apply rounded-md;
+    }
 }

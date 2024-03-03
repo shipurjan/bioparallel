@@ -1,7 +1,6 @@
 import { UpdateState, useUpdateStore } from "@/lib/stores/useCanvasStore";
 import { useThrottledUpdate } from "@/lib/hooks/useThrottledUpdate";
 import { CanvasMetadata } from "./useCanvasContext";
-import { useCanvas } from "./useCanvas";
 
 const typeChecker =
     (id: CanvasMetadata["id"], type: "app" | "viewport") =>
@@ -19,9 +18,9 @@ export const useCanvasUpdater = (
     return useUpdateStore(state => state.value, typeChecker(id, type));
 };
 
-export const useThrottledCanvasUpdater = (id: CanvasMetadata["id"]) => {
-    const { app } = useCanvas(id, true);
-    return useThrottledUpdate(app?.ticker.deltaMS ?? 16.66);
+export const useThrottledCanvasUpdater = (fps: number) => {
+    const delay = 1000 / fps;
+    return useThrottledUpdate(delay);
 };
 
 const voidCompare = <T,>(a: T, b: T): boolean => {

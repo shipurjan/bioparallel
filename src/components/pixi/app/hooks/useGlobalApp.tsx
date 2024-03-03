@@ -13,7 +13,7 @@ export const useGlobalApp = (
     if (options?.autoUpdate === true) {
         if (options.throttledUpdate === true) {
             // eslint-disable-next-line react-hooks/rules-of-hooks
-            useThrottledCanvasUpdater(id);
+            useThrottledCanvasUpdater(30);
         } else {
             // eslint-disable-next-line react-hooks/rules-of-hooks
             useCanvasUpdater(id, "app");

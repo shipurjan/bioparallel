@@ -1,14 +1,17 @@
 "use client";
 
-import { Graphics, useApp } from "@pixi/react";
-import { Graphics as PixiGraphics } from "pixi.js";
-import { useCallback, useRef } from "react";
+import { useApp } from "@pixi/react";
+import { useCallback, useEffect, useRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
+import { loadSprite } from "@/lib/utils/viewport/load-sprite";
+import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { Viewport } from "../viewport/viewport";
 import { useThemeController } from "./hooks/useThemeController";
 import { useGlobalRefs } from "./hooks/useGlobalRefs";
 import { useViewportResizer } from "./hooks/useViewportResizer";
+import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
 
 export type PixiAppProps = {
     width: number;
@@ -18,26 +21,35 @@ export type PixiAppProps = {
 export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
     const app = useApp();
     const viewportRef = useRef<PixiViewport>(null);
+    const viewport = viewportRef.current;
 
-    const colors = useThemeController(app);
+    const updateCanvas = useDryCanvasUpdater();
+    const updateViewport = useCallback(() => {
+        updateCanvas(canvasMetadata.id, "viewport");
+    }, [canvasMetadata.id, updateCanvas]);
+
+    useThemeController(app);
     useGlobalRefs(canvasMetadata.id, app, viewportRef.current);
     useViewportResizer(viewportRef.current, width, height);
 
-    const draw = useCallback(
-        (g: PixiGraphics) => {
-            g.clear();
-            g.beginFill(colors.foreground);
-            g.drawCircle(100, 100, 60);
-            g.drawCircle(200, 250, 50);
-            g.endFill();
-            viewportRef.current?.resize(width, height);
-        },
-        [colors.foreground, height, width]
-    );
+    useEffect(() => {}, [app.renderer.background]);
 
-    return (
-        <Viewport canvasMetadata={canvasMetadata} ref={viewportRef}>
-            <Graphics draw={draw} />
-        </Viewport>
-    );
+    useEffect(() => {
+        if (!IS_DEV_ENVIRONMENT) return;
+        if (viewport === null) return;
+
+        const png01 =
+            "C:/Users/niar-windows/Documents/repos/bioparallel/public/images/L1AC.png";
+        const png02 =
+            "C:/Users/niar-windows/Documents/repos/bioparallel/public/images/L2U.png";
+
+        loadSprite(canvasMetadata.id === "left" ? png01 : png02)
+            .then(sprite => {
+                viewport.addChild(normalizeSpriteSize(viewport, sprite));
+                updateViewport();
+            })
+            .catch(console.error);
+    }, [canvasMetadata.id, updateViewport, viewport]);
+
+    return <Viewport canvasMetadata={canvasMetadata} ref={viewportRef} />;
 }
