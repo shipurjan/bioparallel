@@ -79,7 +79,6 @@ function isVisible(
     const PRERENDER_MARGIN = (() => {
         switch (Global.settings.video.rendering.prerenderRadius) {
             case "auto":
-                console.log(markingsLength);
                 if (markingsLength < 100) return 2 * VERY_HIGH;
                 if (markingsLength < 200) return VERY_HIGH;
                 if (markingsLength < 500) return HIGH;
