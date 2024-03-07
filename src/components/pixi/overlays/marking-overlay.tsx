@@ -25,7 +25,9 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
         (oldMarkings, newMarkings) => oldMarkings.length === newMarkings.length
     );
 
-    const temporaryMarking = useMarkingsStore(state => state.temporaryMarking);
+    const temporaryMarking = useMarkingsStore(state =>
+        state.temporaryMarking?.canvasId === id ? state.temporaryMarking : null
+    );
 
     // oblicz proporcje viewportu do świata tylko na evencie zoomed, dla lepszej wydajności (nie ma sensu liczyć tego na każdym renderze
     // bo przy samym ruchu nie zmieniają się proporcje viewportu do świata, tylko przy zoomie)

@@ -68,7 +68,7 @@ export function Canvas({ options, className, ...props }: CanvasProps) {
             )}
             onMouseDown={e => {
                 // jeśli nie środkowy przycisk, zakończ
-                if (e.button !== 1) return;
+                if (e.buttons !== 4) return;
                 setIsDragging(true);
             }}
             onMouseUp={() => {

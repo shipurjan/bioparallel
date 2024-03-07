@@ -79,8 +79,6 @@ export const Marking = memo(({ marking }: MarkingProps) => {
     ) => {
         if (!visible) return;
         g.beginFill(color);
-        // eslint-disable-next-line no-param-reassign
-        g.alpha = 0.5;
         g.drawCircle(x, y, size);
         g.endFill();
     };
@@ -88,6 +86,8 @@ export const Marking = memo(({ marking }: MarkingProps) => {
     const draw = useCallback(
         (g: PixiGraphics) => {
             g.clear();
+            // eslint-disable-next-line no-param-reassign
+            g.alpha = 0.75;
             drawMarking(g, renderableMarking);
         },
         [renderableMarking]

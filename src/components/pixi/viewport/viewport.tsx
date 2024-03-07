@@ -170,7 +170,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                 options={{
                     events: app.renderer.events,
                     ticker: app.ticker,
-                    threshold: 10,
+                    threshold: 0,
                     passiveWheel: false,
                     allowPreserveDragOutside: true,
                 }}
