@@ -5,8 +5,9 @@ import { ExtendedMarking, columns } from "./columns";
 
 export function MarkingsInfo() {
     const { id } = useCanvasContext();
-    const markings = useMarkingsStore(state =>
-        state.markings.filter(marking => marking.canvasId === id)
+    const markings = useMarkingsStore(
+        state => state.markings.filter(m => m.canvasId === id),
+        (oldMarkings, newMarkings) => oldMarkings.length === newMarkings.length
     );
 
     return (

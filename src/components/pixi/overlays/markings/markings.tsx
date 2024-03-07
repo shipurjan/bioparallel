@@ -121,14 +121,16 @@ export const Markings = memo(({ canvasMetadata, markings }: MarkingsProps) => {
         RenderableMarking[]
     >([]);
 
-    const updateRenderableMarkings = useCallback(() => {
-        setRenderableMarkings(
-            markings.map(marking => ({
-                ...marking,
-                visible: isVisible(marking, markings.length, app, viewport),
-            }))
-        );
-    }, [markings, viewport, app]);
+    const updateRenderableMarkings = useCallback(
+        () =>
+            setRenderableMarkings(
+                markings.map(marking => ({
+                    ...marking,
+                    visible: isVisible(marking, markings.length, app, viewport),
+                }))
+            ),
+        [app, markings, viewport]
+    );
 
     useEffect(() => {
         viewport?.addEventListener("moved-end", updateRenderableMarkings);
@@ -142,30 +144,38 @@ export const Markings = memo(({ canvasMetadata, markings }: MarkingsProps) => {
     }, [updateRenderableMarkings, viewport]);
 
     useEffect(() => {
-        setRenderableMarkings(
-            markings.map(marking => ({
-                ...marking,
-                visible: isVisible(marking, markings.length, app, viewport),
-            }))
-        );
-    }, [markings, viewport, app]);
+        updateRenderableMarkings();
+    }, [markings, viewport, app, updateRenderableMarkings]);
 
-    const draw = (g: PixiGraphics) => {
-        // wyrenderuj wszystkie markingi jako jedna grafika dla lepszej wydajności
-        g.clear();
-        renderableMarkings.forEach(
-            ({ visible, backgroundColor: color, position: { x, y }, size }) => {
-                if (!visible) return;
-                g.beginFill(color);
-                g.drawCircle(x, y, size);
-                g.endFill();
-            }
-        );
+    const drawMarking = (
+        g: PixiGraphics,
+        {
+            visible,
+            backgroundColor: color,
+            position: { x, y },
+            size,
+        }: RenderableMarking
+    ) => {
+        if (!visible) return;
+        g.beginFill(color);
+        g.drawCircle(x, y, size);
+        g.endFill();
     };
+
+    const drawMarkings = useCallback(
+        (g: PixiGraphics) => {
+            // wyrenderuj wszystkie markingi jako jedna grafika dla lepszej wydajności
+            g.clear();
+            renderableMarkings.forEach(marking => {
+                drawMarking(g, marking);
+            });
+        },
+        [renderableMarkings]
+    );
 
     return (
         <>
-            <Graphics draw={draw} />
+            <Graphics draw={drawMarkings} />
             {renderableMarkings.map(
                 ({ visible, id, size, position, textColor }) => {
                     return (

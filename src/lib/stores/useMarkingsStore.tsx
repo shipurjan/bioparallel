@@ -1,7 +1,9 @@
+/* eslint-disable no-param-reassign */
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { produce } from "immer";
 import { ColorSource } from "pixi.js";
-import { devtools } from "zustand/middleware";
 import { createWithEqualityFn } from "zustand/traditional";
+import { devtools } from "zustand/middleware";
 
 export type InternalMarking = {
     id: string;
@@ -26,6 +28,8 @@ export type Marking = Omit<InternalMarking, "id">;
 
 type MarkingsState = {
     markings: InternalMarking[];
+    temporaryMarking: InternalMarking | null;
+    setTemporary: (temporaryMarking: Marking | null) => void;
     add: (markings: Marking[]) => void;
     remove: (ids: string[]) => void;
     bind: (id: string, boundMarking: InternalMarking["id"]) => void;
@@ -44,17 +48,32 @@ const idGen = idGenerator();
 
 export const useMarkingsStore = createWithEqualityFn<MarkingsState>()(
     devtools(set => ({
+        temporaryMarking: null,
         markings: [],
+        setTemporary: temporaryMarking =>
+            set(
+                produce((state: MarkingsState) => {
+                    if (temporaryMarking === null) {
+                        state.temporaryMarking = null;
+                    } else {
+                        state.temporaryMarking = {
+                            id: "\0",
+                            ...temporaryMarking,
+                        };
+                    }
+                })
+            ),
         add: markings =>
-            set(state => ({
-                markings: [
-                    ...state.markings,
-                    ...markings.map(marking => ({
-                        id: idGen.next().value,
-                        ...marking,
-                    })),
-                ],
-            })),
+            set(
+                produce((state: MarkingsState) => {
+                    state.markings.push(
+                        ...markings.map(marking => ({
+                            id: idGen.next().value,
+                            ...marking,
+                        }))
+                    );
+                })
+            ),
         remove: ids =>
             set(state => ({
                 markings: state.markings.filter(m => !ids.includes(m.id)),

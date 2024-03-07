@@ -4,12 +4,13 @@ import {
     useMarkingsStore,
 } from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
-import { useMemo } from "react";
+import { useCallback, useMemo } from "react";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
 import { getViewportLocalPosition } from "./utils/get-viewport-local-position";
-import { Markings } from "./marking/marking";
+import { Markings } from "./markings/markings";
+import { Marking } from "./markings/marking";
 
 export type MarkingOverlayProps = {
     canvasMetadata: CanvasMetadata;
@@ -19,13 +20,12 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
     const { id } = canvasMetadata;
     const viewport = useGlobalViewport(id, { autoUpdate: true });
     const app = useGlobalApp(id);
-    const { markings } = useMarkingsStore(
-        ({ markings: markingList }) => ({
-            markings: markingList.filter(m => m.canvasId === id),
-        }),
-        (oldMarkings, newMarkings) =>
-            oldMarkings.markings.length === newMarkings.markings.length
+    const markings = useMarkingsStore(
+        state => state.markings.filter(m => m.canvasId === id),
+        (oldMarkings, newMarkings) => oldMarkings.length === newMarkings.length
     );
+
+    const temporaryMarking = useMarkingsStore(state => state.temporaryMarking);
 
     // oblicz proporcje viewportu do świata tylko na evencie zoomed, dla lepszej wydajności (nie ma sensu liczyć tego na każdym renderze
     // bo przy samym ruchu nie zmieniają się proporcje viewportu do świata, tylko przy zoomie)
@@ -45,19 +45,34 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
         })
     );
 
+    const getMarkingRelativePosition = useCallback(
+        (marking: InternalMarking): InternalMarking["position"] => {
+            return {
+                x: marking.position.x * viewportWidthRatio,
+                y: marking.position.y * viewportHeightRatio,
+            };
+        },
+        [viewportHeightRatio, viewportWidthRatio]
+    );
+
     const relativeMarkings: InternalMarking[] = useMemo(
         () =>
             viewport === null
                 ? markings
                 : markings.map(marking => ({
                       ...marking,
-                      position: {
-                          x: marking.position.x * viewportWidthRatio,
-                          y: marking.position.y * viewportHeightRatio,
-                      },
+                      position: getMarkingRelativePosition(marking),
                   })),
-        [markings, viewport, viewportHeightRatio, viewportWidthRatio]
+        [getMarkingRelativePosition, markings, viewport]
     );
+
+    const relativeTemporaryMarking: InternalMarking | null =
+        temporaryMarking === null
+            ? null
+            : {
+                  ...temporaryMarking,
+                  position: getMarkingRelativePosition(temporaryMarking),
+              };
 
     if (viewport === null || app == null) {
         return null;
@@ -69,6 +84,9 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
                 canvasMetadata={canvasMetadata}
                 markings={relativeMarkings}
             />
+            {relativeTemporaryMarking !== null && (
+                <Marking marking={relativeTemporaryMarking} />
+            )}
         </Container>
     );
 }

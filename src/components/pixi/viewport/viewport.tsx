@@ -51,16 +51,42 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
             updateCanvas(id, "viewport");
         };
 
-        const addStoreMarking = useMarkingsStore(state => state.add);
+        const { addStoreMarking, setTemporaryStoreMarking } = useMarkingsStore(
+            state => ({
+                addStoreMarking: state.add,
+                setTemporaryStoreMarking: state.setTemporary,
+            })
+        );
         const { setSize: setShallowViewportSize } = useShallowViewportStore(id)(
             state => ({
                 setSize: state.setSize,
             })
         );
 
-        function addMarking(e: FederatedPointerEvent, viewport: PixiViewport) {
-            if (e.button !== 0) return;
+        function setTemporaryMarking(
+            e: FederatedPointerEvent,
+            viewport: PixiViewport
+        ) {
+            const clickPos = getNormalizedClickPosition(e, viewport);
+            if (clickPos === undefined) return;
 
+            const marking: Marking = {
+                canvasId: id,
+                size: Toolbar.settings.marking.size,
+                position: {
+                    x: clickPos.x,
+                    y: clickPos.y,
+                },
+                backgroundColor: Toolbar.settings.marking.backgroundColor,
+                textColor: Toolbar.settings.marking.textColor,
+                type: "point",
+                angle: 0,
+            };
+
+            setTemporaryStoreMarking(marking);
+        }
+
+        function addMarking(e: FederatedPointerEvent, viewport: PixiViewport) {
             const clickPos = getNormalizedClickPosition(e, viewport);
             if (clickPos === undefined) return;
 
@@ -272,12 +298,29 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                     );
 
                     viewport.addEventListener(
-                        "mousedown",
+                        "mousemove",
                         e => {
+                            if (e.buttons !== 1) return;
+                            const cursorMode =
+                                Toolbar.settings.cursorMode.state;
+                            if (cursorMode === "marking") {
+                                setTemporaryMarking(e, viewport);
+                            }
+                        },
+                        {
+                            passive: true,
+                        }
+                    );
+
+                    viewport.addEventListener(
+                        "mouseup",
+                        e => {
+                            if (e.button !== 0) return;
                             const cursorMode =
                                 Toolbar.settings.cursorMode.state;
                             if (cursorMode === "marking") {
                                 addMarking(e, viewport);
+                                setTemporaryStoreMarking(null);
                             }
                         },
                         {
