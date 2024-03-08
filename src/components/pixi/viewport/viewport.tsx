@@ -12,7 +12,7 @@ import {
     useMarkingsStore,
 } from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
-import { DashboardToolbar } from "@/lib/stores/DashboardToolbar/DashboardToolbar";
+import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar/DashboardToolbar";
 import { MovedEvent } from "pixi-viewport/dist/types";
 import { round } from "@/lib/utils/math/round";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
@@ -75,14 +75,16 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
             const marking: Marking = {
                 canvasId: id,
-                size: DashboardToolbar.state.settings.marking.size,
+                size: DashboardToolbarStore.state.settings.marking.size,
                 position: {
                     x: clickPos.x,
                     y: clickPos.y,
                 },
                 backgroundColor:
-                    DashboardToolbar.state.settings.marking.backgroundColor,
-                textColor: DashboardToolbar.state.settings.marking.textColor,
+                    DashboardToolbarStore.state.settings.marking
+                        .backgroundColor,
+                textColor:
+                    DashboardToolbarStore.state.settings.marking.textColor,
                 type: "point",
                 angle: 0,
             };
@@ -96,14 +98,16 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
             const marking: Marking = {
                 canvasId: id,
-                size: DashboardToolbar.state.settings.marking.size,
+                size: DashboardToolbarStore.state.settings.marking.size,
                 position: {
                     x: clickPos.x,
                     y: clickPos.y,
                 },
                 backgroundColor:
-                    DashboardToolbar.state.settings.marking.backgroundColor,
-                textColor: DashboardToolbar.state.settings.marking.textColor,
+                    DashboardToolbarStore.state.settings.marking
+                        .backgroundColor,
+                textColor:
+                    DashboardToolbarStore.state.settings.marking.textColor,
                 type: "point",
                 angle: 0,
             };
@@ -210,7 +214,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         updateViewport();
 
                         const isLocked =
-                            DashboardToolbar.state.settings.viewport.locked;
+                            DashboardToolbarStore.state.settings.viewport
+                                .locked;
                         if (!isLocked) {
                             prevScaled = viewport.scaled;
                             prevPos = {
@@ -230,7 +235,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                                 switch (e.type) {
                                     case "drag": {
                                         const isScaleSync =
-                                            DashboardToolbar.state.settings
+                                            DashboardToolbarStore.state.settings
                                                 .viewport.scaleSync;
                                         return {
                                             x:
@@ -309,7 +314,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         e => {
                             if (e.buttons !== 1) return;
                             const cursorMode =
-                                DashboardToolbar.state.settings.cursorMode
+                                DashboardToolbarStore.state.settings.cursorMode
                                     .state;
                             if (cursorMode === "marking") {
                                 setTemporaryMarking(e, viewport);
@@ -325,7 +330,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         e => {
                             if (e.button !== 0) return;
                             const cursorMode =
-                                DashboardToolbar.state.settings.cursorMode
+                                DashboardToolbarStore.state.settings.cursorMode
                                     .state;
                             if (cursorMode === "marking") {
                                 addMarking(e, viewport);

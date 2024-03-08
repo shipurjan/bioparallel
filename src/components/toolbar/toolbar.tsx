@@ -10,18 +10,18 @@ import {
     Cross1Icon,
 } from "@radix-ui/react-icons";
 import { useDebouncedCallback } from "use-debounce";
-import { DashboardToolbar } from "@/lib/stores/DashboardToolbar";
+import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
 import { ToolbarGroup } from "./group";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Input } from "../ui/input";
 
 export type GlobalToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
-    const { cursorMode, marking, viewport } = DashboardToolbar.use(
+    const { cursorMode, marking, viewport } = DashboardToolbarStore.use(
         state => state.settings
     );
 
-    const actions = DashboardToolbar.actions.settings;
+    const actions = DashboardToolbarStore.actions.settings;
 
     const { toggleLockedViewport, toggleLockScaleSync } = actions.viewport;
     const { setCursorMode } = actions.cursorMode;

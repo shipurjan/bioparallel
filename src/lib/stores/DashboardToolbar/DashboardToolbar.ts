@@ -18,7 +18,7 @@ const setMarkingSettings = makeImmerSetter(
     useDashboardToolbarStore.getState().setMarkingSettings
 );
 
-class DashboardToolbarClass {
+class StoreClass {
     readonly actions = {
         settings: {
             viewport: {
@@ -69,5 +69,5 @@ class DashboardToolbarClass {
     readonly use = useDashboardToolbarStore;
 }
 
-const DashboardToolbar = new DashboardToolbarClass();
-export { DashboardToolbar };
+const Store = new StoreClass();
+export { Store as DashboardToolbarStore };

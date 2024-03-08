@@ -8,7 +8,7 @@ import { BitmapText, Graphics } from "@pixi/react";
 import { Application, ICanvas, Graphics as PixiGraphics } from "pixi.js";
 import { memo, useCallback, useEffect, useState } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import { Global } from "@/lib/stores/useGlobalSettingsStore";
+import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { useGlobalViewport } from "../../viewport/hooks/useGlobalViewport";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
 import { useGlobalApp } from "../../app/hooks/useGlobalApp";
@@ -77,7 +77,9 @@ function isVisible(
     const VERY_HIGH = 1200;
 
     const PRERENDER_MARGIN = (() => {
-        switch (Global.settings.video.rendering.prerenderRadius) {
+        switch (
+            GlobalSettingsStore.state.settings.video.rendering.prerenderRadius
+        ) {
             case "auto":
                 if (markingsLength < 100) return 2 * VERY_HIGH;
                 if (markingsLength < 200) return VERY_HIGH;

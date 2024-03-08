@@ -65,7 +65,7 @@ const SETTERS = (set: SetStateInternal<State>): Setters => ({
     ]),
 });
 
-const useDashboardToolbarStore = create<State & Setters>()(
+const useStore = create<State & Setters>()(
     devtools(
         persist(
             set => ({
@@ -81,7 +81,7 @@ const useDashboardToolbarStore = create<State & Setters>()(
 );
 
 export {
-    useDashboardToolbarStore,
+    useStore as useDashboardToolbarStore,
     type State as DashboardToolbarState,
     type Settings as DashboardToolbarSettings,
 };

@@ -1,11 +1,8 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-    Global,
-    useGlobalSettingsStore,
-} from "@/lib/stores/useGlobalSettingsStore";
+import { RadioGroupItem } from "@/components/ui/radio-group";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
-import { RadioGroupItem } from "@/components/ui/radio-group";
+import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { SettingsCard } from "./settings-card";
 import { SettingsSwitch } from "./settings-swtich";
 import { SettingsRadioGroup } from "./settings-radio-group";
@@ -14,8 +11,11 @@ import { SettingsCardDescription } from "./settings-card-description";
 
 export function Settings() {
     const { resolvedTheme, setTheme: setNextTheme } = useTheme();
-    const { setTheme, setPrerenderRadius } = Global;
-    const { video } = useGlobalSettingsStore(state => state.settings);
+    const { video } = GlobalSettingsStore.use(state => state.settings);
+
+    const actions = GlobalSettingsStore.actions.settings;
+    const { setPrerenderRadius } = actions.video;
+    const { setTheme } = actions.interface;
 
     return (
         <Tabs
