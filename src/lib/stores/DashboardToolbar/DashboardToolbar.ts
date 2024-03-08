@@ -6,66 +6,67 @@ import {
     useDashboardToolbarStore,
 } from "./DashboardToolbar.store";
 
-const ACTIONS = {
-    settings: {
-        viewport: {
-            setViewportSettings: makeImmerSetter(
-                useDashboardToolbarStore.getState().setViewportSettings
-            ),
-            toggleLockedViewport() {
-                this.setViewportSettings(settings => {
-                    settings.locked = !settings.locked;
-                });
-            },
-            toggleLockScaleSync() {
-                this.setViewportSettings(settings => {
-                    settings.scaleSync = !settings.scaleSync;
-                });
-            },
-        },
-        cursorMode: {
-            setCursorModeSettings: makeImmerSetter(
-                useDashboardToolbarStore.getState().setCursorModeSettings
-            ),
-            setCursorMode(
-                mode: DashboardToolbarSettings["cursorMode"]["state"]
-            ) {
-                this.setCursorModeSettings(settings => {
-                    settings.state = mode;
-                });
-            },
-        },
-        marking: {
-            setMarkingSettings: makeImmerSetter(
-                useDashboardToolbarStore.getState().setMarkingSettings
-            ),
-            setMarkingBackgroundColor(color: string) {
-                this.setMarkingSettings(settings => {
-                    settings.backgroundColor = color;
-                });
-            },
-            setMarkingSize(size: number) {
-                this.setMarkingSettings(settings => {
-                    settings.size = size;
-                });
-            },
-            setMarkingTextColor(color: string) {
-                this.setMarkingSettings(settings => {
-                    settings.textColor = color;
-                });
-            },
-        },
-    },
-};
+const setViewportSettings = makeImmerSetter(
+    useDashboardToolbarStore.getState().setViewportSettings
+);
+
+const setCursorModeSettings = makeImmerSetter(
+    useDashboardToolbarStore.getState().setCursorModeSettings
+);
+
+const setMarkingSettings = makeImmerSetter(
+    useDashboardToolbarStore.getState().setMarkingSettings
+);
 
 class DashboardToolbarClass {
-    readonly use = useDashboardToolbarStore;
-
-    readonly actions = ACTIONS;
+    readonly actions = {
+        settings: {
+            viewport: {
+                toggleLockedViewport() {
+                    setViewportSettings(settings => {
+                        settings.locked = !settings.locked;
+                    });
+                },
+                toggleLockScaleSync() {
+                    setViewportSettings(settings => {
+                        settings.scaleSync = !settings.scaleSync;
+                    });
+                },
+            },
+            cursorMode: {
+                setCursorMode(
+                    mode: DashboardToolbarSettings["cursorMode"]["state"]
+                ) {
+                    setCursorModeSettings(settings => {
+                        settings.state = mode;
+                    });
+                },
+            },
+            marking: {
+                setMarkingBackgroundColor(color: string) {
+                    setMarkingSettings(settings => {
+                        settings.backgroundColor = color;
+                    });
+                },
+                setMarkingSize(size: number) {
+                    setMarkingSettings(settings => {
+                        settings.size = size;
+                    });
+                },
+                setMarkingTextColor(color: string) {
+                    setMarkingSettings(settings => {
+                        settings.textColor = color;
+                    });
+                },
+            },
+        },
+    };
 
     get state() {
         return useDashboardToolbarStore.getState();
     }
+
+    readonly use = useDashboardToolbarStore;
 }
 
 const DashboardToolbar = new DashboardToolbarClass();

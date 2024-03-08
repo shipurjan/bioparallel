@@ -21,23 +21,22 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
         state => state.settings
     );
 
-    const { toggleLockedViewport, toggleLockScaleSync } =
-        DashboardToolbar.actions.settings.viewport;
-    const { setCursorMode } = DashboardToolbar.actions.settings.cursorMode;
-    const { setMarkingSize } = DashboardToolbar.actions.settings.marking;
+    const actions = DashboardToolbar.actions.settings;
+
+    const { toggleLockedViewport, toggleLockScaleSync } = actions.viewport;
+    const { setCursorMode } = actions.cursorMode;
+    const {
+        setMarkingSize,
+        setMarkingBackgroundColor: _setMarkingBackgroundColor,
+        setMarkingTextColor: _setMarkingTextColor,
+    } = actions.marking;
 
     const setMarkingBackgroundColor = useDebouncedCallback(
-        value =>
-            DashboardToolbar.actions.settings.marking.setMarkingBackgroundColor(
-                value
-            ),
+        value => _setMarkingBackgroundColor(value),
         10
     );
     const setMarkingTextColor = useDebouncedCallback(
-        value =>
-            DashboardToolbar.actions.settings.marking.setMarkingTextColor(
-                value
-            ),
+        value => _setMarkingTextColor(value),
         10
     );
 
