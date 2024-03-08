@@ -6,9 +6,13 @@ import { useApp } from "@pixi/react";
 import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { FederatedPointerEvent } from "pixi.js";
-import { Marking, useMarkingsStore } from "@/lib/stores/useMarkingsStore";
+import {
+    Marking,
+    Markings,
+    useMarkingsStore,
+} from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
-import { Toolbar } from "@/lib/stores/useToolbarStore";
+import { DashboardToolbar } from "@/lib/stores/DashboardToolbar/DashboardToolbar";
 import { MovedEvent } from "pixi-viewport/dist/types";
 import { round } from "@/lib/utils/math/round";
 import { ReactPixiViewport } from "./react-pixi-viewport";
@@ -51,12 +55,11 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
             updateCanvas(id, "viewport");
         };
 
-        const { addStoreMarking, setTemporaryStoreMarking } = useMarkingsStore(
-            state => ({
-                addStoreMarking: state.add,
-                setTemporaryStoreMarking: state.setTemporary,
-            })
+        const addStoreMarking = Markings.addOne;
+        const setTemporaryStoreMarking = useMarkingsStore(
+            state => state.setTemporary
         );
+
         const { setSize: setShallowViewportSize } = useShallowViewportStore(id)(
             state => ({
                 setSize: state.setSize,
@@ -72,13 +75,14 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
             const marking: Marking = {
                 canvasId: id,
-                size: Toolbar.settings.marking.size,
+                size: DashboardToolbar.state.settings.marking.size,
                 position: {
                     x: clickPos.x,
                     y: clickPos.y,
                 },
-                backgroundColor: Toolbar.settings.marking.backgroundColor,
-                textColor: Toolbar.settings.marking.textColor,
+                backgroundColor:
+                    DashboardToolbar.state.settings.marking.backgroundColor,
+                textColor: DashboardToolbar.state.settings.marking.textColor,
                 type: "point",
                 angle: 0,
             };
@@ -92,18 +96,19 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
             const marking: Marking = {
                 canvasId: id,
-                size: Toolbar.settings.marking.size,
+                size: DashboardToolbar.state.settings.marking.size,
                 position: {
                     x: clickPos.x,
                     y: clickPos.y,
                 },
-                backgroundColor: Toolbar.settings.marking.backgroundColor,
-                textColor: Toolbar.settings.marking.textColor,
+                backgroundColor:
+                    DashboardToolbar.state.settings.marking.backgroundColor,
+                textColor: DashboardToolbar.state.settings.marking.textColor,
                 type: "point",
                 angle: 0,
             };
 
-            addStoreMarking([marking]);
+            addStoreMarking(marking);
         }
 
         let prevScaled: ZoomValue = 1;
@@ -204,7 +209,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                     viewport.addEventListener("moved", e => {
                         updateViewport();
 
-                        const isLocked = Toolbar.settings.viewport.locked;
+                        const isLocked =
+                            DashboardToolbar.state.settings.viewport.locked;
                         if (!isLocked) {
                             prevScaled = viewport.scaled;
                             prevPos = {
@@ -224,7 +230,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                                 switch (e.type) {
                                     case "drag": {
                                         const isScaleSync =
-                                            Toolbar.settings.viewport.scaleSync;
+                                            DashboardToolbar.state.settings
+                                                .viewport.scaleSync;
                                         return {
                                             x:
                                                 (viewport.position._x -
@@ -302,7 +309,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         e => {
                             if (e.buttons !== 1) return;
                             const cursorMode =
-                                Toolbar.settings.cursorMode.state;
+                                DashboardToolbar.state.settings.cursorMode
+                                    .state;
                             if (cursorMode === "marking") {
                                 setTemporaryMarking(e, viewport);
                             }
@@ -317,7 +325,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         e => {
                             if (e.button !== 0) return;
                             const cursorMode =
-                                Toolbar.settings.cursorMode.state;
+                                DashboardToolbar.state.settings.cursorMode
+                                    .state;
                             if (cursorMode === "marking") {
                                 addMarking(e, viewport);
                                 setTemporaryStoreMarking(null);

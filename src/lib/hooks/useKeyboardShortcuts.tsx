@@ -1,22 +1,20 @@
-import { Toolbar, useGlobalToolbarStore } from "../stores/useToolbarStore";
+import { DashboardToolbar } from "../stores/DashboardToolbar";
 import { useKeyDown } from "./useKeyDown";
 
 export const useKeyboardShortcuts = () => {
-    useGlobalToolbarStore(state => state.settings);
-
     useKeyDown(() => {
-        Toolbar.setCursorMode("select");
+        DashboardToolbar.actions.settings.cursorMode.setCursorMode("select");
     }, ["1"]);
 
     useKeyDown(() => {
-        Toolbar.setCursorMode("marking");
+        DashboardToolbar.actions.settings.cursorMode.setCursorMode("marking");
     }, ["2"]);
 
     useKeyDown(() => {
-        Toolbar.toggleLockedViewport();
+        DashboardToolbar.actions.settings.viewport.toggleLockedViewport();
     }, ["l"]);
 
     useKeyDown(() => {
-        Toolbar.toggleLockScaleSync();
+        DashboardToolbar.actions.settings.viewport.toggleLockScaleSync();
     }, ["m"]);
 };

@@ -9,31 +9,35 @@ import {
     CursorArrowIcon,
     Cross1Icon,
 } from "@radix-ui/react-icons";
-import { Toolbar, useGlobalToolbarStore } from "@/lib/stores/useToolbarStore";
 import { useDebouncedCallback } from "use-debounce";
+import { DashboardToolbar } from "@/lib/stores/DashboardToolbar";
 import { ToolbarGroup } from "./group";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Input } from "../ui/input";
 
 export type GlobalToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
-    const { cursorMode, marking, viewport } = useGlobalToolbarStore(
+    const { cursorMode, marking, viewport } = DashboardToolbar.use(
         state => state.settings
     );
 
-    const {
-        toggleLockedViewport,
-        toggleLockScaleSync,
-        setCursorMode,
-        setMarkingSize,
-    } = Toolbar;
+    const { toggleLockedViewport, toggleLockScaleSync } =
+        DashboardToolbar.actions.settings.viewport;
+    const { setCursorMode } = DashboardToolbar.actions.settings.cursorMode;
+    const { setMarkingSize } = DashboardToolbar.actions.settings.marking;
 
     const setMarkingBackgroundColor = useDebouncedCallback(
-        value => Toolbar.setMarkingBackgroundColor(value),
+        value =>
+            DashboardToolbar.actions.settings.marking.setMarkingBackgroundColor(
+                value
+            ),
         10
     );
     const setMarkingTextColor = useDebouncedCallback(
-        value => Toolbar.setMarkingTextColor(value),
+        value =>
+            DashboardToolbar.actions.settings.marking.setMarkingTextColor(
+                value
+            ),
         10
     );
 

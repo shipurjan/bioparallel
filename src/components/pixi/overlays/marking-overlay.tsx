@@ -4,7 +4,7 @@ import {
     useMarkingsStore,
 } from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
-import { useCallback, useMemo } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
@@ -20,10 +20,19 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
     const { id } = canvasMetadata;
     const viewport = useGlobalViewport(id, { autoUpdate: true });
     const app = useGlobalApp(id);
-    const markings = useMarkingsStore(
-        state => state.markings.filter(m => m.canvasId === id),
-        (oldMarkings, newMarkings) => oldMarkings.length === newMarkings.length
+    const { markings } = useMarkingsStore(
+        state => ({
+            markings: state.markings.filter(m => m.canvasId === id),
+            hash: state.markingsHash,
+        }),
+        (oldState, newState) => {
+            return oldState.hash === newState.hash;
+        }
     );
+
+    useEffect(() => {
+        console.log("markings");
+    }, [markings]);
 
     const temporaryMarking = useMarkingsStore(state =>
         state.temporaryMarking?.canvasId === id ? state.temporaryMarking : null

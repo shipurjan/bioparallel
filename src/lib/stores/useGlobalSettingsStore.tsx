@@ -3,7 +3,7 @@ import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { Store } from "tauri-plugin-store-api";
 import { produce } from "immer";
-import { tauriStorage } from "./zustand-tauri-store-adapter";
+import { tauriStorage } from "./tauri-storage-adapter.helpers";
 
 const settingsStore = new Store("global-settings.dat");
 
