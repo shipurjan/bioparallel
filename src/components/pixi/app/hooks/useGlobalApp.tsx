@@ -1,10 +1,7 @@
 import { CanvasUpdaterOptions } from "@/lib/types/types";
+import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import { useCanvas } from "../../canvas/hooks/useCanvas";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
-import {
-    useCanvasUpdater,
-    useThrottledCanvasUpdater,
-} from "../../canvas/hooks/useCanvasUpdater";
 
 export const useGlobalApp = (
     id: CanvasMetadata["id"],
@@ -13,10 +10,9 @@ export const useGlobalApp = (
     if (options?.autoUpdate === true) {
         if (options.throttledUpdate === true) {
             // eslint-disable-next-line react-hooks/rules-of-hooks
-            useThrottledCanvasUpdater(30);
+            CanvasUpdater.useThrottled(30);
         } else {
-            // eslint-disable-next-line react-hooks/rules-of-hooks
-            useCanvasUpdater(id, "app");
+            CanvasUpdater.use(id, "app");
         }
     }
     const { app } = useCanvas(id, true);

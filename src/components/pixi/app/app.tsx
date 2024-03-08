@@ -7,11 +7,11 @@ import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext"
 import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
 import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
+import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import { Viewport } from "../viewport/viewport";
 import { useThemeController } from "./hooks/useThemeController";
 import { useGlobalRefs } from "./hooks/useGlobalRefs";
 import { useViewportResizer } from "./hooks/useViewportResizer";
-import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
 
 export type PixiAppProps = {
     width: number;
@@ -23,7 +23,7 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
     const viewportRef = useRef<PixiViewport>(null);
     const viewport = viewportRef.current;
 
-    const updateCanvas = useDryCanvasUpdater();
+    const updateCanvas = CanvasUpdater.useDry();
     const updateViewport = useCallback(() => {
         updateCanvas(canvasMetadata.id, "viewport");
     }, [canvasMetadata.id, updateCanvas]);

@@ -15,9 +15,9 @@ import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
 import { DashboardToolbar } from "@/lib/stores/DashboardToolbar/DashboardToolbar";
 import { MovedEvent } from "pixi-viewport/dist/types";
 import { round } from "@/lib/utils/math/round";
+import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
-import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
 import { getNormalizedPosition } from "../overlays/utils/get-viewport-local-position";
 import { useGlobalViewport } from "./hooks/useGlobalViewport";
 
@@ -50,7 +50,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
     ({ children, canvasMetadata: { id } }: ViewportProps, ref) => {
         const app = useApp();
 
-        const updateCanvas = useDryCanvasUpdater();
+        const updateCanvas = CanvasUpdater.useDry();
         const updateViewport = () => {
             updateCanvas(id, "viewport");
         };
