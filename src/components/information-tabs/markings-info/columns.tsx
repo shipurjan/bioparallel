@@ -1,8 +1,8 @@
 "use client";
 
-import { InternalMarking } from "@/lib/stores/useMarkingsStore";
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
+import { InternalMarking } from "@/lib/stores/Markings";
 
 export type ExtendedMarking = InternalMarking & {
     x: number;

@@ -1,11 +1,11 @@
-import { useMarkingsStore } from "@/lib/stores/useMarkingsStore";
+import { MarkingsStore } from "@/lib/stores/Markings";
 import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { DataTable } from "./data-table";
 import { ExtendedMarking, columns } from "./columns";
 
 export function MarkingsInfo() {
     const { id } = useCanvasContext();
-    const { markings } = useMarkingsStore(
+    const { markings } = MarkingsStore.use(
         state => ({
             markings: state.markings.filter(m => m.canvasId === id),
             hash: state.markingsHash,

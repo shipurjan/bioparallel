@@ -6,16 +6,12 @@ import { useApp } from "@pixi/react";
 import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { FederatedPointerEvent } from "pixi.js";
-import {
-    Marking,
-    Markings,
-    useMarkingsStore,
-} from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
 import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar/DashboardToolbar";
 import { MovedEvent } from "pixi-viewport/dist/types";
 import { round } from "@/lib/utils/math/round";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
+import { Marking, MarkingsStore } from "@/lib/stores/Markings";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { getNormalizedPosition } from "../overlays/utils/get-viewport-local-position";
@@ -55,10 +51,9 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
             updateCanvas(id, "viewport");
         };
 
-        const addStoreMarking = Markings.addOne;
-        const setTemporaryStoreMarking = useMarkingsStore(
-            state => state.setTemporary
-        );
+        const addStoreMarking = MarkingsStore.actions.markings.addOne;
+        const setTemporaryStoreMarking =
+            MarkingsStore.actions.temporaryMarking.setTemporaryMarking;
 
         const { setSize: setShallowViewportSize } = useShallowViewportStore(id)(
             state => ({

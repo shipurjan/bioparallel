@@ -1,14 +1,10 @@
 /* eslint-disable sonarjs/prefer-single-boolean-return */
-/* eslint-disable react/prop-types */
-import {
-    InternalMarking,
-    RenderableMarking,
-} from "@/lib/stores/useMarkingsStore";
 import { BitmapText, Graphics } from "@pixi/react";
 import { Application, ICanvas, Graphics as PixiGraphics } from "pixi.js";
 import { memo, useCallback, useEffect, useState } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
 import { useGlobalViewport } from "../../viewport/hooks/useGlobalViewport";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
 import { useGlobalApp } from "../../app/hooks/useGlobalApp";

@@ -1,9 +1,4 @@
-/* eslint-disable sonarjs/prefer-single-boolean-return */
-/* eslint-disable react/prop-types */
-import {
-    InternalMarking,
-    RenderableMarking,
-} from "@/lib/stores/useMarkingsStore";
+import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
 import { BitmapText, Graphics } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
 import { memo, useCallback } from "react";

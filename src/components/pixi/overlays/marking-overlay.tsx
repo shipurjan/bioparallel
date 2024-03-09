@@ -1,10 +1,7 @@
 import { Container } from "@pixi/react";
-import {
-    InternalMarking,
-    useMarkingsStore,
-} from "@/lib/stores/useMarkingsStore";
 import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
 import { useCallback, useMemo } from "react";
+import { InternalMarking, MarkingsStore } from "@/lib/stores/Markings";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
@@ -20,7 +17,7 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
     const { id } = canvasMetadata;
     const viewport = useGlobalViewport(id, { autoUpdate: true });
     const app = useGlobalApp(id);
-    const { markings } = useMarkingsStore(
+    const { markings } = MarkingsStore.use(
         state => ({
             markings: state.markings.filter(m => m.canvasId === id),
             hash: state.markingsHash,
@@ -30,7 +27,7 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
         }
     );
 
-    const temporaryMarking = useMarkingsStore(state =>
+    const temporaryMarking = MarkingsStore.use(state =>
         state.temporaryMarking?.canvasId === id ? state.temporaryMarking : null
     );
 

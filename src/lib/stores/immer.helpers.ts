@@ -10,6 +10,6 @@ export type Immer<T> = T & {
     set: ProduceCallback<T>;
 };
 export type ActionProduceCallback<S, T> = (
-    prop: Draft<S>,
-    draft: Draft<T>
-) => S;
+    prop: S | Draft<S>,
+    draft: T | Draft<T>
+) => S | Draft<S>;
