@@ -8,6 +8,8 @@ import {
     DimensionsIcon,
     CursorArrowIcon,
     Cross1Icon,
+    DotFilledIcon,
+    AngleIcon,
 } from "@radix-ui/react-icons";
 import { useDebouncedCallback } from "use-debounce";
 import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
@@ -21,29 +23,28 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
         state => state.settings
     );
 
-    const { actions } = DashboardToolbarStore;
     const {
         cursor: cursorActions,
         viewport: viewportActions,
         marking: markingActions,
-    } = actions.settings;
+    } = DashboardToolbarStore.actions.settings;
 
     const { toggleLockedViewport, toggleLockScaleSync } = viewportActions;
     const { setCursorMode } = cursorActions;
     const {
         setMarkingSize,
+        setMarkingType,
         setMarkingBackgroundColor: _setMarkingBackgroundColor,
         setMarkingTextColor: _setMarkingTextColor,
     } = markingActions;
 
-    const setMarkingBackgroundColor = useDebouncedCallback(
-        value => _setMarkingBackgroundColor(value),
-        10
-    );
-    const setMarkingTextColor = useDebouncedCallback(
-        value => _setMarkingTextColor(value),
-        10
-    );
+    const setMarkingBackgroundColor = useDebouncedCallback<
+        typeof _setMarkingBackgroundColor
+    >(value => _setMarkingBackgroundColor(value), 10);
+
+    const setMarkingTextColor = useDebouncedCallback<
+        typeof _setMarkingTextColor
+    >(value => _setMarkingTextColor(value), 10);
 
     return (
         <div
@@ -62,7 +63,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 >
                     <ToggleGroupItem
                         value="select"
-                        title="Select mode (1)"
+                        title="Select mode (F1)"
                         onClick={() => {
                             setCursorMode("select");
                         }}
@@ -71,7 +72,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     </ToggleGroupItem>
                     <ToggleGroupItem
                         value="marking"
-                        title="Mark mode (2)"
+                        title="Mark mode (F2)"
                         onClick={() => {
                             setCursorMode("marking");
                         }}
@@ -81,8 +82,35 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 </ToggleGroup>
             </ToolbarGroup>
             <ToolbarGroup>
+                <ToggleGroup
+                    type="single"
+                    value={marking.type}
+                    variant="outline"
+                    size="icon"
+                >
+                    <ToggleGroupItem
+                        value="point"
+                        title="Point (1)"
+                        onClick={() => {
+                            setMarkingType("point");
+                        }}
+                    >
+                        <DotFilledIcon className="h-4 w-4" />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                        value="ray"
+                        title="Ray (2)"
+                        onClick={() => {
+                            setMarkingType("ray");
+                        }}
+                    >
+                        <AngleIcon className="h-4 w-4" />
+                    </ToggleGroupItem>
+                </ToggleGroup>
+            </ToolbarGroup>
+            <ToolbarGroup>
                 <Input
-                    className="w-6 h-6"
+                    className="w-6 h-6 cursor-pointer"
                     title="Marking background color"
                     type="color"
                     value={marking.backgroundColor}
@@ -91,7 +119,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     }}
                 />
                 <Input
-                    className="w-6 h-6"
+                    className="w-6 h-6 cursor-pointer"
                     title="Marking text color"
                     type="color"
                     value={marking.textColor}

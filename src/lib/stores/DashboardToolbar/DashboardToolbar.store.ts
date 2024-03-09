@@ -12,6 +12,7 @@ type Settings = {
         mode: "select" | "marking";
     };
     marking: {
+        type: "point" | "ray";
         backgroundColor: string;
         textColor: string;
         size: number;
@@ -32,6 +33,7 @@ const INITIAL_STATE: State = {
             mode: "select",
         },
         marking: {
+            type: "point",
             backgroundColor: "#61bd67",
             textColor: "#0a130a",
             size: 10,

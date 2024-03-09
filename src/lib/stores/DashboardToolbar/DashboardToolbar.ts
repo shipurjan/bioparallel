@@ -66,21 +66,36 @@ class StoreClass {
                 },
             },
             marking: {
-                setMarkingBackgroundColor: (color: string) => {
+                setMarkingType: (
+                    type: State["settings"]["marking"]["type"]
+                ) => {
+                    this.setMarkingSettings(
+                        produce(settings => {
+                            settings.type = type;
+                        })
+                    );
+                },
+                setMarkingBackgroundColor: (
+                    color: State["settings"]["marking"]["backgroundColor"]
+                ) => {
                     this.setMarkingSettings(
                         produce(settings => {
                             settings.backgroundColor = color;
                         })
                     );
                 },
-                setMarkingSize: (size: number) => {
+                setMarkingSize: (
+                    size: State["settings"]["marking"]["size"]
+                ) => {
                     this.setMarkingSettings(
                         produce(settings => {
                             settings.size = size;
                         })
                     );
                 },
-                setMarkingTextColor: (color: string) => {
+                setMarkingTextColor: (
+                    color: State["settings"]["marking"]["textColor"]
+                ) => {
                     this.setMarkingSettings(
                         produce(settings => {
                             settings.textColor = color;
