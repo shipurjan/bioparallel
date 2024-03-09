@@ -1,7 +1,6 @@
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { useThrottledUpdate } from "@/lib/hooks/useThrottledUpdate";
 import { createWithEqualityFn } from "zustand/traditional";
-import { SetStateInternal } from "../immer.helpers";
 
 type Update = {
     id: CanvasMetadata["id"];
@@ -20,14 +19,10 @@ const INITIAL_STATE: State = {
     value: null,
 };
 
-const SETTERS = (set: SetStateInternal<State>): Setters => ({
-    update: (id, type) => set({ value: { id, type } }),
-});
-
 const useUpdateStore = createWithEqualityFn<State & Setters>()(
     set => ({
         ...INITIAL_STATE,
-        ...SETTERS(set),
+        update: (id, type) => set({ value: { id, type } }),
     }),
     () => {
         throw new Error(

@@ -1,43 +1,66 @@
 /* eslint-disable no-param-reassign */
 
-import { makeImmerSetter } from "../immer.helpers";
-import { GlobalSettings, useGlobalSettingsStore } from "./GlobalSettings.store";
+import { produce } from "immer";
+import { ActionProduceCallback } from "../immer.helpers";
+import {
+    GlobalSettingsState as State,
+    useGlobalSettingsStore as useStore,
+} from "./GlobalSettings.store";
 
-const setInterfaceSettings = makeImmerSetter(
-    useGlobalSettingsStore.getState().setInterfaceSettings
-);
-
-const setVideoSettings = makeImmerSetter(
-    useGlobalSettingsStore.getState().setVideoSettings
-);
+const storeState = useStore.getState();
 
 class StoreClass {
+    private setInterfaceSettings(
+        callback: ActionProduceCallback<State["settings"]["interface"], State>
+    ) {
+        storeState.set(draft => {
+            draft.settings.interface = callback(
+                draft.settings.interface,
+                draft
+            );
+        });
+    }
+
+    private setVideoSettings(
+        callback: ActionProduceCallback<State["settings"]["video"], State>
+    ) {
+        storeState.set(draft => {
+            draft.settings.video = callback(draft.settings.video, draft);
+        });
+    }
+
     readonly actions = {
         settings: {
             interface: {
-                setTheme(newTheme: GlobalSettings["interface"]["theme"]) {
-                    setInterfaceSettings(settings => {
-                        settings.theme = newTheme;
-                    });
+                setTheme: (
+                    newTheme: State["settings"]["interface"]["theme"]
+                ) => {
+                    this.setInterfaceSettings(
+                        produce(settings => {
+                            settings.theme = newTheme;
+                        })
+                    );
                 },
             },
             video: {
-                setPrerenderRadius(
-                    newRadius: GlobalSettings["video"]["rendering"]["prerenderRadius"]
-                ) {
-                    setVideoSettings(settings => {
-                        settings.rendering.prerenderRadius = newRadius;
-                    });
+                setPrerenderRadius: (
+                    newRadius: State["settings"]["video"]["rendering"]["prerenderRadius"]
+                ) => {
+                    this.setVideoSettings(
+                        produce(settings => {
+                            settings.rendering.prerenderRadius = newRadius;
+                        })
+                    );
                 },
             },
         },
     };
 
     get state() {
-        return useGlobalSettingsStore.getState();
+        return useStore.getState();
     }
 
-    readonly use = useGlobalSettingsStore;
+    readonly use = useStore;
 }
 
 const Store = new StoreClass();

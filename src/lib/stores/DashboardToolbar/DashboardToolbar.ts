@@ -1,72 +1,97 @@
 /* eslint-disable no-param-reassign */
 
-import { makeImmerSetter } from "../immer.helpers";
+import { produce } from "immer";
+import { ActionProduceCallback } from "../immer.helpers";
 import {
-    DashboardToolbarSettings,
-    useDashboardToolbarStore,
+    DashboardToolbarState as State,
+    useDashboardToolbarStore as useStore,
 } from "./DashboardToolbar.store";
 
-const setViewportSettings = makeImmerSetter(
-    useDashboardToolbarStore.getState().setViewportSettings
-);
-
-const setCursorModeSettings = makeImmerSetter(
-    useDashboardToolbarStore.getState().setCursorModeSettings
-);
-
-const setMarkingSettings = makeImmerSetter(
-    useDashboardToolbarStore.getState().setMarkingSettings
-);
+const storeState = useStore.getState();
 
 class StoreClass {
+    private setCursorSettings(
+        callback: ActionProduceCallback<State["settings"]["cursor"], State>
+    ) {
+        storeState.set(draft => {
+            draft.settings.cursor = callback(draft.settings.cursor, draft);
+        });
+    }
+
+    private setViewportSettings(
+        callback: ActionProduceCallback<State["settings"]["viewport"], State>
+    ) {
+        storeState.set(draft => {
+            draft.settings.viewport = callback(draft.settings.viewport, draft);
+        });
+    }
+
+    private setMarkingSettings(
+        callback: ActionProduceCallback<State["settings"]["marking"], State>
+    ) {
+        storeState.set(draft => {
+            draft.settings.marking = callback(draft.settings.marking, draft);
+        });
+    }
+
     readonly actions = {
         settings: {
             viewport: {
-                toggleLockedViewport() {
-                    setViewportSettings(settings => {
-                        settings.locked = !settings.locked;
-                    });
+                toggleLockedViewport: () => {
+                    this.setViewportSettings(
+                        produce(settings => {
+                            settings.locked = !settings.locked;
+                        })
+                    );
                 },
-                toggleLockScaleSync() {
-                    setViewportSettings(settings => {
-                        settings.scaleSync = !settings.scaleSync;
-                    });
+                toggleLockScaleSync: () => {
+                    this.setViewportSettings(
+                        produce(settings => {
+                            settings.scaleSync = !settings.scaleSync;
+                        })
+                    );
                 },
             },
-            cursorMode: {
-                setCursorMode(
-                    mode: DashboardToolbarSettings["cursorMode"]["state"]
-                ) {
-                    setCursorModeSettings(settings => {
-                        settings.state = mode;
-                    });
+            cursor: {
+                setCursorMode: (mode: State["settings"]["cursor"]["mode"]) => {
+                    this.setCursorSettings(
+                        produce(cursor => {
+                            cursor.mode = mode;
+                        })
+                    );
                 },
             },
             marking: {
-                setMarkingBackgroundColor(color: string) {
-                    setMarkingSettings(settings => {
-                        settings.backgroundColor = color;
-                    });
+                setMarkingBackgroundColor: (color: string) => {
+                    this.setMarkingSettings(
+                        produce(settings => {
+                            settings.backgroundColor = color;
+                        })
+                    );
                 },
-                setMarkingSize(size: number) {
-                    setMarkingSettings(settings => {
-                        settings.size = size;
-                    });
+                setMarkingSize: (size: number) => {
+                    this.setMarkingSettings(
+                        produce(settings => {
+                            settings.size = size;
+                        })
+                    );
                 },
-                setMarkingTextColor(color: string) {
-                    setMarkingSettings(settings => {
-                        settings.textColor = color;
-                    });
+                setMarkingTextColor: (color: string) => {
+                    this.setMarkingSettings(
+                        produce(settings => {
+                            settings.textColor = color;
+                        })
+                    );
                 },
             },
         },
     };
 
     get state() {
-        return useDashboardToolbarStore.getState();
+        return useStore.getState();
     }
 
-    readonly use = useDashboardToolbarStore;
+    readonly use = useStore;
 }
 
 const Store = new StoreClass();

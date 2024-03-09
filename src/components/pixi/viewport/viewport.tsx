@@ -314,8 +314,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         e => {
                             if (e.buttons !== 1) return;
                             const cursorMode =
-                                DashboardToolbarStore.state.settings.cursorMode
-                                    .state;
+                                DashboardToolbarStore.state.settings.cursor
+                                    .mode;
                             if (cursorMode === "marking") {
                                 setTemporaryMarking(e, viewport);
                             }
@@ -330,8 +330,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         e => {
                             if (e.button !== 0) return;
                             const cursorMode =
-                                DashboardToolbarStore.state.settings.cursorMode
-                                    .state;
+                                DashboardToolbarStore.state.settings.cursor
+                                    .mode;
                             if (cursorMode === "marking") {
                                 addMarking(e, viewport);
                                 setTemporaryStoreMarking(null);

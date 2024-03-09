@@ -17,19 +17,24 @@ import { Input } from "../ui/input";
 
 export type GlobalToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
-    const { cursorMode, marking, viewport } = DashboardToolbarStore.use(
+    const { cursor, marking, viewport } = DashboardToolbarStore.use(
         state => state.settings
     );
 
-    const actions = DashboardToolbarStore.actions.settings;
+    const { actions } = DashboardToolbarStore;
+    const {
+        cursor: cursorActions,
+        viewport: viewportActions,
+        marking: markingActions,
+    } = actions.settings;
 
-    const { toggleLockedViewport, toggleLockScaleSync } = actions.viewport;
-    const { setCursorMode } = actions.cursorMode;
+    const { toggleLockedViewport, toggleLockScaleSync } = viewportActions;
+    const { setCursorMode } = cursorActions;
     const {
         setMarkingSize,
         setMarkingBackgroundColor: _setMarkingBackgroundColor,
         setMarkingTextColor: _setMarkingTextColor,
-    } = actions.marking;
+    } = markingActions;
 
     const setMarkingBackgroundColor = useDebouncedCallback(
         value => _setMarkingBackgroundColor(value),
@@ -51,7 +56,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
             <ToolbarGroup>
                 <ToggleGroup
                     type="single"
-                    value={cursorMode.state}
+                    value={cursor.mode}
                     variant="outline"
                     size="icon"
                 >
