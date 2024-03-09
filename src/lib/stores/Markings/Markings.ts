@@ -6,10 +6,8 @@ import {
     InternalMarking,
     Marking,
     MarkingsState as State,
-    useMarkingsStore as useStore,
+    _useMarkingsStore as useStore,
 } from "./Markings.store";
-
-const storeState = useStore.getState();
 
 function* idGenerator(): Generator<string> {
     const initialSymbols = "ABCDEFGHIJKLMNPQRSTUVWXYZαβΓδεζηλμπρΣτΦΩ";
@@ -34,10 +32,16 @@ function getMarkingWithId(marking: Marking): InternalMarking {
 }
 
 class StoreClass {
+    readonly use = useStore;
+
+    get state() {
+        return this.use.getState();
+    }
+
     private setMarkingsHash(
         callback: ActionProduceCallback<State["markingsHash"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.markingsHash = callback(draft.markingsHash, draft);
         });
     }
@@ -45,7 +49,7 @@ class StoreClass {
     private setMarkings(
         callback: ActionProduceCallback<State["markings"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.markings = callback(draft.markings, draft);
         });
     }
@@ -60,7 +64,7 @@ class StoreClass {
     private setTemporaryMarking(
         callback: ActionProduceCallback<State["temporaryMarking"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.temporaryMarking = callback(draft.temporaryMarking, draft);
         });
     }
@@ -128,12 +132,6 @@ class StoreClass {
             },
         },
     };
-
-    get state() {
-        return useStore.getState();
-    }
-
-    readonly use = useStore;
 }
 
 const Store = new StoreClass();

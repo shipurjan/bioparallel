@@ -4,16 +4,20 @@ import { produce } from "immer";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     GlobalSettingsState as State,
-    useGlobalSettingsStore as useStore,
+    _useGlobalSettingsStore as useStore,
 } from "./GlobalSettings.store";
 
-const storeState = useStore.getState();
-
 class StoreClass {
+    readonly use = useStore;
+
+    get state() {
+        return useStore.getState();
+    }
+
     private setInterfaceSettings(
         callback: ActionProduceCallback<State["settings"]["interface"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.settings.interface = callback(
                 draft.settings.interface,
                 draft
@@ -24,7 +28,7 @@ class StoreClass {
     private setVideoSettings(
         callback: ActionProduceCallback<State["settings"]["video"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.settings.video = callback(draft.settings.video, draft);
         });
     }
@@ -55,12 +59,6 @@ class StoreClass {
             },
         },
     };
-
-    get state() {
-        return useStore.getState();
-    }
-
-    readonly use = useStore;
 }
 
 const Store = new StoreClass();

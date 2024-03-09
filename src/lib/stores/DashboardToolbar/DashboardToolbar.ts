@@ -4,16 +4,20 @@ import { produce } from "immer";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     DashboardToolbarState as State,
-    useDashboardToolbarStore as useStore,
+    _useDashboardToolbarStore as useStore,
 } from "./DashboardToolbar.store";
 
-const storeState = useStore.getState();
-
 class StoreClass {
+    readonly use = useStore;
+
+    get state() {
+        return useStore.getState();
+    }
+
     private setCursorSettings(
         callback: ActionProduceCallback<State["settings"]["cursor"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.settings.cursor = callback(draft.settings.cursor, draft);
         });
     }
@@ -21,7 +25,7 @@ class StoreClass {
     private setViewportSettings(
         callback: ActionProduceCallback<State["settings"]["viewport"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.settings.viewport = callback(draft.settings.viewport, draft);
         });
     }
@@ -29,7 +33,7 @@ class StoreClass {
     private setMarkingSettings(
         callback: ActionProduceCallback<State["settings"]["marking"], State>
     ) {
-        storeState.set(draft => {
+        this.state.set(draft => {
             draft.settings.marking = callback(draft.settings.marking, draft);
         });
     }
@@ -86,12 +90,6 @@ class StoreClass {
             },
         },
     };
-
-    get state() {
-        return useStore.getState();
-    }
-
-    readonly use = useStore;
 }
 
 const Store = new StoreClass();

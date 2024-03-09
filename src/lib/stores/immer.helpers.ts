@@ -1,7 +1,7 @@
-import { Draft, produce } from "immer";
+import { produce } from "immer";
 
-export type ProduceCallback<T> = (callback: (draft: Draft<T>) => void) => void;
-export const produceCallback = <T>(callback: (draft: Draft<T>) => void) =>
+export type ProduceCallback<T> = (callback: (draft: T) => void) => void;
+export const produceCallback = <T>(callback: (draft: T) => void) =>
     produce(state => {
         callback(state);
     });
@@ -9,7 +9,4 @@ export const produceCallback = <T>(callback: (draft: Draft<T>) => void) =>
 export type Immer<T> = T & {
     set: ProduceCallback<T>;
 };
-export type ActionProduceCallback<S, T> = (
-    prop: S | Draft<S>,
-    draft: T | Draft<T>
-) => S | Draft<S>;
+export type ActionProduceCallback<S, T> = (prop: S, draft: T) => S;

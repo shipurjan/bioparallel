@@ -1,7 +1,7 @@
 import { Container } from "@pixi/react";
-import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
 import { useCallback, useMemo } from "react";
 import { InternalMarking, MarkingsStore } from "@/lib/stores/Markings";
+import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
@@ -33,9 +33,9 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
 
     // oblicz proporcje viewportu do świata tylko na evencie zoomed, dla lepszej wydajności (nie ma sensu liczyć tego na każdym renderze
     // bo przy samym ruchu nie zmieniają się proporcje viewportu do świata, tylko przy zoomie)
-    const { viewportWidthRatio, viewportHeightRatio } = useShallowViewportStore(
+    const { viewportWidthRatio, viewportHeightRatio } = ShallowViewportStore(
         id
-    )(
+    ).use(
         ({
             size: {
                 screenWorldWidth,

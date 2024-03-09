@@ -55,6 +55,6 @@ const useStore = create<Immer<State>>()(
 );
 
 export {
-    useStore as useGlobalSettingsStore,
+    useStore as _useGlobalSettingsStore,
     type State as GlobalSettingsState,
 };

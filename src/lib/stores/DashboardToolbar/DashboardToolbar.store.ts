@@ -57,6 +57,6 @@ const useStore = create<Immer<State>>()(
 );
 
 export {
-    useStore as useDashboardToolbarStore,
+    useStore as _useDashboardToolbarStore,
     type State as DashboardToolbarState,
 };
