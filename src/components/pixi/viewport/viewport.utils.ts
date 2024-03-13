@@ -24,6 +24,8 @@ type Delta = Zoom | Position | null;
 let PREV_SCALED: ZoomValue = 1;
 let PREV_POSITION: Position = { x: 0, y: 0 };
 let PREV_OTHER_SCALED: ZoomValue = 1;
+let RAY_POSITION: Position = { x: 0, y: 0 };
+let RAY_ANGLE_RAD: number = 0;
 
 function calculatePreviousValues(viewport: PixiViewport) {
     PREV_SCALED = viewport.scaled;
@@ -33,10 +35,10 @@ function calculatePreviousValues(viewport: PixiViewport) {
     };
 }
 
-function getNormalizedClickPosition(
+function getNormalizedMousePosition(
     event: FederatedPointerEvent,
     viewport: PixiViewport
-) {
+): Position {
     return getNormalizedPosition(viewport, {
         x: event.screenX,
         y: event.screenY,
@@ -125,49 +127,22 @@ function followLockedViewport(
     calculatePreviousValues(viewport);
 }
 
-function createMarkingAtMousePosition(
-    e: FederatedPointerEvent,
+function createMarking(
     id: CanvasMetadata["id"],
-    viewport: PixiViewport
+    type: Marking["type"],
+    angleRad: Marking["angleRad"],
+    position: Marking["position"]
 ): Marking | null {
-    const clickPos = getNormalizedClickPosition(e, viewport);
-    if (clickPos === undefined) return null;
-
     return {
         canvasId: id,
         size: DashboardToolbarStore.state.settings.marking.size,
-        position: {
-            x: clickPos.x,
-            y: clickPos.y,
-        },
+        position,
         backgroundColor:
             DashboardToolbarStore.state.settings.marking.backgroundColor,
         textColor: DashboardToolbarStore.state.settings.marking.textColor,
-        type: "point",
-        angle: 0,
+        type,
+        angleRad,
     };
-}
-
-function addMarkingAtMousePosition(
-    e: FederatedPointerEvent,
-    id: CanvasMetadata["id"],
-    viewport: PixiViewport
-) {
-    if (MarkingsStore.state.temporaryMarking === null) return;
-    const marking = createMarkingAtMousePosition(e, id, viewport);
-    if (marking === null) return;
-
-    MarkingsStore.actions.markings.addOne(marking);
-}
-
-function setTemporaryMarkingAtMousePosition(
-    e: FederatedPointerEvent,
-    id: CanvasMetadata["id"],
-    viewport: PixiViewport
-) {
-    const marking = createMarkingAtMousePosition(e, id, viewport);
-
-    MarkingsStore.actions.temporaryMarking.setTemporaryMarking(marking);
 }
 
 export const handleMove = (
@@ -227,23 +202,84 @@ export const handleMouseDown = (
 ) => {
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
+    document.addEventListener(
+        "cleanup",
+        () => {
+            MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
+
+            if (mousemoveCallback !== undefined) {
+                viewport.removeEventListener("mousemove", mousemoveCallback);
+            }
+        },
+        {
+            once: true,
+        }
+    );
+
     if (cursorMode === "marking") {
         if (e.buttons !== 1) return;
 
-        const wrappingFunction = (ev: FederatedPointerEvent) => {
-            setTemporaryMarkingAtMousePosition(ev, id, viewport);
-        };
+        const markingType = DashboardToolbarStore.state.settings.marking.type;
 
-        mousemoveCallback = wrappingFunction;
-        wrappingFunction(e);
-        viewport.addEventListener("mousemove", wrappingFunction);
+        if (markingType === "point") {
+            const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
+                const mousePos = getNormalizedMousePosition(ev, viewport);
+                if (mousePos === undefined) return;
+
+                const marking = createMarking(id, markingType, 0, mousePos);
+                if (marking === null) return;
+
+                MarkingsStore.actions.temporaryMarking.setTemporaryMarking(
+                    marking
+                );
+            };
+
+            mousemoveCallback = updateTemporaryMarking;
+            updateTemporaryMarking(e);
+
+            viewport.on("mousemove", updateTemporaryMarking);
+        }
+
+        if (markingType === "ray") {
+            const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
+                const mousePos = getNormalizedMousePosition(ev, viewport);
+                if (mousePos === undefined) return;
+                RAY_ANGLE_RAD =
+                    Math.atan2(
+                        mousePos.y - RAY_POSITION.y,
+                        mousePos.x - RAY_POSITION.x
+                    ) -
+                    Math.PI / 2;
+                const marking = createMarking(
+                    id,
+                    markingType,
+                    RAY_ANGLE_RAD,
+                    RAY_POSITION
+                );
+                if (marking === null) return;
+
+                MarkingsStore.actions.temporaryMarking.setTemporaryMarking(
+                    marking
+                );
+            };
+
+            const mousePos = getNormalizedMousePosition(e, viewport);
+            if (mousePos === undefined) return;
+
+            RAY_POSITION = mousePos;
+
+            mousemoveCallback = updateTemporaryMarking;
+            updateTemporaryMarking(e);
+
+            viewport.on("mousemove", updateTemporaryMarking);
+        }
+
         viewport.addEventListener("mouseleave", () => {
-            MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
-            viewport.removeEventListener("mousemove", mousemoveCallback);
+            document.dispatchEvent(new Event("cleanup"));
         });
+
         viewport.addEventListener("mouseout", () => {
-            MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
-            viewport.removeEventListener("mousemove", mousemoveCallback);
+            document.dispatchEvent(new Event("cleanup"));
         });
     }
 };
@@ -253,11 +289,39 @@ export const handleMouseUp = (
     id: CanvasMetadata["id"],
     viewport: PixiViewport
 ) => {
-    if (e.button !== 0) return;
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
-    if (cursorMode === "marking") {
-        addMarkingAtMousePosition(e, id, viewport);
+
+    if (cursorMode !== "marking") return;
+    if (e.button !== 0) return;
+    if (MarkingsStore.state.temporaryMarking === null) return;
+
+    const clickPos = getNormalizedMousePosition(e, viewport);
+    if (clickPos === undefined) return;
+
+    const markingType = DashboardToolbarStore.state.settings.marking.type;
+
+    if (markingType === "point") {
+        const marking = createMarking(id, markingType, 0, clickPos);
+        if (marking === null) return;
+
         MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
+        MarkingsStore.actions.markings.addOne(marking);
+    }
+
+    if (markingType === "ray") {
+        const marking = createMarking(
+            id,
+            markingType,
+            RAY_ANGLE_RAD,
+            RAY_POSITION
+        );
+        if (marking === null) return;
+
+        MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
+        MarkingsStore.actions.markings.addOne(marking);
+    }
+
+    if (mousemoveCallback !== undefined) {
         viewport.removeEventListener("mousemove", mousemoveCallback);
     }
 };

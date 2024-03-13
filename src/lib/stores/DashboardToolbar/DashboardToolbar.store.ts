@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { Immer, produceCallback } from "../immer.helpers";
 import { tauriStorage } from "../tauri-storage-adapter.helpers";
+import { Marking } from "../Markings";
 
 const STORE_NAME = "toolbar-settings";
 const STORE_FILE = new Store(`${STORE_NAME}.dat`);
@@ -12,7 +13,7 @@ type Settings = {
         mode: "select" | "marking";
     };
     marking: {
-        type: "point" | "ray";
+        type: Marking["type"];
         backgroundColor: string;
         textColor: string;
         size: number;

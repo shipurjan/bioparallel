@@ -14,8 +14,8 @@ export type InternalMarking = {
     backgroundColor: ColorSource;
     textColor: ColorSource;
     size: number;
-    type: "point" | "angle";
-    angle: number;
+    type: "point" | "ray";
+    angleRad: number;
     boundMarkingId?: InternalMarking["id"];
 };
 

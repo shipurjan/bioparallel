@@ -1,21 +1,8 @@
-import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
+import { InternalMarking } from "@/lib/stores/Markings";
 import { BitmapText, Graphics } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
 import { memo, useCallback } from "react";
-
-const getFontName = (fontSize: number) => {
-    const ceiledFontSize = Math.ceil(fontSize);
-    const FONT_FAMILY_NAME = "Cousine";
-    const MAX_FONT_SIZE = 32;
-    const MIN_FONT_SIZE = 6;
-    if (ceiledFontSize < MIN_FONT_SIZE)
-        return `${FONT_FAMILY_NAME} ${MIN_FONT_SIZE}`;
-
-    if (ceiledFontSize >= MIN_FONT_SIZE && ceiledFontSize <= MAX_FONT_SIZE)
-        return `${FONT_FAMILY_NAME} ${ceiledFontSize}`;
-
-    return `${FONT_FAMILY_NAME} 64`;
-};
+import { drawMarking, getFontName } from "./marking.utils";
 
 type MarkingTextProps = Pick<
     InternalMarking,
@@ -63,27 +50,11 @@ export const Marking = memo(({ marking }: MarkingProps) => {
         visible: true,
     };
 
-    const drawMarking = (
-        g: PixiGraphics,
-        {
-            visible,
-            backgroundColor: color,
-            position: { x, y },
-            size,
-        }: RenderableMarking
-    ) => {
-        if (!visible) return;
-        g.beginFill(color);
-        g.drawCircle(x, y, size);
-        g.endFill();
-    };
-
     const draw = useCallback(
         (g: PixiGraphics) => {
             g.clear();
-            // eslint-disable-next-line no-param-reassign
-            g.alpha = 0.75;
-            drawMarking(g, renderableMarking);
+            g.removeChildren();
+            drawMarking(g, renderableMarking, 0.75);
         },
         [renderableMarking]
     );
