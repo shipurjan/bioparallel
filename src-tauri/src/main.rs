@@ -13,7 +13,7 @@ struct Payload {
 #[tauri::command]
 async fn show_main_window_if_hidden(window: tauri::Window) {
     let main_window = window
-        .get_window("bioparallel")
+        .get_webview_window("bioparallel")
         .expect("no window labeled 'bioparallel' found");
 
     if let Ok(is_visible) = main_window.is_visible() {
@@ -25,7 +25,7 @@ async fn show_main_window_if_hidden(window: tauri::Window) {
 
 #[tauri::command]
 async fn close_splashscreen_if_exists(window: tauri::Window) {
-    let maybe_window = window.get_window("splashscreen");
+    let maybe_window = window.get_webview_window("splashscreen");
 
     match maybe_window {
         Some(splashscreen_window) => {
@@ -45,9 +45,12 @@ async fn read_file(path: std::path::PathBuf) -> Result<Vec<u8>, String> {
 
 fn main() {
     tauri::Builder::default()
+        .plugin(tauri_plugin_fs::init())
+        .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_single_instance::init(|app, argv, cwd| {
             println!("{}, {argv:?}, {cwd}", app.package_info().name);
-            app.emit_all("single-instance", Payload { args: argv, cwd })
+
+            app.emit("single-instance", Payload { args: argv, cwd })
                 .unwrap();
         }))
         .plugin(tauri_plugin_store::Builder::default().build())
@@ -64,7 +67,7 @@ fn main() {
         .setup(|_app| {
             #[cfg(debug_assertions)] // only include this code on debug builds
             {
-                let window = _app.get_window("bioparallel").unwrap();
+                let window = _app.get_webview_window("bioparallel").unwrap();
                 window.open_devtools();
             }
             Ok(())
