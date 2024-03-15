@@ -11,7 +11,7 @@ class StoreClass {
     readonly use = useStore;
 
     get state() {
-        return useStore.getState();
+        return this.use.getState();
     }
 
     private setWithCleanup: typeof this.state.set = callback => {

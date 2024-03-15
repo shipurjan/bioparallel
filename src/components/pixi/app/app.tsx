@@ -11,8 +11,8 @@ import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import * as PIXI from "pixi.js";
-import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { Sprite } from "pixi.js";
+import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import { Viewport } from "../viewport/viewport";
 import { useThemeController } from "./hooks/useThemeController";
 import { useGlobalRefs } from "./hooks/useGlobalRefs";
@@ -35,24 +35,21 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
     useGlobalRefs(canvasMetadata.id, app, viewportRef.current);
     useViewportResizer(viewportRef.current, width, height);
 
-    const scaleMode = GlobalSettingsStore.use(
-        state => state.settings.video.rendering.scaleMode
+    const scaleMode = CanvasToolbarStore(canvasMetadata.id).use(
+        state => state.settings.texture.scaleMode
     );
 
     useEffect(() => {
         const updateViewport = () =>
             updateCanvas(canvasMetadata.id, "viewport");
-        PIXI.BaseTexture.defaultOptions.scaleMode = {
+        const newScaleMode = {
             nearest: PIXI.SCALE_MODES.NEAREST,
             linear: PIXI.SCALE_MODES.LINEAR,
         }[scaleMode];
+        PIXI.BaseTexture.defaultOptions.scaleMode = newScaleMode;
         if (spriteRef.current === null) return;
-        spriteRef.current.texture.baseTexture.scaleMode = {
-            nearest: PIXI.SCALE_MODES.NEAREST,
-            linear: PIXI.SCALE_MODES.LINEAR,
-        }[scaleMode];
+        spriteRef.current.texture.baseTexture.scaleMode = newScaleMode;
         updateViewport();
-        viewport?.update(10);
     }, [canvasMetadata.id, scaleMode, updateCanvas, viewport]);
 
     useEffect(() => {

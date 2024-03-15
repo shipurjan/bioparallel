@@ -12,7 +12,7 @@ class StoreClass {
     readonly use = useStore;
 
     get state() {
-        return useStore.getState();
+        return this.use.getState();
     }
 
     private setInterfaceSettings(
@@ -54,15 +54,6 @@ class StoreClass {
                     this.setVideoSettings(
                         produce(settings => {
                             settings.rendering.prerenderRadius = newRadius;
-                        })
-                    );
-                },
-                setScaleMode: (
-                    newScaleMode: State["settings"]["video"]["rendering"]["scaleMode"]
-                ) => {
-                    this.setVideoSettings(
-                        produce(settings => {
-                            settings.rendering.scaleMode = newScaleMode;
                         })
                     );
                 },

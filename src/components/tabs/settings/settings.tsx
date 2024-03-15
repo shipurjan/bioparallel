@@ -1,9 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { useEffect } from "react";
+import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { Moon, Sun } from "lucide-react";
 import { SettingsCard } from "./settings-card";
 import { SettingsSwitch } from "./settings-swtich";
 import { SettingsRadioGroup } from "./settings-radio-group";
@@ -16,7 +17,7 @@ export function Settings() {
     const { video } = GlobalSettingsStore.use(state => state.settings);
 
     const actions = GlobalSettingsStore.actions.settings;
-    const { setPrerenderRadius, setScaleMode } = actions.video;
+    const { setPrerenderRadius } = actions.video;
     const { setTheme } = actions.interface;
 
     useEffect(() => {
@@ -42,9 +43,15 @@ export function Settings() {
                     <SettingsSwitch
                         icon={
                             resolvedTheme === "dark" ? (
-                                <MoonIcon />
+                                <Moon
+                                    size={ICON_SIZE}
+                                    strokeWidth={ICON_STROKE_WIDTH}
+                                />
                             ) : (
-                                <SunIcon />
+                                <Sun
+                                    size={ICON_SIZE}
+                                    strokeWidth={ICON_STROKE_WIDTH}
+                                />
                             )
                         }
                         label={resolvedTheme === "dark" ? "On" : "Off"}
@@ -62,27 +69,6 @@ export function Settings() {
                 className="w-full flex justify-center items-start"
             >
                 <SettingsCard className="h-full" title="Rendering">
-                    <SettingsCardTitle>Scale mode</SettingsCardTitle>
-                    <SettingsRadioGroup
-                        value={video.rendering.scaleMode}
-                        defaultValue={video.rendering.scaleMode}
-                        onValueChange={value => {
-                            setScaleMode(
-                                value as typeof video.rendering.scaleMode
-                            );
-                        }}
-                    >
-                        <RadioGroupItem
-                            value="nearest"
-                            id="scale_mode_nearest"
-                            label="Nearest"
-                        />
-                        <RadioGroupItem
-                            value="linear"
-                            id="scale_mode_linear"
-                            label="Linear"
-                        />
-                    </SettingsRadioGroup>
                     <SettingsCardTitle>Prerendering radius</SettingsCardTitle>
                     <SettingsCardDescription>
                         Radius of the area around the viewport that is

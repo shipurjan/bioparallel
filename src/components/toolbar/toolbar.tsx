@@ -2,17 +2,18 @@
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils/shadcn";
 import { HTMLAttributes } from "react";
-import {
-    LockClosedIcon,
-    LockOpen1Icon,
-    DimensionsIcon,
-    CursorArrowIcon,
-    Cross1Icon,
-    DotFilledIcon,
-    AngleIcon,
-} from "@radix-ui/react-icons";
 import { useDebouncedCallback } from "use-debounce";
 import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
+import {
+    Dot,
+    DraftingCompass,
+    Fingerprint,
+    LockKeyhole,
+    LockKeyholeOpen,
+    MousePointer,
+    SendToBack,
+} from "lucide-react";
+import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
 import { ToolbarGroup } from "./group";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Input } from "../ui/input";
@@ -68,7 +69,10 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                             setCursorMode("select");
                         }}
                     >
-                        <CursorArrowIcon className="h-4 w-4" />
+                        <MousePointer
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     </ToggleGroupItem>
                     <ToggleGroupItem
                         value="marking"
@@ -77,7 +81,10 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                             setCursorMode("marking");
                         }}
                     >
-                        <Cross1Icon className="h-4 w-4" />
+                        <Fingerprint
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     </ToggleGroupItem>
                 </ToggleGroup>
             </ToolbarGroup>
@@ -95,7 +102,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                             setMarkingType("point");
                         }}
                     >
-                        <DotFilledIcon className="h-4 w-4" />
+                        <Dot size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
                     </ToggleGroupItem>
                     <ToggleGroupItem
                         value="ray"
@@ -104,13 +111,16 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                             setMarkingType("ray");
                         }}
                     >
-                        <AngleIcon className="h-4 w-4" />
+                        <DraftingCompass
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     </ToggleGroupItem>
                 </ToggleGroup>
             </ToolbarGroup>
             <ToolbarGroup>
                 <Input
-                    className="w-6 h-6 cursor-pointer"
+                    className="size-6 cursor-pointer"
                     title="Marking background color"
                     type="color"
                     value={marking.backgroundColor}
@@ -119,7 +129,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     }}
                 />
                 <Input
-                    className="w-6 h-6 cursor-pointer"
+                    className="size-6 cursor-pointer"
                     title="Marking text color"
                     type="color"
                     value={marking.textColor}
@@ -148,9 +158,15 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     onClick={toggleLockedViewport}
                 >
                     {viewport.locked ? (
-                        <LockClosedIcon className="h-4 w-4" />
+                        <LockKeyhole
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     ) : (
-                        <LockOpen1Icon className="h-4 w-4" />
+                        <LockKeyholeOpen
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     )}
                 </Toggle>
 
@@ -161,7 +177,10 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     pressed={viewport.scaleSync}
                     onClick={toggleLockScaleSync}
                 >
-                    <DimensionsIcon className="h-4 w-4" />
+                    <SendToBack
+                        size={ICON_SIZE}
+                        strokeWidth={ICON_STROKE_WIDTH}
+                    />
                 </Toggle>
             </ToolbarGroup>
         </div>

@@ -1,7 +1,15 @@
 import { cn } from "@/lib/utils/shadcn";
-import { HTMLAttributes } from "react";
+import { HTMLAttributes, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { SizeIcon, HeightIcon, WidthIcon } from "@radix-ui/react-icons";
+import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
+import {
+    Eye,
+    MoveDiagonal,
+    MoveHorizontal,
+    MoveVertical,
+    Waves,
+} from "lucide-react";
+import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useCanvasContext } from "./hooks/useCanvasContext";
 import {
@@ -14,7 +22,20 @@ import {
 export type CanvasToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
     const { id } = useCanvasContext();
+    const store = CanvasToolbarStore(id);
+
+    const { texture } = store.use(state => state.settings);
+
+    useEffect(() => {
+        console.log(texture.scaleMode);
+    }, [texture.scaleMode]);
+
+    const { texture: textureActions } = store.actions.settings;
+
+    const { setScaleMode } = textureActions;
+
     const viewport = useGlobalViewport(id, { autoUpdate: true });
+
     return (
         <div
             className={cn(
@@ -32,7 +53,10 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     emitFitEvents(viewport);
                 }}
             >
-                <SizeIcon className="h-4 w-4" />
+                <MoveDiagonal
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE_WIDTH}
+                />
             </Button>
             <Button
                 title="Fit height"
@@ -43,7 +67,10 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     emitFitEvents(viewport);
                 }}
             >
-                <HeightIcon className="h-4 w-4" />
+                <MoveVertical
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE_WIDTH}
+                />
             </Button>
             <Button
                 title="Fit width"
@@ -54,7 +81,26 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     emitFitEvents(viewport);
                 }}
             >
-                <WidthIcon className="h-4 w-4" />
+                <MoveHorizontal
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE_WIDTH}
+                />
+            </Button>
+            <Button
+                title="Set scale mode"
+                size="icon"
+                variant="outline"
+                onClick={() => {
+                    setScaleMode(
+                        texture.scaleMode === "nearest" ? "linear" : "nearest"
+                    );
+                }}
+            >
+                {texture.scaleMode === "nearest" ? (
+                    <Eye size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
+                ) : (
+                    <Waves size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
+                )}
             </Button>
         </div>
     );

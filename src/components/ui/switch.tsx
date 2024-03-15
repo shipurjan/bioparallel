@@ -26,7 +26,7 @@ const Switch = React.forwardRef<
     >
         <SwitchPrimitives.Thumb
             className={cn(
-                "pointer-events-none flex items-center justify-center p-[0.1em] h-4 w-4 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0"
+                "pointer-events-none flex items-center justify-center p-[0.1em] size-4 rounded-full bg-background shadow-lg ring-0 transition-transform data-[state=checked]:translate-x-4 data-[state=unchecked]:translate-x-0"
             )}
         >
             {icon}
