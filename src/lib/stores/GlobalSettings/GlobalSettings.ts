@@ -63,3 +63,4 @@ class StoreClass {
 
 const Store = new StoreClass();
 export { Store as GlobalSettingsStore };
+export { StoreClass as GlobalSettingsStoreClass };

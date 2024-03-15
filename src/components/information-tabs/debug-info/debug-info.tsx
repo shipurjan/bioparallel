@@ -26,6 +26,8 @@ function getNestedValue(obj: unknown, keys: string[]): string | number {
     ) as string | number;
 
     if (typeof value === "number") {
+        if (Math.abs(value) >= 100) return +value.toFixed(1);
+        if (Math.abs(value) >= 10) return +value.toFixed(2);
         return +value.toFixed(3);
     }
 

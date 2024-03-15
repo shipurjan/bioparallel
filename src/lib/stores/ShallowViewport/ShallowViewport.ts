@@ -52,3 +52,4 @@ export const Store = (id: CanvasMetadata["id"]) => {
 };
 
 export { Store as ShallowViewportStore };
+export { StoreClass as ShallowViewportStoreClass };

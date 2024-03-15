@@ -114,3 +114,4 @@ class StoreClass {
 
 const Store = new StoreClass();
 export { Store as DashboardToolbarStore };
+export { type StoreClass as DashboardToolbarStoreClass };

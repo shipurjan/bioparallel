@@ -5,15 +5,16 @@ import {
 } from "./CanvasUpdater.store";
 
 class CanvasUpdaterClass {
-    /** Updater ktȯry re-renderuje się przy zmianie typu (viewport/app) lub id (left/right) canvasu */
+    /** Defaultowy updater który re-renderuje gdy zmienia stan */
     readonly use = useCanvasUpdater;
 
-    /** Updater ktȯry nigdy się nie re-renderuje */
+    /** Updater ktȯry nie powoduje re-renderów ale zmienia stan */
     readonly useDry = useDryCanvasUpdater;
 
-    /** Updater który re-renderuje się określoną razy na sekundę (np. 60) */
+    /** Updater który re-renderuje się określoną razy na sekundę (np. 60). Używany np. do informacji debug */
     readonly useThrottled = useThrottledCanvasUpdater;
 }
 
 const CanvasUpdater = new CanvasUpdaterClass();
 export { CanvasUpdater };
+export { type CanvasUpdaterClass };

@@ -6,9 +6,11 @@ import { useApp } from "@pixi/react";
 import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
+import { CachedViewportStore } from "@/lib/stores/CachedViewport";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import {
+    ViewportHandlerParams,
     handleMouseDown,
     handleMouseUp,
     handleMove,
@@ -61,25 +63,29 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         viewport.off("frame-end", updateViewport);
                     }, app.ticker.deltaMS * 2);
 
-                    viewport.on("moved", e =>
-                        handleMove(e, viewport, id, updateViewport)
+                    const handlerParams: ViewportHandlerParams = {
+                        viewport,
+                        id,
+                        updateViewport,
+                        store: CachedViewportStore(id),
+                    };
+
+                    viewport.on("moved", e => handleMove(e, handlerParams));
+
+                    viewport.on("other-moved", (e, delta) =>
+                        handleOtherMove(e, handlerParams, delta)
                     );
 
-                    // @ts-expect-error - custom event arguments are not in the typings
-                    viewport.addEventListener("other-moved", (e, delta) =>
-                        handleOtherMove(e, delta, viewport, updateViewport)
-                    );
-
-                    viewport.addEventListener("zoomed", () => {
-                        handleZoom(id, viewport);
+                    viewport.on("zoomed", e => {
+                        handleZoom(e, handlerParams);
                     });
 
-                    viewport.addEventListener("mousedown", e => {
-                        handleMouseDown(e, id, viewport);
+                    viewport.on("mousedown", e => {
+                        handleMouseDown(e, handlerParams);
                     });
 
-                    viewport.addEventListener("mouseup", e => {
-                        handleMouseUp(e, id, viewport);
+                    viewport.on("mouseup", e => {
+                        handleMouseUp(e, handlerParams);
                     });
 
                     return viewport;

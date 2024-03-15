@@ -136,3 +136,4 @@ class StoreClass {
 
 const Store = new StoreClass();
 export { Store as MarkingsStore };
+export { StoreClass as MarkingsStoreClass };

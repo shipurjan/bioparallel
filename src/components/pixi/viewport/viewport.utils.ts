@@ -1,44 +1,42 @@
 /* eslint-disable no-underscore-dangle */
 import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
-import { MovedEvent } from "pixi-viewport/dist/types";
+import { MovedEvent, ZoomedEvent } from "pixi-viewport/dist/types";
 import { FederatedPointerEvent } from "pixi.js";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { round } from "@/lib/utils/math/round";
 import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
 import { Marking, MarkingsStore } from "@/lib/stores/Markings";
+import {
+    CachedViewportPosition,
+    CachedViewportStoreClass,
+    CachedViewportZoom,
+} from "@/lib/stores/CachedViewport";
 import { getNormalizedPosition } from "../overlays/utils/get-viewport-local-position";
 import { useGlobalViewport } from "./hooks/useGlobalViewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 
-type Position = {
-    x: number;
-    y: number;
-};
-type ZoomValue = number;
-type Zoom = {
-    value: ZoomValue;
-    offset: Position;
-};
-type Delta = Zoom | Position | null;
+type Delta = CachedViewportZoom | CachedViewportPosition | null;
 
-let PREV_SCALED: ZoomValue = 1;
-let PREV_POSITION: Position = { x: 0, y: 0 };
-let PREV_OTHER_SCALED: ZoomValue = 1;
-let RAY_POSITION: Position = { x: 0, y: 0 };
-let RAY_ANGLE_RAD: number = 0;
+export type ViewportHandlerParams = {
+    viewport: PixiViewport;
+    id: CanvasMetadata["id"];
+    updateViewport: () => void;
+    store: CachedViewportStoreClass;
+};
 
-function calculatePreviousValues(viewport: PixiViewport) {
-    PREV_SCALED = viewport.scaled;
-    PREV_POSITION = {
+function calculatePreviousValues(params: ViewportHandlerParams) {
+    const { store, viewport } = params;
+    store.actions.viewport.setScaled(viewport.scaled);
+    store.actions.viewport.setPosition({
         x: viewport.position._x,
         y: viewport.position._y,
-    };
+    });
 }
 
 function getNormalizedMousePosition(
     event: FederatedPointerEvent,
     viewport: PixiViewport
-): Position {
+): CachedViewportPosition {
     return getNormalizedPosition(viewport, {
         x: event.screenX,
         y: event.screenY,
@@ -47,31 +45,32 @@ function getNormalizedMousePosition(
 
 function calculateDelta(
     e: MovedEvent,
-    viewport: PixiViewport,
+    params: ViewportHandlerParams,
     oppositeViewport: PixiViewport
 ): Delta {
+    const { viewport, store } = params;
     switch (e.type) {
         case "drag": {
             const isScaleSync =
                 DashboardToolbarStore.state.settings.viewport.scaleSync;
             return {
                 x:
-                    (viewport.position._x - PREV_POSITION.x) /
+                    (viewport.position._x - store.state.position.x) /
                     (isScaleSync ? viewport.scaled : oppositeViewport.scaled),
                 y:
-                    (viewport.position._y - PREV_POSITION.y) /
+                    (viewport.position._y - store.state.position.y) /
                     (isScaleSync ? viewport.scaled : oppositeViewport.scaled),
             };
         }
         case "wheel": {
             return {
-                value: viewport.scaled / PREV_SCALED,
+                value: viewport.scaled / store.state.scaled,
                 offset: {
                     x:
-                        (viewport.position._x - PREV_POSITION.x) /
+                        (viewport.position._x - store.state.position.x) /
                         viewport.scaled,
                     y:
-                        (viewport.position._y - PREV_POSITION.y) /
+                        (viewport.position._y - store.state.position.y) /
                         viewport.scaled,
                 },
             };
@@ -82,14 +81,14 @@ function calculateDelta(
 }
 
 function followLockedViewport(
-    viewport: PixiViewport,
     event: MovedEvent,
-    delta: Delta,
-    updateViewport: () => void
+    params: ViewportHandlerParams,
+    delta: Delta
 ) {
+    const { viewport, store, updateViewport } = params;
     switch (event.type) {
         case "drag": {
-            const { x, y } = delta as Position;
+            const { x, y } = delta as CachedViewportPosition;
             viewport.moveCorner(viewport.corner.x - x, viewport.corner.y - y);
             break;
         }
@@ -97,12 +96,12 @@ function followLockedViewport(
             const {
                 value,
                 offset: { x, y },
-            } = delta as Zoom;
+            } = delta as CachedViewportZoom;
 
             const oldScale = viewport.scaled;
             const newScale = round(oldScale * value, 3);
 
-            if (newScale !== PREV_OTHER_SCALED) {
+            if (newScale !== store.state.otherScaled) {
                 viewport.setZoom(newScale);
 
                 viewport.moveCorner(
@@ -116,7 +115,7 @@ function followLockedViewport(
                 viewport,
             });
 
-            PREV_OTHER_SCALED = newScale;
+            store.actions.viewport.other.setScaled(newScale);
             break;
         }
         default:
@@ -124,7 +123,7 @@ function followLockedViewport(
     }
 
     updateViewport();
-    calculatePreviousValues(viewport);
+    calculatePreviousValues(params);
 }
 
 function createMarking(
@@ -145,18 +144,17 @@ function createMarking(
     };
 }
 
-export const handleMove = (
-    e: MovedEvent,
-    viewport: PixiViewport,
-    id: CanvasMetadata["id"],
-    updateViewport: () => void
-) => {
+export const handleMove = (e: MovedEvent, params: ViewportHandlerParams) => {
+    const { id, updateViewport } = params;
+
     updateViewport();
-    calculatePreviousValues(viewport);
 
     const isLocked = DashboardToolbarStore.state.settings.viewport.locked;
 
-    if (!isLocked) return;
+    if (!isLocked) {
+        calculatePreviousValues(params);
+        return;
+    }
 
     // Jeśli Viewport jest zalockowany (L): wyślij eventy do drugiego viewportu
 
@@ -166,23 +164,24 @@ export const handleMove = (
     );
     if (oppositeViewport === null) return;
 
-    const delta = calculateDelta(e, viewport, oppositeViewport);
+    const delta = calculateDelta(e, params, oppositeViewport);
+    calculatePreviousValues(params);
     oppositeViewport.emit("other-moved", e, delta);
 };
 
 export const handleOtherMove = (
     e: MovedEvent,
-    delta: Delta,
-    viewport: PixiViewport,
-    updateViewport: () => void
+    params: ViewportHandlerParams,
+    delta: Delta
 ) => {
-    followLockedViewport(viewport, e, delta, updateViewport);
+    followLockedViewport(e, params, delta);
 };
 
-export const handleZoom = (
-    id: CanvasMetadata["id"],
-    viewport: PixiViewport
-) => {
+export const handleZoom = (e: ZoomedEvent, params: ViewportHandlerParams) => {
+    // eslint-disable-next-line no-void
+    void e;
+
+    const { id, viewport } = params;
     const { setSize: setShallowViewportSize } =
         ShallowViewportStore(id).actions.size;
 
@@ -197,9 +196,9 @@ export const handleZoom = (
 let mousemoveCallback: (e: FederatedPointerEvent) => void;
 export const handleMouseDown = (
     e: FederatedPointerEvent,
-    id: CanvasMetadata["id"],
-    viewport: PixiViewport
+    params: ViewportHandlerParams
 ) => {
+    const { id, viewport, store } = params;
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
     document.addEventListener(
@@ -244,17 +243,18 @@ export const handleMouseDown = (
             const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
                 const mousePos = getNormalizedMousePosition(ev, viewport);
                 if (mousePos === undefined) return;
-                RAY_ANGLE_RAD =
+                store.actions.viewport.setRayAngleRad(
                     Math.atan2(
-                        mousePos.y - RAY_POSITION.y,
-                        mousePos.x - RAY_POSITION.x
+                        mousePos.y - store.state.rayPosition.y,
+                        mousePos.x - store.state.rayPosition.x
                     ) -
-                    Math.PI / 2;
+                        Math.PI / 2
+                );
                 const marking = createMarking(
                     id,
                     markingType,
-                    RAY_ANGLE_RAD,
-                    RAY_POSITION
+                    store.state.rayAngleRad,
+                    store.state.rayPosition
                 );
                 if (marking === null) return;
 
@@ -266,7 +266,7 @@ export const handleMouseDown = (
             const mousePos = getNormalizedMousePosition(e, viewport);
             if (mousePos === undefined) return;
 
-            RAY_POSITION = mousePos;
+            store.actions.viewport.setRayPosition(mousePos);
 
             mousemoveCallback = updateTemporaryMarking;
             updateTemporaryMarking(e);
@@ -286,9 +286,9 @@ export const handleMouseDown = (
 
 export const handleMouseUp = (
     e: FederatedPointerEvent,
-    id: CanvasMetadata["id"],
-    viewport: PixiViewport
+    params: ViewportHandlerParams
 ) => {
+    const { id, viewport, store } = params;
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
     if (cursorMode !== "marking") return;
@@ -312,8 +312,8 @@ export const handleMouseUp = (
         const marking = createMarking(
             id,
             markingType,
-            RAY_ANGLE_RAD,
-            RAY_POSITION
+            store.state.rayAngleRad,
+            store.state.rayPosition
         );
         if (marking === null) return;
 
