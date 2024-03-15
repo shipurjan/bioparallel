@@ -1,6 +1,6 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroupItem } from "@/components/ui/radio-group";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
+import { MoonIcon, ReloadIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { useEffect } from "react";
@@ -63,7 +63,9 @@ export function Settings() {
             >
                 <SettingsCard className="h-full" title="Rendering">
                     <SettingsCardTitle>
-                        Scale mode (reload required)
+                        Scale mode
+                        <ReloadIcon className="size-5 inline-flex mx-1" />
+                        (reload required)
                     </SettingsCardTitle>
                     <SettingsRadioGroup
                         value={video.rendering.scaleMode}
