@@ -1,7 +1,9 @@
+/* eslint-disable security/detect-object-injection */
+
 "use client";
 
 import { useApp } from "@pixi/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
@@ -10,6 +12,7 @@ import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import * as PIXI from "pixi.js";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import { Sprite } from "pixi.js";
 import { Viewport } from "../viewport/viewport";
 import { useThemeController } from "./hooks/useThemeController";
 import { useGlobalRefs } from "./hooks/useGlobalRefs";
@@ -21,14 +24,12 @@ export type PixiAppProps = {
     canvasMetadata: CanvasMetadata;
 };
 export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
+    const spriteRef = useRef<Sprite>(null);
     const app = useApp();
     const viewportRef = useRef<PixiViewport>(null);
     const viewport = viewportRef.current;
 
     const updateCanvas = CanvasUpdater.useDry();
-    const updateViewport = useCallback(() => {
-        updateCanvas(canvasMetadata.id, "viewport");
-    }, [canvasMetadata.id, updateCanvas]);
 
     useThemeController(app);
     useGlobalRefs(canvasMetadata.id, app, viewportRef.current);
@@ -39,15 +40,20 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
     );
 
     useEffect(() => {
-        // eslint-disable-next-line security/detect-object-injection
+        const updateViewport = () =>
+            updateCanvas(canvasMetadata.id, "viewport");
         PIXI.BaseTexture.defaultOptions.scaleMode = {
             nearest: PIXI.SCALE_MODES.NEAREST,
             linear: PIXI.SCALE_MODES.LINEAR,
         }[scaleMode];
-    }, [scaleMode]);
-
-    // NOTE: nie jestem pewny czy ta linia jest potrzebna
-    useEffect(() => {}, [app.renderer.background]);
+        if (spriteRef.current === null) return;
+        spriteRef.current.texture.baseTexture.scaleMode = {
+            nearest: PIXI.SCALE_MODES.NEAREST,
+            linear: PIXI.SCALE_MODES.LINEAR,
+        }[scaleMode];
+        updateViewport();
+        viewport?.update(10);
+    }, [canvasMetadata.id, scaleMode, updateCanvas, viewport]);
 
     useEffect(() => {
         if (!IS_DEV_ENVIRONMENT) return;
@@ -60,11 +66,13 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
 
         loadSprite(canvasMetadata.id === "left" ? png01 : png02)
             .then(sprite => {
-                viewport.addChild(normalizeSpriteSize(viewport, sprite));
-                updateViewport();
+                const normalizedSprite = normalizeSpriteSize(viewport, sprite);
+                // @ts-expect-error it's fine
+                spriteRef.current = normalizedSprite;
+                viewport.addChild(normalizedSprite);
             })
             .catch(console.error);
-    }, [canvasMetadata.id, scaleMode, updateViewport, viewport]);
+    }, [canvasMetadata.id, viewport]);
 
     return <Viewport canvasMetadata={canvasMetadata} ref={viewportRef} />;
 }
