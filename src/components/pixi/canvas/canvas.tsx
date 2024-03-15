@@ -30,7 +30,6 @@ export function Canvas({ options, className, ...props }: CanvasProps) {
     const [isDragging, setIsDragging] = useState(false);
 
     useEffect(() => {
-        // wyłącz antyaliasing tekstur
         PIXI.BaseTexture.defaultOptions.scaleMode = 0;
         // załaduj bitmapowe czcionki, rozmiary 6-32 i 64
         const fontSizes = [...range(6, 32), 64];

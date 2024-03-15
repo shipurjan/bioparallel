@@ -3,6 +3,7 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
 import { useTheme } from "next-themes";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import { useEffect } from "react";
 import { SettingsCard } from "./settings-card";
 import { SettingsSwitch } from "./settings-swtich";
 import { SettingsRadioGroup } from "./settings-radio-group";
@@ -11,11 +12,16 @@ import { SettingsCardDescription } from "./settings-card-description";
 
 export function Settings() {
     const { resolvedTheme, setTheme: setNextTheme } = useTheme();
+
     const { video } = GlobalSettingsStore.use(state => state.settings);
 
     const actions = GlobalSettingsStore.actions.settings;
-    const { setPrerenderRadius } = actions.video;
+    const { setPrerenderRadius, setScaleMode } = actions.video;
     const { setTheme } = actions.interface;
+
+    useEffect(() => {
+        setTheme(resolvedTheme as "dark" | "light");
+    }, [resolvedTheme, setTheme]);
 
     return (
         <Tabs
@@ -32,6 +38,7 @@ export function Settings() {
                 className="w-full flex justify-center items-start"
             >
                 <SettingsCard className="h-full" title="Theme">
+                    <SettingsCardTitle>Dark mode</SettingsCardTitle>
                     <SettingsSwitch
                         icon={
                             resolvedTheme === "dark" ? (
@@ -40,13 +47,11 @@ export function Settings() {
                                 <SunIcon />
                             )
                         }
-                        label="Dark mode"
+                        label={resolvedTheme === "dark" ? "On" : "Off"}
                         id="dark_mode"
                         checked={resolvedTheme === "dark"}
                         onCheckedChange={checked => {
-                            const theme = checked ? "dark" : "light";
-                            setTheme(theme);
-                            setNextTheme(theme);
+                            setNextTheme(checked ? "dark" : "light");
                         }}
                     />
                 </SettingsCard>
@@ -57,11 +62,34 @@ export function Settings() {
                 className="w-full flex justify-center items-start"
             >
                 <SettingsCard className="h-full" title="Rendering">
+                    <SettingsCardTitle>
+                        Scale mode (reload required)
+                    </SettingsCardTitle>
+                    <SettingsRadioGroup
+                        value={video.rendering.scaleMode}
+                        defaultValue={video.rendering.scaleMode}
+                        onValueChange={value => {
+                            setScaleMode(
+                                value as typeof video.rendering.scaleMode
+                            );
+                        }}
+                    >
+                        <RadioGroupItem
+                            value="nearest"
+                            id="scale_mode_nearest"
+                            label="Nearest"
+                        />
+                        <RadioGroupItem
+                            value="linear"
+                            id="scale_mode_linear"
+                            label="Linear"
+                        />
+                    </SettingsRadioGroup>
                     <SettingsCardTitle>Prerendering radius</SettingsCardTitle>
                     <SettingsCardDescription>
                         Radius of the area around the viewport that is
-                        prerendered. <br />
-                        Decreasing this value will improve performance.
+                        prerendered. Decreasing this value will improve
+                        performance.
                     </SettingsCardDescription>
                     <SettingsRadioGroup
                         value={video.rendering.prerenderRadius}
@@ -75,7 +103,7 @@ export function Settings() {
                         <RadioGroupItem
                             value="auto"
                             id="prerender_radius_auto"
-                            label="Auto"
+                            label="Auto (recommended)"
                         />
                         <RadioGroupItem
                             value="none"

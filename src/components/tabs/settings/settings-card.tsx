@@ -12,7 +12,10 @@ export function SettingsCard({
     ...props
 }: SettingsCardProps) {
     return (
-        <Card {...props} className={cn("p-3 pt-0", className)}>
+        <Card
+            {...props}
+            className={cn("p-3 pt-0 max-w-sm space-y-2", className)}
+        >
             <>
                 <CardHeader className="space-y-0 p-0 py-2 flex justify-center items-center">
                     <CardTitle className=" text-xl font-extrabold">

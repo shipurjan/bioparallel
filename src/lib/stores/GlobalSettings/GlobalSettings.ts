@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 /* eslint-disable no-param-reassign */
 
 import { produce } from "immer";
@@ -53,6 +54,15 @@ class StoreClass {
                     this.setVideoSettings(
                         produce(settings => {
                             settings.rendering.prerenderRadius = newRadius;
+                        })
+                    );
+                },
+                setScaleMode: (
+                    newScaleMode: State["settings"]["video"]["rendering"]["scaleMode"]
+                ) => {
+                    this.setVideoSettings(
+                        produce(settings => {
+                            settings.rendering.scaleMode = newScaleMode;
                         })
                     );
                 },

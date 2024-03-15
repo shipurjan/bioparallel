@@ -7,10 +7,5 @@ export function SettingsCardDescription({
     className,
     ...props
 }: SettingsCardDescriptionProps) {
-    return (
-        <CardDescription
-            {...props}
-            className={cn(" max-w-prose pb-1.5", className)}
-        />
-    );
+    return <CardDescription {...props} className={cn("", className)} />;
 }

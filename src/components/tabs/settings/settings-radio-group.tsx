@@ -12,7 +12,10 @@ export function SettingsRadioGroup({
 }: SettingsRadioGroupProps) {
     const arrayChildren = Children.toArray(children);
     return (
-        <RadioGroup {...props} className={cn("", className)}>
+        <RadioGroup
+            {...props}
+            className={cn("flex flex-wrap justify-evenly", className)}
+        >
             {Children.map(arrayChildren, child => (
                 <div className="flex items-center space-x-2">
                     {child}

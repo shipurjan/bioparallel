@@ -8,6 +8,8 @@ import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size"
 import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
+import * as PIXI from "pixi.js";
+import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { Viewport } from "../viewport/viewport";
 import { useThemeController } from "./hooks/useThemeController";
 import { useGlobalRefs } from "./hooks/useGlobalRefs";
@@ -32,6 +34,19 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
     useGlobalRefs(canvasMetadata.id, app, viewportRef.current);
     useViewportResizer(viewportRef.current, width, height);
 
+    const scaleMode = GlobalSettingsStore.use(
+        state => state.settings.video.rendering.scaleMode
+    );
+
+    useEffect(() => {
+        // eslint-disable-next-line security/detect-object-injection
+        PIXI.BaseTexture.defaultOptions.scaleMode = {
+            nearest: PIXI.SCALE_MODES.NEAREST,
+            linear: PIXI.SCALE_MODES.LINEAR,
+        }[scaleMode];
+    }, [scaleMode]);
+
+    // NOTE: nie jestem pewny czy ta linia jest potrzebna
     useEffect(() => {}, [app.renderer.background]);
 
     useEffect(() => {
@@ -49,7 +64,7 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
                 updateViewport();
             })
             .catch(console.error);
-    }, [canvasMetadata.id, updateViewport, viewport]);
+    }, [canvasMetadata.id, scaleMode, updateViewport, viewport]);
 
     return <Viewport canvasMetadata={canvasMetadata} ref={viewportRef} />;
 }

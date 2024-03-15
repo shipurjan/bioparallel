@@ -20,6 +20,7 @@ type Settings = {
                 | "medium"
                 | "high"
                 | "very high";
+            scaleMode: "linear" | "nearest";
         };
     };
 };
@@ -36,6 +37,7 @@ const INITIAL_STATE: State = {
         video: {
             rendering: {
                 prerenderRadius: "auto",
+                scaleMode: "nearest",
             },
         },
     },
