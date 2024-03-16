@@ -28,6 +28,7 @@
         "test:e2e": "jest ./__tests__/e2e --passWithNoTests"
     },
     "dependencies": {
+        "@pixi/layers": "^2.1.0",
         "@pixi/react": "7.1.1",
         "@radix-ui/react-checkbox": "1.0.4",
         "@radix-ui/react-dropdown-menu": "2.0.6",

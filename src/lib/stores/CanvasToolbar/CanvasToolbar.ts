@@ -27,11 +27,19 @@ class StoreClass {
         document.dispatchEvent(new Event("cleanup"));
     };
 
-    private setTextureSetting(
+    private setTextureSettings(
         callback: ActionProduceCallback<State["settings"]["texture"], State>
     ) {
         this.setWithCleanup(draft => {
             draft.settings.texture = callback(draft.settings.texture, draft);
+        });
+    }
+
+    private setMarkingsSettings(
+        callback: ActionProduceCallback<State["settings"]["markings"], State>
+    ) {
+        this.setWithCleanup(draft => {
+            draft.settings.markings = callback(draft.settings.markings, draft);
         });
     }
 
@@ -41,9 +49,20 @@ class StoreClass {
                 setScaleMode: (
                     newScaleMode: State["settings"]["texture"]["scaleMode"]
                 ) => {
-                    this.setTextureSetting(
+                    this.setTextureSettings(
                         produce(texture => {
                             texture.scaleMode = newScaleMode;
+                        })
+                    );
+                },
+            },
+            markings: {
+                setShowLabels: (
+                    showLabel: State["settings"]["markings"]["showLabels"]
+                ) => {
+                    this.setMarkingsSettings(
+                        produce(markings => {
+                            markings.showLabels = showLabel;
                         })
                     );
                 },

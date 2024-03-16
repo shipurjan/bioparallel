@@ -3,13 +3,14 @@ import { HTMLAttributes } from "react";
 import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import {
     Eye,
+    Flag,
+    FlagOff,
     MoveDiagonal,
     MoveHorizontal,
     MoveVertical,
     Waves,
 } from "lucide-react";
 import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
-import { useDebouncedCallback } from "use-debounce";
 import { ToolbarGroup } from "@/components/toolbar/group";
 import { Toggle } from "@/components/ui/toggle";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
@@ -26,16 +27,13 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
     const { id } = useCanvasContext();
     const store = CanvasToolbarStore(id);
 
-    const { texture } = store.use(state => state.settings);
+    const { texture, markings } = store.use(state => state.settings);
 
-    const { texture: textureActions } = store.actions.settings;
+    const { texture: textureActions, markings: markingsActions } =
+        store.actions.settings;
 
-    const { setScaleMode: _setScaleMode } = textureActions;
-
-    const setScaleMode = useDebouncedCallback<typeof _setScaleMode>(
-        value => _setScaleMode(value),
-        10
-    );
+    const { setScaleMode } = textureActions;
+    const { setShowLabels } = markingsActions;
 
     const viewport = useGlobalViewport(id, { autoUpdate: true });
 
@@ -113,6 +111,30 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                         <Eye size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
                     ) : (
                         <Waves
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
+                    )}
+                </Toggle>
+            </ToolbarGroup>
+
+            <ToolbarGroup>
+                <Toggle
+                    variant="outline"
+                    title="Show marking labels"
+                    size="icon"
+                    pressed={markings.showLabels}
+                    onClick={() => {
+                        setShowLabels(!markings.showLabels);
+                    }}
+                >
+                    {markings.showLabels ? (
+                        <Flag
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
+                    ) : (
+                        <FlagOff
                             size={ICON_SIZE}
                             strokeWidth={ICON_STROKE_WIDTH}
                         />

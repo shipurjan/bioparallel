@@ -7,6 +7,9 @@ type Settings = {
     texture: {
         scaleMode: "linear" | "nearest";
     };
+    markings: {
+        showLabels: boolean;
+    };
 };
 
 type State = {
@@ -17,6 +20,9 @@ const INITIAL_STATE: State = {
     settings: {
         texture: {
             scaleMode: "nearest",
+        },
+        markings: {
+            showLabels: true,
         },
     },
 };

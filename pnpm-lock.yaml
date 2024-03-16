@@ -10,6 +10,9 @@ patchedDependencies:
     path: patches/pixi-viewport@5.0.2.patch
 
 dependencies:
+  '@pixi/layers':
+    specifier: ^2.1.0
+    version: 2.1.0(@pixi/canvas-renderer@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)
   '@pixi/react':
     specifier: 7.1.1
     version: 7.1.1(@babel/runtime@7.24.0)(@pixi/app@7.4.0)(@pixi/constants@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0)(@pixi/extensions@7.4.0)(@pixi/graphics@7.4.0)(@pixi/math@7.4.0)(@pixi/mesh-extras@7.4.0)(@pixi/mesh@7.4.0)(@pixi/particle-container@7.4.0)(@pixi/sprite-animated@7.4.0)(@pixi/sprite-tiling@7.4.0)(@pixi/sprite@7.4.0)(@pixi/text-bitmap@7.4.0)(@pixi/text@7.4.0)(@pixi/ticker@7.4.0)(prop-types@15.8.1)(react-dom@18.2.0)(react@18.2.0)
@@ -1228,6 +1231,14 @@ packages:
       '@types/css-font-loading-module': 0.0.12
     dev: false
 
+  /@pixi/canvas-renderer@7.4.0(@pixi/core@7.4.0):
+    resolution: {integrity: sha512-lN6aB4hScv64jK95z6MfsFwPf2+faWgLr5tainwXFROgRfNqCIeI334wwvQPSeWHJ2Bv6O9K9p10/8zYDqsQAw==}
+    peerDependencies:
+      '@pixi/core': 7.4.0
+    dependencies:
+      '@pixi/core': 7.4.0
+    dev: false
+
   /@pixi/color@7.4.0:
     resolution: {integrity: sha512-Qgn3OSW9SFCQ8wrm524anENwIAeRTORC014LkTqaBQrpuOUHrx11SCy4kNFaQyZWO1DCTe4m8g/foCK7zJM7cg==}
     dependencies:
@@ -1353,6 +1364,18 @@ packages:
       '@pixi/core': 7.4.0
       '@pixi/display': 7.4.0(@pixi/core@7.4.0)
       '@pixi/sprite': 7.4.0(@pixi/core@7.4.0)(@pixi/display@7.4.0)
+    dev: false
+
+  /@pixi/layers@2.1.0(@pixi/canvas-renderer@7.4.0)(@pixi/core@7.4.0)(@pixi/display@7.4.0):
+    resolution: {integrity: sha512-e3p3xaHSkVF1jLTfiTEsFGNzGRPffTO0UkKbwA9pfBzRHIBOFM2mCbVqcdhgHSMXRFYr2FoOp1+zK9jJifEUug==}
+    peerDependencies:
+      '@pixi/canvas-renderer': ^7.0.0
+      '@pixi/core': ^7.0.0
+      '@pixi/display': ^7.0.0
+    dependencies:
+      '@pixi/canvas-renderer': 7.4.0(@pixi/core@7.4.0)
+      '@pixi/core': 7.4.0
+      '@pixi/display': 7.4.0(@pixi/core@7.4.0)
     dev: false
 
   /@pixi/math@7.4.0:

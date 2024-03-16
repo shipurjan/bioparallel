@@ -1,3 +1,4 @@
+/* eslint-disable no-param-reassign */
 /* eslint-disable sonarjs/prefer-single-boolean-return */
 import { BitmapText, Graphics } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
@@ -61,70 +62,85 @@ function MarkingText({
 export type MarkingsProps = {
     markings: InternalMarking[];
     canvasMetadata: CanvasMetadata;
+    showMarkingLabels?: boolean;
+    alpha?: number;
 };
-export const Markings = memo(({ canvasMetadata, markings }: MarkingsProps) => {
-    const viewport = useGlobalViewport(canvasMetadata.id);
-    const app = useGlobalApp(canvasMetadata.id);
+export const Markings = memo(
+    ({
+        canvasMetadata,
+        showMarkingLabels,
+        markings,
+        alpha = 1,
+    }: MarkingsProps) => {
+        const viewport = useGlobalViewport(canvasMetadata.id);
+        const app = useGlobalApp(canvasMetadata.id);
 
-    const [renderableMarkings, setRenderableMarkings] = useState<
-        RenderableMarking[]
-    >([]);
+        const [renderableMarkings, setRenderableMarkings] = useState<
+            RenderableMarking[]
+        >([]);
 
-    const updateRenderableMarkings = useCallback(
-        () =>
-            setRenderableMarkings(
-                markings.map(marking => ({
-                    ...marking,
-                    visible: isVisible(marking, markings.length, app, viewport),
-                }))
-            ),
-        [app, markings, viewport]
-    );
+        const updateRenderableMarkings = useCallback(
+            () =>
+                setRenderableMarkings(
+                    markings.map(marking => ({
+                        ...marking,
+                        visible: isVisible(
+                            marking,
+                            markings.length,
+                            app,
+                            viewport
+                        ),
+                    }))
+                ),
+            [app, markings, viewport]
+        );
 
-    useEffect(() => {
-        viewport?.addEventListener("moved-end", updateRenderableMarkings);
+        useEffect(() => {
+            viewport?.addEventListener("moved-end", updateRenderableMarkings);
 
-        return () => {
-            viewport?.removeEventListener(
-                "moved-end",
-                updateRenderableMarkings
-            );
-        };
-    }, [updateRenderableMarkings, viewport]);
+            return () => {
+                viewport?.removeEventListener(
+                    "moved-end",
+                    updateRenderableMarkings
+                );
+            };
+        }, [updateRenderableMarkings, viewport]);
 
-    useEffect(() => {
-        updateRenderableMarkings();
-    }, [markings, viewport, app, updateRenderableMarkings]);
+        useEffect(() => {
+            updateRenderableMarkings();
+        }, [markings, viewport, app, updateRenderableMarkings]);
 
-    const drawMarkings = useCallback(
-        (g: PixiGraphics) => {
-            // wyrenderuj wszystkie markingi jako jedna grafika dla lepszej wydajności
-            g.clear();
-            g.removeChildren();
-            renderableMarkings.forEach(marking => {
-                drawMarking(g, marking, 1);
-            });
-        },
-        [renderableMarkings]
-    );
+        const drawMarkings = useCallback(
+            (g: PixiGraphics) => {
+                // wyrenderuj wszystkie markingi jako jedna grafika dla lepszej wydajności
+                g.clear();
+                g.removeChildren();
+                renderableMarkings.forEach(marking => {
+                    drawMarking(g, marking, showMarkingLabels, alpha);
+                });
+            },
+            [alpha, renderableMarkings, showMarkingLabels]
+        );
 
-    return (
-        <>
-            <Graphics draw={drawMarkings} />
-            {renderableMarkings.map(
-                ({ visible, id, size, position, textColor }) => {
-                    return (
-                        <MarkingText
-                            visible={visible}
-                            key={id}
-                            id={id}
-                            size={size}
-                            position={position}
-                            textColor={textColor}
-                        />
-                    );
-                }
-            )}
-        </>
-    );
-});
+        return (
+            <>
+                <Graphics draw={drawMarkings} />
+                {showMarkingLabels &&
+                    renderableMarkings.map(
+                        ({ visible, id, size, position, textColor }) => {
+                            return (
+                                <MarkingText
+                                    visible={visible}
+                                    key={id}
+                                    id={id}
+                                    size={size}
+                                    position={position}
+                                    textColor={textColor}
+                                />
+                            );
+                        }
+                    )}
+            </>
+        );
+    }
+);

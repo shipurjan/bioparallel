@@ -2,12 +2,12 @@ import { Container } from "@pixi/react";
 import { useCallback, useMemo } from "react";
 import { InternalMarking, MarkingsStore } from "@/lib/stores/Markings";
 import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
+import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
 import { getViewportLocalPosition } from "./utils/get-viewport-local-position";
 import { Markings } from "./markings/markings";
-import { Marking } from "./markings/marking";
 
 export type MarkingOverlayProps = {
     canvasMetadata: CanvasMetadata;
@@ -25,6 +25,10 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
         (oldState, newState) => {
             return oldState.hash === newState.hash;
         }
+    );
+
+    const showMarkingLabels = CanvasToolbarStore(id).use(
+        state => state.settings.markings.showLabels
     );
 
     const temporaryMarking = MarkingsStore.use(state =>
@@ -86,10 +90,15 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
         <Container position={getViewportLocalPosition(viewport)}>
             <Markings
                 canvasMetadata={canvasMetadata}
+                showMarkingLabels={showMarkingLabels}
                 markings={relativeMarkings}
             />
             {relativeTemporaryMarking !== null && (
-                <Marking marking={relativeTemporaryMarking} />
+                <Markings
+                    canvasMetadata={canvasMetadata}
+                    markings={[relativeTemporaryMarking]}
+                    showMarkingLabels={showMarkingLabels}
+                />
             )}
         </Container>
     );

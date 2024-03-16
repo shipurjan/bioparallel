@@ -75,6 +75,7 @@ export function isVisible(
 export const drawMarking = (
     g: PixiGraphics,
     {
+        id,
         visible,
         backgroundColor,
         textColor,
@@ -83,34 +84,57 @@ export const drawMarking = (
         type,
         angleRad,
     }: RenderableMarking,
+    showMarkingLabels?: boolean,
     alpha: number = 1
 ) => {
     if (!visible) return;
-    g.beginFill(backgroundColor);
-    g.lineStyle(1, textColor);
-    g.drawCircle(x, y, size);
-    g.endFill();
+
+    const lineWidth = 2;
+    const lineLength = 4;
+    const shadowWidth = 0.5;
+
     if (type === "ray") {
         const a = new PixiGraphics();
-        a.beginFill(backgroundColor);
 
         a.pivot.set(x, y);
         a.rotation = angleRad;
 
-        a.drawPolygon([x, y, x + size, y, x, y + 2 * size, x - size, y]);
+        a.moveTo(x, y - 3 * shadowWidth);
+        a.lineStyle(lineWidth + 3 * shadowWidth, textColor);
+        a.lineTo(x, y + lineLength * size + 3 * shadowWidth);
 
-        a.lineStyle(1, textColor);
-
-        a.moveTo(x + size, y);
-        a.quadraticCurveTo(x + size, y + size, x, y + 2 * size);
-        a.moveTo(x - size, y);
-        a.quadraticCurveTo(x - size, y + size, x, y + 2 * size);
+        a.moveTo(x, y);
+        a.lineStyle(lineWidth, backgroundColor);
+        a.lineTo(x, y + lineLength * size);
 
         a.position.set(x, y);
-        a.zIndex = 0;
         g.addChild(a);
     }
 
+    const c = new PixiGraphics();
+    if (showMarkingLabels) {
+        c.lineStyle(shadowWidth, textColor);
+        c.drawCircle(x, y, size);
+        c.beginFill(backgroundColor);
+        c.drawCircle(x, y, size - shadowWidth);
+        c.endFill();
+        g.addChild(c);
+    }
+
+    if (!showMarkingLabels) {
+        c.lineStyle(shadowWidth, textColor);
+        c.drawCircle(x, y, size);
+        c.beginFill(backgroundColor);
+        c.drawCircle(x, y, size - shadowWidth);
+        c.endFill();
+        c.beginHole();
+        c.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
+        c.endHole();
+        c.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
+        g.addChild(c);
+    }
+
+    g.accessibleTitle = `Marking ${id}`;
     g.filters = [];
 
     if (alpha !== 1) {
