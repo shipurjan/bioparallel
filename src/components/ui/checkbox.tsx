@@ -31,7 +31,7 @@ const Checkbox = React.forwardRef<
             <Check
                 size={ICON_SIZE}
                 strokeWidth={ICON_STROKE_WIDTH}
-                className="size-4"
+                className="size-3.5"
             />
         </CheckboxPrimitive.Indicator>
     </CheckboxPrimitive.Root>
