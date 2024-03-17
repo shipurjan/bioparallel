@@ -6,7 +6,7 @@ import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
-import { getViewportLocalPosition } from "./utils/get-viewport-local-position";
+import { getViewportPosition } from "./utils/get-viewport-local-position";
 import { Markings } from "./markings/markings";
 
 export type MarkingOverlayProps = {
@@ -87,7 +87,7 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
     }
 
     return (
-        <Container position={getViewportLocalPosition(viewport)}>
+        <Container position={getViewportPosition(viewport)}>
             <Markings
                 canvasMetadata={canvasMetadata}
                 showMarkingLabels={showMarkingLabels}

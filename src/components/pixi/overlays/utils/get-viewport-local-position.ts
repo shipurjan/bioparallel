@@ -1,13 +1,11 @@
 import { Viewport } from "pixi-viewport";
 
-export const getViewportLocalPosition = ({
+export const getViewportPosition = ({
     position,
-    _localBounds: localBounds,
-    scale,
 }: Viewport): { x: number; y: number } => {
     return {
-        x: position.x + localBounds.minX * scale.x,
-        y: position.y + localBounds.minY * scale.y,
+        x: position.x,
+        y: position.y,
     };
 };
 
@@ -32,7 +30,7 @@ export const getNormalizedPosition = (
     viewport: Viewport,
     { x, y }: { x: number; y: number }
 ): { x: number; y: number } => {
-    const pos = getViewportLocalPosition(viewport);
+    const pos = getViewportPosition(viewport);
     return {
         x: (x - pos.x) / viewport.scaled,
         y: (y - pos.y) / viewport.scaled,

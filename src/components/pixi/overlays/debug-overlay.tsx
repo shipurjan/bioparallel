@@ -6,7 +6,7 @@ import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
 import {
     getViewportGlobalPosition,
-    getViewportLocalPosition,
+    getViewportPosition,
 } from "./utils/get-viewport-local-position";
 
 export type DebugOverlayProps = {
@@ -29,7 +29,7 @@ export function DebugOverlay({ canvasMetadata: { id } }: DebugOverlayProps) {
 
     return (
         <>
-            <Container position={getViewportLocalPosition(viewport)}>
+            <Container position={getViewportPosition(viewport)}>
                 <Grid
                     width={viewport.width}
                     height={viewport.height}
