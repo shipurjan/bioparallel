@@ -1,12 +1,7 @@
 /* eslint-disable sonarjs/prefer-single-boolean-return */
 /* eslint-disable no-param-reassign */
 import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
-import {
-    AlphaFilter,
-    Application,
-    ICanvas,
-    Graphics as PixiGraphics,
-} from "pixi.js";
+import { Application, ICanvas, Graphics as PixiGraphics } from "pixi.js";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 
@@ -72,72 +67,76 @@ export function isVisible(
     return true;
 }
 
-export const drawMarking = (
+export const drawPointMarking = (
     g: PixiGraphics,
     {
-        id,
         visible,
         backgroundColor,
         textColor,
         position: { x, y },
         size,
-        type,
-        angleRad,
     }: RenderableMarking,
     showMarkingLabels?: boolean,
-    alpha: number = 1
+    lineWidth: number = 2,
+    shadowWidth: number = 0.5
 ) => {
     if (!visible) return;
 
-    const lineWidth = 2;
-    const lineLength = 4;
-    const shadowWidth = 0.5;
+    g.lineStyle(shadowWidth, textColor);
+    g.drawCircle(x, y, size);
+    g.beginFill(backgroundColor);
+    g.drawCircle(x, y, size - shadowWidth);
+    g.endFill();
 
-    if (type === "ray") {
-        const a = new PixiGraphics();
+    if (showMarkingLabels) return;
 
-        a.pivot.set(x, y);
-        a.rotation = angleRad;
+    g.beginHole();
+    g.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
+    g.endHole();
+    g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
+};
 
-        a.moveTo(x, y - 3 * shadowWidth);
-        a.lineStyle(lineWidth + 3 * shadowWidth, textColor);
-        a.lineTo(x, y + lineLength * size + 3 * shadowWidth);
+export const drawRayMarking = (
+    g: PixiGraphics,
+    {
+        visible,
+        backgroundColor,
+        textColor,
+        position: { x, y },
+        size,
+        angleRad,
+    }: RenderableMarking,
+    showMarkingLabels?: boolean,
+    lineWidth: number = 2,
+    shadowWidth: number = 0.5,
+    lineLength: number = 4
+) => {
+    if (!visible) return;
 
-        a.moveTo(x, y);
-        a.lineStyle(lineWidth, backgroundColor);
-        a.lineTo(x, y + lineLength * size);
-
-        a.position.set(x, y);
-        g.addChild(a);
-    }
-
-    const c = new PixiGraphics();
-    if (showMarkingLabels) {
-        c.lineStyle(shadowWidth, textColor);
-        c.drawCircle(x, y, size);
-        c.beginFill(backgroundColor);
-        c.drawCircle(x, y, size - shadowWidth);
-        c.endFill();
-        g.addChild(c);
-    }
+    g.lineStyle(shadowWidth, textColor);
+    g.drawCircle(x, y, size);
+    g.beginFill(backgroundColor);
+    g.drawCircle(x, y, size - shadowWidth);
+    g.endFill();
 
     if (!showMarkingLabels) {
-        c.lineStyle(shadowWidth, textColor);
-        c.drawCircle(x, y, size);
-        c.beginFill(backgroundColor);
-        c.drawCircle(x, y, size - shadowWidth);
-        c.endFill();
-        c.beginHole();
-        c.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
-        c.endHole();
-        c.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
-        g.addChild(c);
+        g.beginHole();
+        g.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
+        g.endHole();
+        g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
     }
 
-    g.accessibleTitle = `Marking ${id}`;
-    g.filters = [];
+    const a = new PixiGraphics();
+    a.pivot.set(x, y);
+    a.rotation = angleRad;
 
-    if (alpha !== 1) {
-        g.filters.push(new AlphaFilter(alpha));
-    }
+    a.moveTo(x, y - 3 * shadowWidth);
+    a.lineStyle(lineWidth + 3 * shadowWidth, textColor);
+    a.lineTo(x, y + lineLength * size + 3 * shadowWidth);
+
+    a.moveTo(x, y);
+    a.lineStyle(lineWidth, backgroundColor);
+    a.lineTo(x, y + lineLength * size);
+    a.position.set(x, y);
+    g.addChild(a);
 };

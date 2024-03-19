@@ -7,7 +7,7 @@ import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
 import { useGlobalViewport } from "../../viewport/hooks/useGlobalViewport";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
 import { useGlobalApp } from "../../app/hooks/useGlobalApp";
-import { drawMarking, isVisible } from "./marking.utils";
+import { drawPointMarking, drawRayMarking, isVisible } from "./marking.utils";
 
 const getFontName = (fontSize: number) => {
     const ceiledFontSize = Math.ceil(fontSize);
@@ -63,15 +63,9 @@ export type MarkingsProps = {
     markings: InternalMarking[];
     canvasMetadata: CanvasMetadata;
     showMarkingLabels?: boolean;
-    alpha?: number;
 };
 export const Markings = memo(
-    ({
-        canvasMetadata,
-        showMarkingLabels,
-        markings,
-        alpha = 1,
-    }: MarkingsProps) => {
+    ({ canvasMetadata, showMarkingLabels, markings }: MarkingsProps) => {
         const viewport = useGlobalViewport(canvasMetadata.id);
         const app = useGlobalApp(canvasMetadata.id);
 
@@ -110,16 +104,42 @@ export const Markings = memo(
             updateRenderableMarkings();
         }, [markings, viewport, app, updateRenderableMarkings]);
 
+        const lineWidth = 2;
+        const lineLength = 4;
+        const shadowWidth = 0.5;
+
         const drawMarkings = useCallback(
             (g: PixiGraphics) => {
                 // wyrenderuj wszystkie markingi jako jedna grafika dla lepszej wydajności
                 g.clear();
                 g.removeChildren();
                 renderableMarkings.forEach(marking => {
-                    drawMarking(g, marking, showMarkingLabels, alpha);
+                    switch (marking.type) {
+                        case "point":
+                            drawPointMarking(
+                                g,
+                                marking,
+                                showMarkingLabels,
+                                lineWidth,
+                                shadowWidth
+                            );
+                            break;
+                        case "ray":
+                            drawRayMarking(
+                                g,
+                                marking,
+                                showMarkingLabels,
+                                lineWidth,
+                                shadowWidth,
+                                lineLength
+                            );
+                            break;
+                        default:
+                            throw new Error("Unknown marking type");
+                    }
                 });
             },
-            [alpha, renderableMarkings, showMarkingLabels]
+            [renderableMarkings, showMarkingLabels]
         );
 
         return (
