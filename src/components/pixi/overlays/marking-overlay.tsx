@@ -17,12 +17,13 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
     const { id } = canvasMetadata;
     const viewport = useGlobalViewport(id, { autoUpdate: true });
     const app = useGlobalApp(id);
-    const { markings } = MarkingsStore.use(
+    const { markings } = MarkingsStore(id).use(
         state => ({
-            markings: state.markings.filter(m => m.canvasId === id),
+            markings: state.markings,
             hash: state.markingsHash,
         }),
         (oldState, newState) => {
+            // re-rendering tylko wtedy, gdy zmieni się hash stanu
             return oldState.hash === newState.hash;
         }
     );
@@ -31,8 +32,8 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
         state => state.settings.markings.showLabels
     );
 
-    const temporaryMarking = MarkingsStore.use(state =>
-        state.temporaryMarking?.canvasId === id ? state.temporaryMarking : null
+    const temporaryMarking = MarkingsStore(id).use(
+        state => state.temporaryMarking
     );
 
     // oblicz proporcje viewportu do świata tylko na evencie zoomed, dla lepszej wydajności (nie ma sensu liczyć tego na każdym renderze

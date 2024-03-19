@@ -128,7 +128,7 @@ export const drawRayMarking = (
 
     const a = new PixiGraphics();
     a.pivot.set(x, y);
-    a.rotation = angleRad;
+    a.rotation = angleRad ?? 0;
 
     a.moveTo(x, y - 3 * shadowWidth);
     a.lineStyle(lineWidth + 3 * shadowWidth, textColor);

@@ -1,15 +1,19 @@
 /* eslint-disable no-param-reassign */
 
 import { Draft, produce } from "immer";
+import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     InternalMarking,
     Marking,
     MarkingsState as State,
-    _useMarkingsStore as useStore,
+    _createMarkingsStore as createStore,
 } from "./Markings.store";
 
-function* idGenerator(): Generator<string> {
+const useLeftStore = createStore("left");
+const useRightStore = createStore("right");
+
+function* labelGenerator(): Generator<string> {
     const initialSymbols = "ABCDEFGHIJKLMNPQRSTUVWXYZαβΓδεζηλμπρΣτΦΩ";
     let index = 0;
     while (true) {
@@ -23,16 +27,21 @@ function* idGenerator(): Generator<string> {
     }
 }
 
-const idGen = idGenerator();
+const labelGen = labelGenerator();
 
-function getMarkingWithId(marking: Marking): InternalMarking {
+function getMarkingWithLabelAndId(marking: Marking): InternalMarking {
     return produce(marking, (draft: Draft<InternalMarking>) => {
-        draft.id = idGen.next().value;
+        draft.id = crypto.randomUUID();
+        draft.label = labelGen.next().value;
     }) as InternalMarking;
 }
 
 class StoreClass {
-    readonly use = useStore;
+    readonly use: typeof useLeftStore | typeof useRightStore;
+
+    constructor(id: CanvasMetadata["id"]) {
+        this.use = id === "left" ? useLeftStore : useRightStore;
+    }
 
     get state() {
         return this.use.getState();
@@ -54,7 +63,7 @@ class StoreClass {
         });
     }
 
-    private setMarkingsAndHash(
+    private setMarkingsAndUpdateHash(
         callback: ActionProduceCallback<State["markings"], State>
     ) {
         this.setMarkingsHash(() => crypto.randomUUID());
@@ -72,26 +81,26 @@ class StoreClass {
     readonly actions = {
         markings: {
             addOne: (marking: Marking) => {
-                this.setMarkingsAndHash(
+                this.setMarkingsAndUpdateHash(
                     produce(state => {
-                        state.push(getMarkingWithId(marking));
+                        state.push(getMarkingWithLabelAndId(marking));
                     })
                 );
             },
             addMany: (markings: Marking[]) => {
-                this.setMarkingsAndHash(
+                this.setMarkingsAndUpdateHash(
                     produce(state => {
-                        state.push(...markings.map(getMarkingWithId));
+                        state.push(...markings.map(getMarkingWithLabelAndId));
                     })
                 );
             },
             removeOneById: (id: string) => {
-                this.setMarkingsAndHash(state => {
+                this.setMarkingsAndUpdateHash(state => {
                     return state.filter(marking => marking.id !== id);
                 });
             },
             removeManyById: (ids: string[]) => {
-                this.setMarkingsAndHash(
+                this.setMarkingsAndUpdateHash(
                     produce(state => {
                         return state.filter(
                             marking => !ids.includes(marking.id)
@@ -100,7 +109,7 @@ class StoreClass {
                 );
             },
             editOneById: (id: string, newMarking: Partial<Marking>) => {
-                this.setMarkingsAndHash(
+                this.setMarkingsAndUpdateHash(
                     produce(state => {
                         const index = state.findIndex(m => m.id === id);
                         if (index === -1) throw new Error("Marking not found");
@@ -111,7 +120,7 @@ class StoreClass {
                 );
             },
             bindOneById: (id: string, boundMarkingId: string) => {
-                this.setMarkingsAndHash(
+                this.setMarkingsAndUpdateHash(
                     produce(state => {
                         const index = state.findIndex(m => m.id === id);
                         if (index === -1) throw new Error("Marking not found");
@@ -128,12 +137,29 @@ class StoreClass {
                     this.setTemporaryMarking(() => null);
                     return;
                 }
-                this.setTemporaryMarking(() => ({ id: "\0", ...marking }));
+                this.setTemporaryMarking(() => ({
+                    id: "\0",
+                    label: "\0",
+                    ...marking,
+                }));
             },
         },
     };
 }
 
-const Store = new StoreClass();
+const LeftStore = new StoreClass("left");
+const RightStore = new StoreClass("right");
+
+export const Store = (id: CanvasMetadata["id"]) => {
+    switch (id) {
+        case "left":
+            return LeftStore;
+        case "right":
+            return RightStore;
+        default:
+            throw new Error(`Invalid canvas id: ${id}`);
+    }
+};
+
 export { Store as MarkingsStore };
 export { StoreClass as MarkingsStoreClass };

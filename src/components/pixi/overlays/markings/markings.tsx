@@ -25,18 +25,18 @@ const getFontName = (fontSize: number) => {
 
 type MarkingTextProps = Pick<
     InternalMarking,
-    "id" | "size" | "position" | "textColor"
+    "label" | "size" | "position" | "textColor"
 > & {
     visible: boolean;
 };
 function MarkingText({
     visible,
-    id,
+    label,
     size,
     position,
     textColor,
 }: MarkingTextProps) {
-    const text = id;
+    const text = label;
     const fontSize = Math.ceil(
         +((size * 2) / (text.length === 1 ? 1 : text.length * 0.58)).toFixed(0)
     );
@@ -44,7 +44,6 @@ function MarkingText({
 
     return (
         <BitmapText
-            key={id}
             visible={visible}
             text={text}
             x={position.x}
@@ -147,12 +146,12 @@ export const Markings = memo(
                 <Graphics draw={drawMarkings} />
                 {showMarkingLabels &&
                     renderableMarkings.map(
-                        ({ visible, id, size, position, textColor }) => {
+                        ({ visible, id, label, size, position, textColor }) => {
                             return (
                                 <MarkingText
                                     visible={visible}
                                     key={id}
-                                    id={id}
+                                    label={label}
                                     size={size}
                                     position={position}
                                     textColor={textColor}

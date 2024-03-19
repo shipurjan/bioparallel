@@ -6,7 +6,7 @@ import { Immer, produceCallback } from "../immer.helpers";
 
 export type InternalMarking = {
     id: string;
-    canvasId: CanvasMetadata["id"];
+    label: string;
     position: {
         x: number;
         y: number;
@@ -15,7 +15,7 @@ export type InternalMarking = {
     textColor: ColorSource;
     size: number;
     type: "point" | "ray";
-    angleRad: number;
+    angleRad: number | null;
     boundMarkingId?: InternalMarking["id"];
 };
 
@@ -23,7 +23,7 @@ export type RenderableMarking = InternalMarking & {
     visible: boolean;
 };
 
-export type Marking = Omit<InternalMarking, "id">;
+export type Marking = Omit<InternalMarking, "id" | "label">;
 
 type State = {
     markingsHash: string;
@@ -37,11 +37,15 @@ const INITIAL_STATE: State = {
     markings: [],
 };
 
-const useStore = createWithEqualityFn<Immer<State>>()(
-    devtools(set => ({
-        ...INITIAL_STATE,
-        set: callback => set(produceCallback(callback)),
-    }))
-);
+const createStore = (id: CanvasMetadata["id"]) =>
+    createWithEqualityFn<Immer<State>>()(
+        devtools(
+            set => ({
+                ...INITIAL_STATE,
+                set: callback => set(produceCallback(callback)),
+            }),
+            { name: id }
+        )
+    );
 
-export { useStore as _useMarkingsStore, type State as MarkingsState };
+export { createStore as _createMarkingsStore, type State as MarkingsState };

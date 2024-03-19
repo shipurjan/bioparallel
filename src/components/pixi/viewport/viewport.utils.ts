@@ -127,13 +127,11 @@ function followLockedViewport(
 }
 
 function createMarking(
-    id: CanvasMetadata["id"],
     type: Marking["type"],
     angleRad: Marking["angleRad"],
     position: Marking["position"]
 ): Marking | null {
     return {
-        canvasId: id,
         size: DashboardToolbarStore.state.settings.marking.size,
         position,
         backgroundColor:
@@ -204,7 +202,9 @@ export const handleMouseDown = (
     document.addEventListener(
         "cleanup",
         () => {
-            MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
+            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
+                null
+            );
 
             if (mousemoveCallback !== undefined) {
                 viewport.removeEventListener("mousemove", mousemoveCallback);
@@ -225,10 +225,10 @@ export const handleMouseDown = (
                 const mousePos = getNormalizedMousePosition(ev, viewport);
                 if (mousePos === undefined) return;
 
-                const marking = createMarking(id, markingType, 0, mousePos);
+                const marking = createMarking(markingType, null, mousePos);
                 if (marking === null) return;
 
-                MarkingsStore.actions.temporaryMarking.setTemporaryMarking(
+                MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
                     marking
                 );
             };
@@ -251,14 +251,13 @@ export const handleMouseDown = (
                         Math.PI / 2
                 );
                 const marking = createMarking(
-                    id,
                     markingType,
                     store.state.rayAngleRad,
                     store.state.rayPosition
                 );
                 if (marking === null) return;
 
-                MarkingsStore.actions.temporaryMarking.setTemporaryMarking(
+                MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
                     marking
                 );
             };
@@ -293,7 +292,7 @@ export const handleMouseUp = (
 
     if (cursorMode !== "marking") return;
     if (e.button !== 0) return;
-    if (MarkingsStore.state.temporaryMarking === null) return;
+    if (MarkingsStore(id).state.temporaryMarking === null) return;
 
     const clickPos = getNormalizedMousePosition(e, viewport);
     if (clickPos === undefined) return;
@@ -301,24 +300,23 @@ export const handleMouseUp = (
     const markingType = DashboardToolbarStore.state.settings.marking.type;
 
     if (markingType === "point") {
-        const marking = createMarking(id, markingType, 0, clickPos);
+        const marking = createMarking(markingType, null, clickPos);
         if (marking === null) return;
 
-        MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
-        MarkingsStore.actions.markings.addOne(marking);
+        MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(null);
+        MarkingsStore(id).actions.markings.addOne(marking);
     }
 
     if (markingType === "ray") {
         const marking = createMarking(
-            id,
             markingType,
             store.state.rayAngleRad,
             store.state.rayPosition
         );
         if (marking === null) return;
 
-        MarkingsStore.actions.temporaryMarking.setTemporaryMarking(null);
-        MarkingsStore.actions.markings.addOne(marking);
+        MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(null);
+        MarkingsStore(id).actions.markings.addOne(marking);
     }
 
     if (mousemoveCallback !== undefined) {
