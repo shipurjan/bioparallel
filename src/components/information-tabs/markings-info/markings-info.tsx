@@ -17,7 +17,11 @@ export function MarkingsInfo() {
 
     return (
         <div className="w-full h-fit overflow-auto py-0.5 px-2">
-            <DataTable columns={columns} data={markings as ExtendedMarking[]} />
+            <DataTable
+                height="190px"
+                columns={columns}
+                data={markings as ExtendedMarking[]}
+            />
         </div>
     );
 }

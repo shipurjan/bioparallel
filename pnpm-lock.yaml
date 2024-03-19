@@ -100,6 +100,9 @@ dependencies:
   react-resizable-panels:
     specifier: 2.0.13
     version: 2.0.13(react-dom@18.2.0)(react@18.2.0)
+  react-virtuoso:
+    specifier: ^4.7.3
+    version: 4.7.3(react-dom@18.2.0)(react@18.2.0)
   sonner:
     specifier: 1.4.3
     version: 1.4.3(react-dom@18.2.0)(react@18.2.0)
@@ -7166,6 +7169,17 @@ packages:
       invariant: 2.2.4
       react: 18.2.0
       tslib: 2.6.2
+    dev: false
+
+  /react-virtuoso@4.7.3(react-dom@18.2.0)(react@18.2.0):
+    resolution: {integrity: sha512-Q7vY+KUFz6majte+JE3VdomkfUHoLwMywfRtK1okwnG3dlk7mOqpAJlL1JCH94fnGKV1L/paHFwehiE6HVPvQg==}
+    engines: {node: '>=10'}
+    peerDependencies:
+      react: '>=16 || >=17 || >= 18'
+      react-dom: '>=16 || >=17 || >= 18'
+    dependencies:
+      react: 18.2.0
+      react-dom: 18.2.0(react@18.2.0)
     dev: false
 
   /react@18.2.0:
