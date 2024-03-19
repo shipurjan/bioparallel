@@ -2,40 +2,50 @@
 import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils/shadcn";
 import { HTMLAttributes } from "react";
-import {
-    LockClosedIcon,
-    LockOpen1Icon,
-    DimensionsIcon,
-    CursorArrowIcon,
-    Cross1Icon,
-} from "@radix-ui/react-icons";
-import { Toolbar, useGlobalToolbarStore } from "@/lib/stores/useToolbarStore";
 import { useDebouncedCallback } from "use-debounce";
+import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
+import {
+    Dot,
+    DraftingCompass,
+    Fingerprint,
+    LockKeyhole,
+    LockKeyholeOpen,
+    MousePointer,
+    SendToBack,
+} from "lucide-react";
+import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
 import { ToolbarGroup } from "./group";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Input } from "../ui/input";
 
 export type GlobalToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
-    const { cursorMode, marking, viewport } = useGlobalToolbarStore(
+    const { cursor, marking, viewport } = DashboardToolbarStore.use(
         state => state.settings
     );
 
     const {
-        toggleLockedViewport,
-        toggleLockScaleSync,
-        setCursorMode,
-        setMarkingSize,
-    } = Toolbar;
+        cursor: cursorActions,
+        viewport: viewportActions,
+        marking: markingActions,
+    } = DashboardToolbarStore.actions.settings;
 
-    const setMarkingBackgroundColor = useDebouncedCallback(
-        value => Toolbar.setMarkingBackgroundColor(value),
-        10
-    );
-    const setMarkingTextColor = useDebouncedCallback(
-        value => Toolbar.setMarkingTextColor(value),
-        10
-    );
+    const { toggleLockedViewport, toggleLockScaleSync } = viewportActions;
+    const { setCursorMode } = cursorActions;
+    const {
+        setMarkingSize,
+        setMarkingType,
+        setMarkingBackgroundColor: _setMarkingBackgroundColor,
+        setMarkingTextColor: _setMarkingTextColor,
+    } = markingActions;
+
+    const setMarkingBackgroundColor = useDebouncedCallback<
+        typeof _setMarkingBackgroundColor
+    >(value => _setMarkingBackgroundColor(value), 10);
+
+    const setMarkingTextColor = useDebouncedCallback<
+        typeof _setMarkingTextColor
+    >(value => _setMarkingTextColor(value), 10);
 
     return (
         <div
@@ -48,33 +58,69 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
             <ToolbarGroup>
                 <ToggleGroup
                     type="single"
-                    value={cursorMode.state}
+                    value={cursor.mode}
                     variant="outline"
                     size="icon"
                 >
                     <ToggleGroupItem
                         value="select"
-                        title="Select mode (1)"
+                        title="Select mode (F1)"
                         onClick={() => {
                             setCursorMode("select");
                         }}
                     >
-                        <CursorArrowIcon className="h-4 w-4" />
+                        <MousePointer
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     </ToggleGroupItem>
                     <ToggleGroupItem
                         value="marking"
-                        title="Mark mode (2)"
+                        title="Mark mode (F2)"
                         onClick={() => {
                             setCursorMode("marking");
                         }}
                     >
-                        <Cross1Icon className="h-4 w-4" />
+                        <Fingerprint
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
+                    </ToggleGroupItem>
+                </ToggleGroup>
+            </ToolbarGroup>
+            <ToolbarGroup>
+                <ToggleGroup
+                    type="single"
+                    value={marking.type}
+                    variant="outline"
+                    size="icon"
+                >
+                    <ToggleGroupItem
+                        value="point"
+                        title="Point (1)"
+                        onClick={() => {
+                            setMarkingType("point");
+                        }}
+                    >
+                        <Dot size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
+                    </ToggleGroupItem>
+                    <ToggleGroupItem
+                        value="ray"
+                        title="Ray (2)"
+                        onClick={() => {
+                            setMarkingType("ray");
+                        }}
+                    >
+                        <DraftingCompass
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     </ToggleGroupItem>
                 </ToggleGroup>
             </ToolbarGroup>
             <ToolbarGroup>
                 <Input
-                    className="w-6 h-6"
+                    className="size-6 cursor-pointer"
                     title="Marking background color"
                     type="color"
                     value={marking.backgroundColor}
@@ -83,7 +129,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     }}
                 />
                 <Input
-                    className="w-6 h-6"
+                    className="size-6 cursor-pointer"
                     title="Marking text color"
                     type="color"
                     value={marking.textColor}
@@ -112,9 +158,15 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     onClick={toggleLockedViewport}
                 >
                     {viewport.locked ? (
-                        <LockClosedIcon className="h-4 w-4" />
+                        <LockKeyhole
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     ) : (
-                        <LockOpen1Icon className="h-4 w-4" />
+                        <LockKeyholeOpen
+                            size={ICON_SIZE}
+                            strokeWidth={ICON_STROKE_WIDTH}
+                        />
                     )}
                 </Toggle>
 
@@ -125,7 +177,10 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     pressed={viewport.scaleSync}
                     onClick={toggleLockScaleSync}
                 >
-                    <DimensionsIcon className="h-4 w-4" />
+                    <SendToBack
+                        size={ICON_SIZE}
+                        strokeWidth={ICON_STROKE_WIDTH}
+                    />
                 </Toggle>
             </ToolbarGroup>
         </div>

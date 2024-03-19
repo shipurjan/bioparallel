@@ -3,71 +3,48 @@
     "build": {
         "beforeBuildCommand": "pnpm build",
         "beforeDevCommand": "pnpm dev",
-        "devPath": "http://localhost:3000",
-        "distDir": "../out"
+        "frontendDist": "../out",
+        "devUrl": "http://localhost:3000"
     },
-    "package": {
-        "productName": "bioparallel",
-        "version": "0.1.0"
-    },
-    "tauri": {
-        "allowlist": {
-            "all": false,
-            "window": {
-                "setMinSize": true,
-                "create": true
-            },
-            "fs": {
-                "scope": {
-                    "allow": ["**"],
-                    "deny": []
-                },
-                "readFile": true
-            },
-            "dialog": {
-                "open": true,
-                "save": true
-            }
+    "bundle": {
+        "active": true,
+        "category": "DeveloperTool",
+        "copyright": "",
+        "targets": "all",
+        "externalBin": [],
+        "icon": [
+            "../public/logo_32.png",
+            "../public/logo_128.png",
+            "../public/logo_256.png",
+            "../public/logo_512.png",
+            "../public/logo.ico"
+        ],
+        "windows": {
+            "certificateThumbprint": null,
+            "digestAlgorithm": "sha256",
+            "timestampUrl": ""
         },
-        "bundle": {
-            "active": true,
-            "category": "DeveloperTool",
-            "copyright": "",
+        "longDescription": "",
+        "macOS": {
+            "entitlements": null,
+            "exceptionDomain": "",
+            "frameworks": [],
+            "providerShortName": null,
+            "signingIdentity": null
+        },
+        "resources": [],
+        "shortDescription": "",
+        "linux": {
             "deb": {
                 "depends": []
-            },
-            "externalBin": [],
-            "icon": [
-                "../public/logo_32.png",
-                "../public/logo_128.png",
-                "../public/logo_256.png",
-                "../public/logo_512.png",
-                "../public/logo.ico"
-            ],
-            "identifier": "com.parallel.bio",
-            "longDescription": "",
-            "macOS": {
-                "entitlements": null,
-                "exceptionDomain": "",
-                "frameworks": [],
-                "providerShortName": null,
-                "signingIdentity": null
-            },
-            "resources": [],
-            "shortDescription": "",
-            "targets": "all",
-            "windows": {
-                "certificateThumbprint": null,
-                "digestAlgorithm": "sha256",
-                "timestampUrl": ""
             }
-        },
-        "security": {
-            "csp": null
-        },
-        "updater": {
-            "active": false
-        },
+        }
+    },
+    "productName": "bioparallel",
+    "version": "0.1.0",
+    "identifier": "com.parallel.bio",
+    "plugins": {},
+    "app": {
         "windows": [
             {
                 "title": "bioparallel",
@@ -95,6 +72,9 @@
                 "url": "splashscreen.html",
                 "label": "splashscreen"
             }
-        ]
+        ],
+        "security": {
+            "csp": null
+        }
     }
 }

@@ -1,17 +1,22 @@
+/* eslint-disable security/detect-object-injection */
+
 "use client";
 
 import { useApp } from "@pixi/react";
-import { useCallback, useEffect, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
 import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
+import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
+import * as PIXI from "pixi.js";
+import { Sprite } from "pixi.js";
+import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import { Viewport } from "../viewport/viewport";
 import { useThemeController } from "./hooks/useThemeController";
 import { useGlobalRefs } from "./hooks/useGlobalRefs";
 import { useViewportResizer } from "./hooks/useViewportResizer";
-import { useDryCanvasUpdater } from "../canvas/hooks/useCanvasUpdater";
 
 export type PixiAppProps = {
     width: number;
@@ -19,20 +24,33 @@ export type PixiAppProps = {
     canvasMetadata: CanvasMetadata;
 };
 export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
+    const spriteRef = useRef<Sprite>(null);
     const app = useApp();
     const viewportRef = useRef<PixiViewport>(null);
     const viewport = viewportRef.current;
 
-    const updateCanvas = useDryCanvasUpdater();
-    const updateViewport = useCallback(() => {
-        updateCanvas(canvasMetadata.id, "viewport");
-    }, [canvasMetadata.id, updateCanvas]);
+    const updateCanvas = CanvasUpdater.useDry();
 
     useThemeController(app);
     useGlobalRefs(canvasMetadata.id, app, viewportRef.current);
     useViewportResizer(viewportRef.current, width, height);
 
-    useEffect(() => {}, [app.renderer.background]);
+    const scaleMode = CanvasToolbarStore(canvasMetadata.id).use(
+        state => state.settings.texture.scaleMode
+    );
+
+    useEffect(() => {
+        const updateViewport = () =>
+            updateCanvas(canvasMetadata.id, "viewport");
+        const newScaleMode = {
+            nearest: PIXI.SCALE_MODES.NEAREST,
+            linear: PIXI.SCALE_MODES.LINEAR,
+        }[scaleMode];
+        PIXI.BaseTexture.defaultOptions.scaleMode = newScaleMode;
+        if (spriteRef.current === null) return;
+        spriteRef.current.texture.baseTexture.scaleMode = newScaleMode;
+        updateViewport();
+    }, [canvasMetadata.id, scaleMode, updateCanvas, viewport]);
 
     useEffect(() => {
         if (!IS_DEV_ENVIRONMENT) return;
@@ -45,11 +63,13 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
 
         loadSprite(canvasMetadata.id === "left" ? png01 : png02)
             .then(sprite => {
-                viewport.addChild(normalizeSpriteSize(viewport, sprite));
-                updateViewport();
+                const normalizedSprite = normalizeSpriteSize(viewport, sprite);
+                // @ts-expect-error it's fine
+                spriteRef.current = normalizedSprite;
+                viewport.addChild(normalizedSprite);
             })
             .catch(console.error);
-    }, [canvasMetadata.id, updateViewport, viewport]);
+    }, [canvasMetadata.id, viewport]);
 
     return <Viewport canvasMetadata={canvasMetadata} ref={viewportRef} />;
 }

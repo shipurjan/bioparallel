@@ -1,11 +1,10 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import {
-    Global,
-    useGlobalSettingsStore,
-} from "@/lib/stores/useGlobalSettingsStore";
-import { MoonIcon, SunIcon } from "@radix-ui/react-icons";
-import { useTheme } from "next-themes";
 import { RadioGroupItem } from "@/components/ui/radio-group";
+import { useTheme } from "next-themes";
+import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import { useEffect } from "react";
+import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { Moon, Sun } from "lucide-react";
 import { SettingsCard } from "./settings-card";
 import { SettingsSwitch } from "./settings-swtich";
 import { SettingsRadioGroup } from "./settings-radio-group";
@@ -14,8 +13,16 @@ import { SettingsCardDescription } from "./settings-card-description";
 
 export function Settings() {
     const { resolvedTheme, setTheme: setNextTheme } = useTheme();
-    const { setTheme, setPrerenderRadius } = Global;
-    const { video } = useGlobalSettingsStore(state => state.settings);
+
+    const { video } = GlobalSettingsStore.use(state => state.settings);
+
+    const actions = GlobalSettingsStore.actions.settings;
+    const { setPrerenderRadius } = actions.video;
+    const { setTheme } = actions.interface;
+
+    useEffect(() => {
+        setTheme(resolvedTheme as "dark" | "light");
+    }, [resolvedTheme, setTheme]);
 
     return (
         <Tabs
@@ -32,21 +39,26 @@ export function Settings() {
                 className="w-full flex justify-center items-start"
             >
                 <SettingsCard className="h-full" title="Theme">
+                    <SettingsCardTitle>Dark mode</SettingsCardTitle>
                     <SettingsSwitch
                         icon={
                             resolvedTheme === "dark" ? (
-                                <MoonIcon />
+                                <Moon
+                                    size={ICON_SIZE}
+                                    strokeWidth={ICON_STROKE_WIDTH}
+                                />
                             ) : (
-                                <SunIcon />
+                                <Sun
+                                    size={ICON_SIZE}
+                                    strokeWidth={ICON_STROKE_WIDTH}
+                                />
                             )
                         }
-                        label="Dark mode"
+                        label={resolvedTheme === "dark" ? "On" : "Off"}
                         id="dark_mode"
                         checked={resolvedTheme === "dark"}
                         onCheckedChange={checked => {
-                            const theme = checked ? "dark" : "light";
-                            setTheme(theme);
-                            setNextTheme(theme);
+                            setNextTheme(checked ? "dark" : "light");
                         }}
                     />
                 </SettingsCard>
@@ -60,8 +72,8 @@ export function Settings() {
                     <SettingsCardTitle>Prerendering radius</SettingsCardTitle>
                     <SettingsCardDescription>
                         Radius of the area around the viewport that is
-                        prerendered. <br />
-                        Decreasing this value will improve performance.
+                        prerendered. Decreasing this value will improve
+                        performance.
                     </SettingsCardDescription>
                     <SettingsRadioGroup
                         value={video.rendering.prerenderRadius}
@@ -75,7 +87,7 @@ export function Settings() {
                         <RadioGroupItem
                             value="auto"
                             id="prerender_radius_auto"
-                            label="Auto"
+                            label="Auto (recommended)"
                         />
                         <RadioGroupItem
                             value="none"

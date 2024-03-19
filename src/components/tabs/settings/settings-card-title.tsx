@@ -8,6 +8,12 @@ export function SettingsCardTitle({
     ...props
 }: SettingsCardTitleProps) {
     return (
-        <CardTitle {...props} className={cn("text-md font-bold", className)} />
+        <CardTitle
+            {...props}
+            className={cn(
+                "text-md font-bold inline-flex items-center",
+                className
+            )}
+        />
     );
 }

@@ -1,0 +1,23 @@
+{
+    "default": {
+        "identifier": "default",
+        "description": "Capability for the bioparallel window",
+        "local": true,
+        "windows": ["bioparallel"],
+        "permissions": [
+            "path:default",
+            "event:default",
+            "window:default",
+            "app:default",
+            "image:default",
+            "resources:default",
+            "menu:default",
+            "tray:default",
+            "fs:allow-read-file",
+            "store:allow-set",
+            "store:allow-get",
+            "store:allow-save",
+            "store:allow-delete"
+        ]
+    }
+}

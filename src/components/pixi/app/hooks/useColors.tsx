@@ -1,4 +1,4 @@
-import { useGlobalSettingsStore } from "@/lib/stores/useGlobalSettingsStore";
+import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { useEffect, useState } from "react";
 
 function getColor(property: string) {
@@ -14,8 +14,8 @@ function getColors() {
 }
 
 export const useColors = () => {
-    const { theme } = useGlobalSettingsStore(state => ({
-        theme: state.settings.design.theme,
+    const { theme } = GlobalSettingsStore.use(state => ({
+        theme: state.settings.interface.theme,
     }));
 
     const [colors, setColors] = useState(getColors());

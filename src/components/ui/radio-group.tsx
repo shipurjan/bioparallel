@@ -3,10 +3,11 @@
 "use client";
 
 import * as React from "react";
-import { CircleIcon } from "@radix-ui/react-icons";
 import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 
 import { cn } from "@/lib/utils/shadcn";
+import { Circle } from "lucide-react";
+import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
 
 export type RadioGroupProps = React.ComponentPropsWithoutRef<
     typeof RadioGroupPrimitive.Root
@@ -40,13 +41,17 @@ const RadioGroupItem = React.forwardRef<
         <RadioGroupPrimitive.Item
             ref={ref}
             className={cn(
-                "aspect-square h-4 w-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
+                "aspect-square size-4 rounded-full border border-primary text-primary shadow focus:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50",
                 className
             )}
             {...props}
         >
             <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
-                <CircleIcon className="h-3 w-3 bg-primary rounded-full fill-primary" />
+                <Circle
+                    size={ICON_SIZE}
+                    strokeWidth={ICON_STROKE_WIDTH}
+                    className="fill-primary h-3 w-3"
+                />
             </RadioGroupPrimitive.Indicator>
         </RadioGroupPrimitive.Item>
     );

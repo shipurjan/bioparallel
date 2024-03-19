@@ -11,3 +11,11 @@ export type CanvasUpdaterOptions =
           autoUpdate: true;
           throttledUpdate?: boolean;
       };
+
+export type Callback<Type> = (oldState: Type) => Type;
+
+/** A type used in setters with a callback containing the old state.
+ *
+ * It works basically like React's `setState` function.
+ */
+export type FeedbackSetter<Type> = (callback: Callback<Type>) => void;

@@ -12,7 +12,7 @@ export function SettingsSwitch({
     ...props
 }: SettingsSwitchProps) {
     return (
-        <div className="flex items-center justify-center gap-2 px-2 py-1">
+        <div className="flex items-center justify-start gap-2 px-2 py-1">
             <Switch {...props} className={cn("", className)} id={id} />
             <Label
                 className={cn("cursor-pointer", {

@@ -1,12 +1,12 @@
 import { Container } from "@pixi/react";
-import { useShallowViewportStore } from "@/lib/stores/useViewportStore";
+import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
 import { Grid } from "../app/debug/grid";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "../app/hooks/useGlobalApp";
 import {
     getViewportGlobalPosition,
-    getViewportLocalPosition,
+    getViewportPosition,
 } from "./utils/get-viewport-local-position";
 
 export type DebugOverlayProps = {
@@ -19,7 +19,7 @@ export function DebugOverlay({ canvasMetadata: { id } }: DebugOverlayProps) {
     // potrzebne do update'owania overlaya w niektórych przypadkach (np. gdy jest zablokowany),
     // bo poniższy hook robi update przy zmianie rozmiaru viewportu, bez tego hooka
     // overlay nie zareaguje na zmianę rozmiaru viewportu w pewnych przypadkach
-    useShallowViewportStore(id)(({ size }) => ({
+    ShallowViewportStore(id).use(({ size }) => ({
         size,
     }));
 
@@ -29,7 +29,7 @@ export function DebugOverlay({ canvasMetadata: { id } }: DebugOverlayProps) {
 
     return (
         <>
-            <Container position={getViewportLocalPosition(viewport)}>
+            <Container position={getViewportPosition(viewport)}>
                 <Grid
                     width={viewport.width}
                     height={viewport.height}
