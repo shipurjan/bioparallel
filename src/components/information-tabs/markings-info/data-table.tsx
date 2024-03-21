@@ -1,5 +1,5 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
 /* eslint-disable security/detect-object-injection */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 
 "use client";
 
@@ -14,13 +14,24 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 
-import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { HTMLAttributes, useState } from "react";
+import { HTMLAttributes, forwardRef, useState } from "react";
 import { TableVirtuoso } from "react-virtuoso";
+import { cn } from "@/lib/utils/shadcn";
+import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 
-function TableComponent(props: HTMLAttributes<HTMLTableElement>) {
-    return <Table {...props} />;
-}
+// Original Table is wrapped with a <div> (see https://ui.shadcn.com/docs/components/table#radix-:r24:-content-manual),
+// but here we don't want it, so let's use a new component with only <table> tag
+const TableComponent = forwardRef<
+    HTMLTableElement,
+    HTMLAttributes<HTMLTableElement>
+>(({ className, ...props }, ref) => (
+    <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm bg-card/10", className)}
+        {...props}
+    />
+));
+TableComponent.displayName = "TableComponent";
 
 const TableRowComponent = <TData,>(rows: Row<TData>[]) =>
     function getTableRow(props: HTMLAttributes<HTMLTableRowElement>) {
@@ -33,6 +44,7 @@ const TableRowComponent = <TData,>(rows: Row<TData>[]) =>
         return (
             <TableRow
                 key={row.id}
+                className="last:border-b-0"
                 data-state={row.getIsSelected() && "selected"}
                 {...props}
             >
@@ -88,9 +100,12 @@ export function DataTable<TData, TValue>({
     const { rows } = table.getRowModel();
 
     return (
-        <div className="rounded-md border">
+        <div>
             <TableVirtuoso
-                style={{ height }}
+                style={{
+                    height,
+                    scrollbarGutter: "stable both-edges",
+                }}
                 totalCount={rows.length}
                 components={{
                     Table: TableComponent,
@@ -100,7 +115,7 @@ export function DataTable<TData, TValue>({
                     table.getHeaderGroups().map(headerGroup => (
                         // Change header background color to non-transparent
                         <TableRow
-                            className="bg-card hover:bg-muted"
+                            className="bg-card hover:bg-muted border-b-0 shadow-red-400 shadow-bottom"
                             key={headerGroup.id}
                         >
                             {headerGroup.headers.map(header => {

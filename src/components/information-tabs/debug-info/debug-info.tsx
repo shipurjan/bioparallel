@@ -60,28 +60,35 @@ export const DebugInfoTables = (
     tableKeys.map(({ keys, values }) => (
         <Table
             key={`${name}${keys.length === 0 ? "" : "."}${keys.join(".")}`}
-            className="caption-top grow overflow-hidden"
+            className="caption-top grow overflow-hidden w-fit"
+            divClassName="w-fit"
         >
-            <TableCaption className={cn("text-xl font-bold", className)}>
-                {`${name}${keys.length === 0 ? "" : "."}${keys.join(".")}`}
+            <TableCaption className={cn("text-md font-bold", className)}>
+                <div className="[&>div]:leading-none">
+                    <div>{name}</div>
+                    {keys.map((key, i) => (
+                        // eslint-disable-next-line react/no-array-index-key
+                        <div key={key + i}>.{key}</div>
+                    ))}
+                </div>
             </TableCaption>
-            <TableBody className="">
+            <TableBody className="[&>tr>td]:text-xs [&>tr>td]:leading-none [&>tr]:border-none">
                 {values.length === 0 ? (
-                    <TableRow className="flex">
-                        <TableCell className="grow font-semibold text-right">
+                    <TableRow className="flex gap-1">
+                        <TableCell className="grow font-semibold text-right p-0">
                             {keys[keys.length - 1]}
                         </TableCell>
-                        <TableCell className="grow">
+                        <TableCell className="grow p-0">
                             {JSON.stringify(getNestedValue(obj, keys))}
                         </TableCell>
                     </TableRow>
                 ) : (
                     values.map(value => (
-                        <TableRow key={value} className="flex">
-                            <TableCell className=" grow font-semibold text-right">
+                        <TableRow key={value} className="flex gap-1">
+                            <TableCell className=" grow font-semibold text-right p-0">
                                 {value}
                             </TableCell>
-                            <TableCell className="grow">
+                            <TableCell className="grow p-0">
                                 {JSON.stringify(
                                     getNestedValue(obj, [...keys, value])
                                 )}
@@ -132,18 +139,6 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
 
     const viewportKeys: TableKeys = [
         {
-            keys: ["corner"],
-            values: getTableValues(viewport?.corner),
-        },
-        {
-            keys: ["center"],
-            values: getTableValues(viewport?.center),
-        },
-        {
-            keys: ["position"],
-            values: getTableValues(viewport?.position, ["x", "y"]),
-        },
-        {
             keys: [],
             values: getTableValues(viewport, [
                 "x",
@@ -168,6 +163,18 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
             ]),
         },
         {
+            keys: ["corner"],
+            values: getTableValues(viewport?.corner),
+        },
+        {
+            keys: ["center"],
+            values: getTableValues(viewport?.center),
+        },
+        {
+            keys: ["position"],
+            values: getTableValues(viewport?.position, ["x", "y"]),
+        },
+        {
             keys: ["_bounds"],
             // eslint-disable-next-line no-underscore-dangle
             values: getTableValues(viewport?._bounds),
@@ -188,11 +195,10 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
     return (
         <div className="w-full h-fit overflow-auto">
             <div
-                className="w-full h-full flex flex-wrap justify-between items-start gap-0 px-2"
+                className="w-full h-full flex flex-wrap justify-start items-start gap-1 px-2"
                 {...props}
             >
                 {app && DebugInfoTables(app, appKeys, "app", "text-red-400")}
-                <div className="basis-full" />
                 {OOB &&
                     DebugInfoTables(
                         OOB,

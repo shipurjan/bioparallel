@@ -3,7 +3,7 @@ import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContex
 import { DataTable } from "./data-table";
 import { ExtendedMarking, columns } from "./columns";
 
-export function MarkingsInfo() {
+export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     const { id } = useCanvasContext();
     const { markings } = MarkingsStore(id).use(
         state => ({
@@ -17,9 +17,9 @@ export function MarkingsInfo() {
     );
 
     return (
-        <div className="w-full h-fit overflow-auto py-0.5 px-2">
+        <div className="w-full h-fit py-0.5">
             <DataTable
-                height="190px"
+                height={`${tableHeight}px`}
                 columns={columns}
                 data={markings as ExtendedMarking[]}
             />

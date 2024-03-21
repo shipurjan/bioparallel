@@ -35,8 +35,8 @@ export const columns: ColumnDef<ExtendedMarking>[] = [
         enableHiding: false,
     },
     {
-        accessorKey: "id",
-        header: "ID",
+        accessorKey: "label",
+        header: "Label",
     },
     {
         accessorKey: "type",
@@ -47,29 +47,5 @@ export const columns: ColumnDef<ExtendedMarking>[] = [
                 marking.type.slice(0, 1).toUpperCase() + marking.type.slice(1)
             );
         },
-    },
-    {
-        accessorKey: "x",
-        header: "x",
-        cell: ({ row }) => {
-            const marking = row.original;
-            return marking.position.x.toFixed(0);
-        },
-    },
-    {
-        accessorKey: "y",
-        header: "y",
-        cell: ({ row }) => {
-            const marking = row.original;
-            return marking.position.y.toFixed(0);
-        },
-    },
-    {
-        accessorKey: "size",
-        header: "Size",
-    },
-    {
-        accessorKey: "boundMarking",
-        header: "Bind",
     },
 ];
