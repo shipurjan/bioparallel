@@ -11,6 +11,7 @@ import {
     CachedViewportStoreClass,
     CachedViewportZoom,
 } from "@/lib/stores/CachedViewport";
+import { MOUSE_BUTTON, MOUSE_BUTTONS } from "@/lib/utils/const";
 import { getNormalizedPosition } from "../overlays/utils/get-viewport-local-position";
 import { useGlobalViewport } from "./hooks/useGlobalViewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
@@ -191,7 +192,6 @@ export const handleZoom = (e: ZoomedEvent, params: ViewportHandlerParams) => {
     });
 };
 
-let mousemoveCallback: (e: FederatedPointerEvent) => void;
 export const handleMouseDown = (
     e: FederatedPointerEvent,
     params: ViewportHandlerParams
@@ -199,87 +199,68 @@ export const handleMouseDown = (
     const { id, viewport, store } = params;
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
-    document.addEventListener(
-        "cleanup",
-        () => {
-            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
-                null
-            );
-
-            if (mousemoveCallback !== undefined) {
-                viewport.removeEventListener("mousemove", mousemoveCallback);
-            }
-        },
-        {
-            once: true,
-        }
-    );
-
-    if (cursorMode === "marking") {
-        if (e.buttons !== 1) return;
+    if (cursorMode === "selection") {
+        if (e.buttons !== MOUSE_BUTTONS.PRIMARY) return;
 
         const markingType = DashboardToolbarStore.state.settings.marking.type;
 
-        if (markingType === "point") {
-            const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
-                const mousePos = getNormalizedMousePosition(ev, viewport);
+        switch (markingType) {
+            case "point": {
+                const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
+                    const mousePos = getNormalizedMousePosition(ev, viewport);
+                    if (mousePos === undefined) return;
+
+                    const marking = createMarking(markingType, null, mousePos);
+                    if (marking === null) return;
+
+                    MarkingsStore(
+                        id
+                    ).actions.temporaryMarking.setTemporaryMarking(marking);
+                };
+
+                updateTemporaryMarking(e);
+
+                viewport.on("mousemove", updateTemporaryMarking);
+                break;
+            }
+
+            case "ray": {
+                const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
+                    const mousePos = getNormalizedMousePosition(ev, viewport);
+                    if (mousePos === undefined) return;
+                    store.actions.viewport.setRayAngleRad(
+                        Math.atan2(
+                            mousePos.y - store.state.rayPosition.y,
+                            mousePos.x - store.state.rayPosition.x
+                        ) -
+                            Math.PI / 2
+                    );
+                    const marking = createMarking(
+                        markingType,
+                        store.state.rayAngleRad,
+                        store.state.rayPosition
+                    );
+                    if (marking === null) return;
+
+                    MarkingsStore(
+                        id
+                    ).actions.temporaryMarking.setTemporaryMarking(marking);
+                };
+
+                const mousePos = getNormalizedMousePosition(e, viewport);
                 if (mousePos === undefined) return;
 
-                const marking = createMarking(markingType, null, mousePos);
-                if (marking === null) return;
+                store.actions.viewport.setRayPosition(mousePos);
 
-                MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
-                    marking
-                );
-            };
+                updateTemporaryMarking(e);
 
-            mousemoveCallback = updateTemporaryMarking;
-            updateTemporaryMarking(e);
+                viewport.on("mousemove", updateTemporaryMarking);
+                break;
+            }
 
-            viewport.on("mousemove", updateTemporaryMarking);
+            default:
+                throw new Error(`Invalid marking type: ${markingType}`);
         }
-
-        if (markingType === "ray") {
-            const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
-                const mousePos = getNormalizedMousePosition(ev, viewport);
-                if (mousePos === undefined) return;
-                store.actions.viewport.setRayAngleRad(
-                    Math.atan2(
-                        mousePos.y - store.state.rayPosition.y,
-                        mousePos.x - store.state.rayPosition.x
-                    ) -
-                        Math.PI / 2
-                );
-                const marking = createMarking(
-                    markingType,
-                    store.state.rayAngleRad,
-                    store.state.rayPosition
-                );
-                if (marking === null) return;
-
-                MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
-                    marking
-                );
-            };
-
-            const mousePos = getNormalizedMousePosition(e, viewport);
-            if (mousePos === undefined) return;
-
-            store.actions.viewport.setRayPosition(mousePos);
-
-            mousemoveCallback = updateTemporaryMarking;
-            updateTemporaryMarking(e);
-
-            viewport.on("mousemove", updateTemporaryMarking);
-        }
-
-        viewport.addEventListener("mouseleave", () => {
-            document.dispatchEvent(new Event("cleanup"));
-        });
-
-        viewport.addEventListener("mouseout", () => {
-            document.dispatchEvent(new Event("cleanup"));
-        });
     }
 };
 
@@ -291,7 +272,7 @@ export const handleMouseUp = (
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
     if (cursorMode !== "marking") return;
-    if (e.button !== 0) return;
+    if (e.button !== MOUSE_BUTTON.PRIMARY) return;
     if (MarkingsStore(id).state.temporaryMarking === null) return;
 
     const clickPos = getNormalizedMousePosition(e, viewport);
@@ -299,27 +280,41 @@ export const handleMouseUp = (
 
     const markingType = DashboardToolbarStore.state.settings.marking.type;
 
-    if (markingType === "point") {
-        const marking = createMarking(markingType, null, clickPos);
-        if (marking === null) return;
+    switch (markingType) {
+        case "point": {
+            const marking = createMarking(markingType, null, clickPos);
+            if (marking === null) return;
 
-        MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(null);
-        MarkingsStore(id).actions.markings.addOne(marking);
+            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
+                null
+            );
+            MarkingsStore(id).actions.markings.addOne(marking);
+            break;
+        }
+        case "ray": {
+            const marking = createMarking(
+                markingType,
+                store.state.rayAngleRad,
+                store.state.rayPosition
+            );
+            if (marking === null) return;
+
+            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
+                null
+            );
+            MarkingsStore(id).actions.markings.addOne(marking);
+            break;
+        }
+        default:
+            throw new Error(`Invalid marking type: ${markingType}`);
     }
+};
 
-    if (markingType === "ray") {
-        const marking = createMarking(
-            markingType,
-            store.state.rayAngleRad,
-            store.state.rayPosition
-        );
-        if (marking === null) return;
-
-        MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(null);
-        MarkingsStore(id).actions.markings.addOne(marking);
-    }
-
-    if (mousemoveCallback !== undefined) {
-        viewport.removeEventListener("mousemove", mousemoveCallback);
-    }
+export const handleMouseLeave = (
+    e: FederatedPointerEvent,
+    params: ViewportHandlerParams
+) => {
+    // eslint-disable-next-line no-void
+    void params;
+    console.log("mouse leave", e);
 };

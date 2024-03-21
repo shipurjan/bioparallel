@@ -10,7 +10,7 @@ import {
     MoveVertical,
     Waves,
 } from "lucide-react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
 import { ToolbarGroup } from "@/components/toolbar/group";
 import { Toggle } from "@/components/ui/toggle";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
@@ -57,8 +57,8 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     }}
                 >
                     <MoveDiagonal
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </Toggle>
                 <Toggle
@@ -72,8 +72,8 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     }}
                 >
                     <MoveVertical
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </Toggle>
                 <Toggle
@@ -87,8 +87,8 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     }}
                 >
                     <MoveHorizontal
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </Toggle>
             </ToolbarGroup>
@@ -108,11 +108,11 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     }}
                 >
                     {texture.scaleMode === "nearest" ? (
-                        <Eye size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
+                        <Eye size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
                     ) : (
                         <Waves
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     )}
                 </Toggle>
@@ -130,13 +130,13 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                 >
                     {markings.showLabels ? (
                         <Flag
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     ) : (
                         <FlagOff
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     )}
                 </Toggle>

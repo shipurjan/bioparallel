@@ -7,7 +7,7 @@ import * as ResizablePrimitive from "react-resizable-panels";
 import { cn } from "@/lib/utils/shadcn";
 import { ComponentProps } from "react";
 import { GripVertical } from "lucide-react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
 
 type ResizablePanelGroupProps = ComponentProps<
     typeof ResizablePrimitive.PanelGroup
@@ -49,8 +49,8 @@ function ResizableHandle({
             {withHandle && (
                 <div className="z-10 flex h-4 w-3 items-center justify-center rounded-sm border bg-border">
                     <GripVertical
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </div>
             )}

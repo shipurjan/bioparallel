@@ -7,7 +7,7 @@ import * as RadioGroupPrimitive from "@radix-ui/react-radio-group";
 
 import { cn } from "@/lib/utils/shadcn";
 import { Circle } from "lucide-react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
 
 export type RadioGroupProps = React.ComponentPropsWithoutRef<
     typeof RadioGroupPrimitive.Root
@@ -48,8 +48,8 @@ const RadioGroupItem = React.forwardRef<
         >
             <RadioGroupPrimitive.Indicator className="flex items-center justify-center">
                 <Circle
-                    size={ICON_SIZE}
-                    strokeWidth={ICON_STROKE_WIDTH}
+                    size={ICON.SIZE}
+                    strokeWidth={ICON.STROKE_WIDTH}
                     className="fill-primary h-3 w-3"
                 />
             </RadioGroupPrimitive.Indicator>

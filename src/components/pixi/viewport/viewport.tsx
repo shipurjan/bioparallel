@@ -12,6 +12,7 @@ import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import {
     ViewportHandlerParams,
     handleMouseDown,
+    handleMouseLeave,
     handleMouseUp,
     handleMove,
     handleOtherMove,
@@ -86,6 +87,10 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
                     viewport.on("mouseup", e => {
                         handleMouseUp(e, handlerParams);
+                    });
+
+                    viewport.on("mouseleave", e => {
+                        handleMouseLeave(e, handlerParams);
                     });
 
                     return viewport;

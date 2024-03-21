@@ -3,7 +3,10 @@ import { Toggle } from "@/components/ui/toggle";
 import { cn } from "@/lib/utils/shadcn";
 import { HTMLAttributes } from "react";
 import { useDebouncedCallback } from "use-debounce";
-import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
+import {
+    CURSOR_MODE,
+    DashboardToolbarStore,
+} from "@/lib/stores/DashboardToolbar";
 import {
     Dot,
     DraftingCompass,
@@ -13,7 +16,8 @@ import {
     MousePointer,
     SendToBack,
 } from "lucide-react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
+import { MARKING_TYPE } from "@/lib/stores/Markings";
 import { ToolbarGroup } from "./group";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Input } from "../ui/input";
@@ -63,27 +67,27 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     size="icon"
                 >
                     <ToggleGroupItem
-                        value="select"
+                        value={CURSOR_MODE.SELECTION}
                         title="Select mode (F1)"
                         onClick={() => {
-                            setCursorMode("select");
+                            setCursorMode(CURSOR_MODE.SELECTION);
                         }}
                     >
                         <MousePointer
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     </ToggleGroupItem>
                     <ToggleGroupItem
-                        value="marking"
+                        value={CURSOR_MODE.MARKING}
                         title="Mark mode (F2)"
                         onClick={() => {
-                            setCursorMode("marking");
+                            setCursorMode(CURSOR_MODE.MARKING);
                         }}
                     >
                         <Fingerprint
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     </ToggleGroupItem>
                 </ToggleGroup>
@@ -96,24 +100,24 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     size="icon"
                 >
                     <ToggleGroupItem
-                        value="point"
+                        value={MARKING_TYPE.POINT}
                         title="Point (1)"
                         onClick={() => {
-                            setMarkingType("point");
+                            setMarkingType(MARKING_TYPE.POINT);
                         }}
                     >
-                        <Dot size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
+                        <Dot size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
                     </ToggleGroupItem>
                     <ToggleGroupItem
-                        value="ray"
+                        value={MARKING_TYPE.RAY}
                         title="Ray (2)"
                         onClick={() => {
-                            setMarkingType("ray");
+                            setMarkingType(MARKING_TYPE.RAY);
                         }}
                     >
                         <DraftingCompass
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     </ToggleGroupItem>
                 </ToggleGroup>
@@ -159,13 +163,13 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 >
                     {viewport.locked ? (
                         <LockKeyhole
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     ) : (
                         <LockKeyholeOpen
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     )}
                 </Toggle>
@@ -178,8 +182,8 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     onClick={toggleLockScaleSync}
                 >
                     <SendToBack
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </Toggle>
             </ToolbarGroup>

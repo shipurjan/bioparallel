@@ -1,4 +1,5 @@
-import { DashboardToolbarStore } from "../stores/DashboardToolbar";
+import { CURSOR_MODE, DashboardToolbarStore } from "../stores/DashboardToolbar";
+import { MARKING_TYPE } from "../stores/Markings";
 import { useKeyDown } from "./useKeyDown";
 
 export const useKeyboardShortcuts = () => {
@@ -18,22 +19,22 @@ export const useKeyboardShortcuts = () => {
     const { toggleLockedViewport, toggleLockScaleSync } = viewportActions;
 
     useKeyDown(() => {
-        setCursorMode("select");
+        setCursorMode(CURSOR_MODE.SELECTION);
     }, ["F1"]);
 
     useKeyDown(() => {
-        setCursorMode("marking");
+        setCursorMode(CURSOR_MODE.MARKING);
     }, ["F2"]);
 
     useKeyDown(() => {
-        if (cursorMode === "marking") {
-            setMarkingType("point");
+        if (cursorMode === CURSOR_MODE.MARKING) {
+            setMarkingType(MARKING_TYPE.POINT);
         }
     }, ["1"]);
 
     useKeyDown(() => {
-        if (cursorMode === "marking") {
-            setMarkingType("ray");
+        if (cursorMode === CURSOR_MODE.MARKING) {
+            setMarkingType(MARKING_TYPE.RAY);
         }
     }, ["2"]);
 

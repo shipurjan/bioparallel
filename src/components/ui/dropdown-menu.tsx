@@ -8,7 +8,7 @@ import * as DropdownMenuPrimitive from "@radix-ui/react-dropdown-menu";
 
 import { cn } from "@/lib/utils/shadcn";
 import { Check, ChevronRight, Dot } from "lucide-react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
 
 const DropdownMenu = DropdownMenuPrimitive.Root;
 
@@ -39,8 +39,8 @@ const DropdownMenuSubTrigger = React.forwardRef<
     >
         {children}
         <ChevronRight
-            size={ICON_SIZE}
-            strokeWidth={ICON_STROKE_WIDTH}
+            size={ICON.SIZE}
+            strokeWidth={ICON.STROKE_WIDTH}
             className="ml-auto size-4"
         />
     </DropdownMenuPrimitive.SubTrigger>
@@ -117,8 +117,8 @@ const DropdownMenuCheckboxItem = React.forwardRef<
         <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
             <DropdownMenuPrimitive.ItemIndicator>
                 <Check
-                    size={ICON_SIZE}
-                    strokeWidth={ICON_STROKE_WIDTH}
+                    size={ICON.SIZE}
+                    strokeWidth={ICON.STROKE_WIDTH}
                     className="size-4"
                 />
             </DropdownMenuPrimitive.ItemIndicator>
@@ -143,7 +143,7 @@ const DropdownMenuRadioItem = React.forwardRef<
     >
         <span className="absolute left-2 flex h-3.5 w-3.5 items-center justify-center">
             <DropdownMenuPrimitive.ItemIndicator>
-                <Dot size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
+                <Dot size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
             </DropdownMenuPrimitive.ItemIndicator>
         </span>
         {children}

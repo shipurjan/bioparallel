@@ -3,7 +3,7 @@ import { RadioGroupItem } from "@/components/ui/radio-group";
 import { useTheme } from "next-themes";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { useEffect } from "react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
 import { Moon, Sun } from "lucide-react";
 import { SettingsCard } from "./settings-card";
 import { SettingsSwitch } from "./settings-swtich";
@@ -44,13 +44,13 @@ export function Settings() {
                         icon={
                             resolvedTheme === "dark" ? (
                                 <Moon
-                                    size={ICON_SIZE}
-                                    strokeWidth={ICON_STROKE_WIDTH}
+                                    size={ICON.SIZE}
+                                    strokeWidth={ICON.STROKE_WIDTH}
                                 />
                             ) : (
                                 <Sun
-                                    size={ICON_SIZE}
-                                    strokeWidth={ICON_STROKE_WIDTH}
+                                    size={ICON.SIZE}
+                                    strokeWidth={ICON.STROKE_WIDTH}
                                 />
                             )
                         }

@@ -110,6 +110,10 @@ class StoreClass {
             },
         },
     };
+
+    readonly types = {
+        CursorMode: "selection" as const,
+    };
 }
 
 const Store = new StoreClass();

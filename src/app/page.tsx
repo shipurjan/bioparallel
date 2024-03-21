@@ -2,7 +2,7 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings } from "@/components/tabs/settings/settings";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils/shadcn";
 import dynamic from "next/dynamic";
 import { GlobalToolbar } from "@/components/toolbar/toolbar";
@@ -18,6 +18,18 @@ const Dashboard = dynamic(
 export default function Home() {
     const initialTab = "dashboard";
     const [currentTab, setCurrentTab] = useState(initialTab);
+
+    useEffect(() => {
+        const cleanupCallback = (e: Event) => {
+            console.log("cleanup", e);
+        };
+
+        document.addEventListener("cleanup", cleanupCallback);
+
+        return () => {
+            document.removeEventListener("cleanup", cleanupCallback);
+        };
+    }, []);
 
     return (
         <main
