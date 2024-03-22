@@ -6,22 +6,29 @@ import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils/shadcn";
 import dynamic from "next/dynamic";
 import { GlobalToolbar } from "@/components/toolbar/toolbar";
+import { useTranslation } from "react-i18next";
 
-const Dashboard = dynamic(
+const Homepage = dynamic(
     () =>
-        import("@/components/tabs/dashboard/dashboard").then(
-            mod => mod.Dashboard
-        ),
+        import("@/components/tabs/homepage/homepage").then(mod => mod.Homepage),
     { ssr: false }
 );
 
+export const enum TABS {
+    HOMEPAGE = "homepage",
+    SETTINGS = "settings",
+}
+
 export default function Home() {
-    const initialTab = "dashboard";
-    const [currentTab, setCurrentTab] = useState(initialTab);
+    const { t } = useTranslation();
+
+    const initialTab = TABS.HOMEPAGE;
+    const [currentTab, setCurrentTab] = useState<TABS>(initialTab);
 
     useEffect(() => {
         const cleanupCallback = (e: Event) => {
-            console.log("cleanup", e);
+            // eslint-disable-next-line no-void
+            void e;
         };
 
         document.addEventListener("cleanup", cleanupCallback);
@@ -37,32 +44,32 @@ export default function Home() {
             className="flex w-full min-h-dvh h-full flex-col items-center justify-between"
         >
             <Tabs
-                onValueChange={setCurrentTab}
+                onValueChange={tab => setCurrentTab(tab as TABS)}
                 defaultValue={initialTab}
                 className="w-full flex flex-col items-center flex-grow"
             >
                 <TabsList className="w-fit">
-                    <TabsTrigger data-testid="dashboard-tab" value="dashboard">
-                        Dashboard
+                    <TabsTrigger value={TABS.HOMEPAGE}>
+                        {t("Homepage")}
                     </TabsTrigger>
-                    <TabsTrigger data-testid="settings-tab" value="settings">
-                        Settings
+                    <TabsTrigger value={TABS.SETTINGS}>
+                        {t("Settings")}
                     </TabsTrigger>
                 </TabsList>
                 <TabsContent
                     forceMount
-                    value="dashboard"
+                    value={TABS.HOMEPAGE}
                     className={cn(
                         "flex flex-col justify-center items-center flex-grow w-full",
                         {
-                            hidden: currentTab !== "dashboard",
+                            hidden: currentTab !== TABS.HOMEPAGE,
                         }
                     )}
                 >
                     <GlobalToolbar />
-                    <Dashboard />
+                    <Homepage />
                 </TabsContent>
-                <TabsContent value="settings" className="w-full">
+                <TabsContent value={TABS.SETTINGS} className="w-full h-full">
                     <Settings />
                 </TabsContent>
             </Tabs>

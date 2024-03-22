@@ -6,25 +6,26 @@ import {
     ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import {
+    CANVAS_ID,
     CanvasContext,
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { useMemo } from "react";
 import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts";
 
-export function Dashboard() {
+export function Homepage() {
     useKeyboardShortcuts();
 
     const leftCanvasMetadata: CanvasMetadata = useMemo(
         () => ({
-            id: "left",
+            id: CANVAS_ID.LEFT,
         }),
         []
     );
 
     const rightCanvasMetadata: CanvasMetadata = useMemo(
         () => ({
-            id: "right",
+            id: CANVAS_ID.RIGHT,
         }),
         []
     );

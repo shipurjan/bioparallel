@@ -1,48 +1,102 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroupItem } from "@/components/ui/radio-group";
 import { useTheme } from "next-themes";
-import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import {
+    GlobalSettingsStore,
+    LANGUAGES,
+    PRERENDER_RADIUS_OPTIONS,
+    THEMES,
+} from "@/lib/stores/GlobalSettings";
 import { useEffect } from "react";
 import { ICON } from "@/lib/utils/const";
 import { Moon, Sun } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { capitalize } from "@/lib/utils/string/capitalize";
 import { SettingsCard } from "./settings-card";
 import { SettingsSwitch } from "./settings-swtich";
 import { SettingsRadioGroup } from "./settings-radio-group";
 import { SettingsCardTitle } from "./settings-card-title";
 import { SettingsCardDescription } from "./settings-card-description";
 
+export const enum TABS {
+    INTERFACE = "interface",
+    VIDEO = "video",
+}
+
 export function Settings() {
-    const { resolvedTheme, setTheme: setNextTheme } = useTheme();
+    const { resolvedTheme, setTheme } = useTheme();
+
+    const { i18n, t } = useTranslation();
+    const setLanguage = (lng: LANGUAGES) => {
+        i18n.changeLanguage(lng);
+    };
 
     const { video } = GlobalSettingsStore.use(state => state.settings);
 
     const actions = GlobalSettingsStore.actions.settings;
     const { setPrerenderRadius } = actions.video;
-    const { setTheme } = actions.interface;
+    const { setLanguage: setStoreLanguage } = actions.language;
+    const { setTheme: setStoreTheme } = actions.interface;
 
     useEffect(() => {
-        setTheme(resolvedTheme as "dark" | "light");
-    }, [resolvedTheme, setTheme]);
+        setStoreTheme(resolvedTheme as THEMES);
+    }, [resolvedTheme, setStoreTheme]);
+
+    useEffect(() => {
+        setStoreLanguage(i18n.language as LANGUAGES);
+    }, [i18n.language, setStoreLanguage]);
 
     return (
         <Tabs
-            defaultValue="interface"
+            defaultValue={TABS.INTERFACE}
             className="w-full h-full flex flex-col items-center"
         >
             <TabsList className="w-fit">
-                <TabsTrigger value="interface">Interface</TabsTrigger>
-                <TabsTrigger value="video">Video</TabsTrigger>
+                <TabsTrigger value={TABS.INTERFACE}>
+                    {t("Interface")}
+                </TabsTrigger>
+                <TabsTrigger value={TABS.VIDEO}>{t("Video")}</TabsTrigger>
             </TabsList>
 
             <TabsContent
-                value="interface"
-                className="w-full flex justify-center items-start"
+                value={TABS.INTERFACE}
+                className="w-full h-full flex justify-center items-center gap-4"
             >
-                <SettingsCard className="h-full" title="Theme">
-                    <SettingsCardTitle>Dark mode</SettingsCardTitle>
+                <SettingsCard className="h-full" title={t("Language")}>
+                    <SettingsCardTitle>{t("Language")}</SettingsCardTitle>
+                    <SettingsRadioGroup
+                        defaultValue={i18n.language as LANGUAGES}
+                        onValueChange={value => {
+                            setLanguage(value as LANGUAGES);
+                        }}
+                    >
+                        {(
+                            Object.keys(LANGUAGES) as (keyof typeof LANGUAGES)[]
+                        ).map(key => {
+                            // eslint-disable-next-line security/detect-object-injection
+                            const value = LANGUAGES[key];
+                            return (
+                                <RadioGroupItem
+                                    key={key}
+                                    value={value}
+                                    label={
+                                        // eslint-disable-next-line security/detect-object-injection
+                                        {
+                                            ENGLISH: "English",
+                                            POLISH: "Polski",
+                                        }[key]
+                                    }
+                                />
+                            );
+                        })}
+                    </SettingsRadioGroup>
+                </SettingsCard>
+
+                <SettingsCard className="h-full" title={t("Theme")}>
+                    <SettingsCardTitle>{t("Dark mode")}</SettingsCardTitle>
                     <SettingsSwitch
                         icon={
-                            resolvedTheme === "dark" ? (
+                            resolvedTheme === THEMES.DARK ? (
                                 <Moon
                                     size={ICON.SIZE}
                                     strokeWidth={ICON.STROKE_WIDTH}
@@ -54,66 +108,48 @@ export function Settings() {
                                 />
                             )
                         }
-                        label={resolvedTheme === "dark" ? "On" : "Off"}
-                        id="dark_mode"
-                        checked={resolvedTheme === "dark"}
+                        checked={resolvedTheme === THEMES.DARK}
                         onCheckedChange={checked => {
-                            setNextTheme(checked ? "dark" : "light");
+                            setTheme(checked ? THEMES.DARK : THEMES.LIGHT);
                         }}
                     />
                 </SettingsCard>
             </TabsContent>
 
             <TabsContent
-                value="video"
+                value={TABS.VIDEO}
                 className="w-full flex justify-center items-start"
             >
-                <SettingsCard className="h-full" title="Rendering">
-                    <SettingsCardTitle>Prerendering radius</SettingsCardTitle>
+                <SettingsCard className="h-full" title={t("Rendering")}>
+                    <SettingsCardTitle>
+                        {t("Prerendering radius")}
+                    </SettingsCardTitle>
                     <SettingsCardDescription>
-                        Radius of the area around the viewport that is
-                        prerendered. Decreasing this value will improve
-                        performance.
+                        {t("Prerendering radius", { ns: "description" })}
                     </SettingsCardDescription>
                     <SettingsRadioGroup
-                        value={video.rendering.prerenderRadius}
                         defaultValue={video.rendering.prerenderRadius}
                         onValueChange={value => {
                             setPrerenderRadius(
-                                value as typeof video.rendering.prerenderRadius
+                                value as PRERENDER_RADIUS_OPTIONS
                             );
                         }}
                     >
-                        <RadioGroupItem
-                            value="auto"
-                            id="prerender_radius_auto"
-                            label="Auto (recommended)"
-                        />
-                        <RadioGroupItem
-                            value="none"
-                            id="prerender_radius_none"
-                            label="None"
-                        />
-                        <RadioGroupItem
-                            value="low"
-                            id="prerender_radius_low"
-                            label="Low"
-                        />
-                        <RadioGroupItem
-                            value="medium"
-                            id="prerender_radius_medium"
-                            label="Medium"
-                        />
-                        <RadioGroupItem
-                            value="high"
-                            id="prerender_radius_high"
-                            label="High"
-                        />
-                        <RadioGroupItem
-                            value="very high"
-                            id="prerender_radius_very_high"
-                            label="Very high"
-                        />
+                        {(
+                            Object.keys(
+                                PRERENDER_RADIUS_OPTIONS
+                            ) as (keyof typeof PRERENDER_RADIUS_OPTIONS)[]
+                        ).map(key => {
+                            // eslint-disable-next-line security/detect-object-injection
+                            const value = PRERENDER_RADIUS_OPTIONS[key];
+                            return (
+                                <RadioGroupItem
+                                    key={key}
+                                    value={value}
+                                    label={`${capitalize(value)}`}
+                                />
+                            );
+                        })}
                     </SettingsRadioGroup>
                 </SettingsCard>
             </TabsContent>

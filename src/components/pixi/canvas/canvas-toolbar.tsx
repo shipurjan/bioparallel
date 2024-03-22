@@ -13,6 +13,7 @@ import {
 import { ICON } from "@/lib/utils/const";
 import { ToolbarGroup } from "@/components/toolbar/group";
 import { Toggle } from "@/components/ui/toggle";
+import { useTranslation } from "react-i18next";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useCanvasContext } from "./hooks/useCanvasContext";
 import {
@@ -24,6 +25,8 @@ import {
 
 export type CanvasToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
+    const { t } = useTranslation();
+
     const { id } = useCanvasContext();
     const store = CanvasToolbarStore(id);
 
@@ -47,7 +50,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
         >
             <ToolbarGroup>
                 <Toggle
-                    title="Fit world"
+                    title={t("Fit world", { ns: "tooltip" })}
                     size="icon"
                     variant="outline"
                     pressed={false}
@@ -62,7 +65,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     />
                 </Toggle>
                 <Toggle
-                    title="Fit height"
+                    title={t("Fit height", { ns: "tooltip" })}
                     size="icon"
                     variant="outline"
                     pressed={false}
@@ -77,7 +80,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     />
                 </Toggle>
                 <Toggle
-                    title="Fit width"
+                    title={t("Fit width", { ns: "tooltip" })}
                     size="icon"
                     variant="outline"
                     pressed={false}
@@ -96,7 +99,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
             <ToolbarGroup>
                 <Toggle
                     variant="outline"
-                    title="Toggle scale mode"
+                    title={t("Toggle scale mode", { ns: "tooltip" })}
                     size="icon"
                     pressed={texture.scaleMode === "linear"}
                     onClick={() => {
@@ -121,7 +124,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
             <ToolbarGroup>
                 <Toggle
                     variant="outline"
-                    title="Show marking labels"
+                    title={t("Toggle marking labels", { ns: "tooltip" })}
                     size="icon"
                     pressed={markings.showLabels}
                     onClick={() => {

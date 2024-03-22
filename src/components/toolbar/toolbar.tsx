@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils/shadcn";
 import { HTMLAttributes } from "react";
 import { useDebouncedCallback } from "use-debounce";
 import {
-    CURSOR_MODE,
+    CURSOR_MODES,
     DashboardToolbarStore,
 } from "@/lib/stores/DashboardToolbar";
 import {
@@ -17,13 +17,16 @@ import {
     SendToBack,
 } from "lucide-react";
 import { ICON } from "@/lib/utils/const";
-import { MARKING_TYPE } from "@/lib/stores/Markings";
+import { MARKING_TYPES } from "@/lib/stores/Markings";
+import { useTranslation } from "react-i18next";
 import { ToolbarGroup } from "./group";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import { Input } from "../ui/input";
 
 export type GlobalToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
+    const { t } = useTranslation();
+
     const { cursor, marking, viewport } = DashboardToolbarStore.use(
         state => state.settings
     );
@@ -67,10 +70,10 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     size="icon"
                 >
                     <ToggleGroupItem
-                        value={CURSOR_MODE.SELECTION}
-                        title="Select mode (F1)"
+                        value={CURSOR_MODES.SELECTION}
+                        title={`${t("Mode.Selection", { ns: "cursor" })} (F1)`}
                         onClick={() => {
-                            setCursorMode(CURSOR_MODE.SELECTION);
+                            setCursorMode(CURSOR_MODES.SELECTION);
                         }}
                     >
                         <MousePointer
@@ -79,10 +82,10 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                         />
                     </ToggleGroupItem>
                     <ToggleGroupItem
-                        value={CURSOR_MODE.MARKING}
-                        title="Mark mode (F2)"
+                        value={CURSOR_MODES.MARKING}
+                        title={`${t("Mode.Marking", { ns: "cursor" })} (F3)`}
                         onClick={() => {
-                            setCursorMode(CURSOR_MODE.MARKING);
+                            setCursorMode(CURSOR_MODES.MARKING);
                         }}
                     >
                         <Fingerprint
@@ -100,19 +103,19 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     size="icon"
                 >
                     <ToggleGroupItem
-                        value={MARKING_TYPE.POINT}
-                        title="Point (1)"
+                        value={MARKING_TYPES.POINT}
+                        title={`${t("Type.Point", { ns: "marking" })} (1)`}
                         onClick={() => {
-                            setMarkingType(MARKING_TYPE.POINT);
+                            setMarkingType(MARKING_TYPES.POINT);
                         }}
                     >
                         <Dot size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
                     </ToggleGroupItem>
                     <ToggleGroupItem
-                        value={MARKING_TYPE.RAY}
-                        title="Ray (2)"
+                        value={MARKING_TYPES.RAY}
+                        title={`${t("Type.Ray", { ns: "marking" })} (2)`}
                         onClick={() => {
-                            setMarkingType(MARKING_TYPE.RAY);
+                            setMarkingType(MARKING_TYPES.RAY);
                         }}
                     >
                         <DraftingCompass
@@ -125,7 +128,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
             <ToolbarGroup>
                 <Input
                     className="size-6 cursor-pointer"
-                    title="Marking background color"
+                    title={`${t("Color.Background", { ns: "marking" })}`}
                     type="color"
                     value={marking.backgroundColor}
                     onChange={e => {
@@ -134,7 +137,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 />
                 <Input
                     className="size-6 cursor-pointer"
-                    title="Marking text color"
+                    title={`${t("Color.Text", { ns: "marking" })}`}
                     type="color"
                     value={marking.textColor}
                     onChange={e => {
@@ -145,7 +148,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     className="w-12 h-6 !p-0"
                     min={6}
                     max={32}
-                    title="Marking size"
+                    title={`${t("Size", { ns: "marking" })}`}
                     type="number"
                     value={marking.size}
                     onChange={e => {
@@ -156,7 +159,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
             <ToolbarGroup>
                 <Toggle
                     variant="outline"
-                    title="Lock viewports together (L)"
+                    title={`${t("Lock viewports", { ns: "tooltip" })} (L)`}
                     size="icon"
                     pressed={viewport.locked}
                     onClick={toggleLockedViewport}
@@ -176,7 +179,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
 
                 <Toggle
                     variant="outline"
-                    title="Synchronize movement with viewport scale (M)"
+                    title={`${t("Synchronize viewports with scale", { ns: "tooltip" })} (M)`}
                     size="icon"
                     pressed={viewport.scaleSync}
                     onClick={toggleLockScaleSync}

@@ -4,7 +4,7 @@ import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext"
 import { createWithEqualityFn } from "zustand/traditional";
 import { Immer, produceCallback } from "../immer.helpers";
 
-export const enum MARKING_TYPE {
+export const enum MARKING_TYPES {
     POINT = "point",
     RAY = "ray",
 }
@@ -19,7 +19,7 @@ export type InternalMarking = {
     backgroundColor: ColorSource;
     textColor: ColorSource;
     size: number;
-    type: MARKING_TYPE;
+    type: MARKING_TYPES;
     angleRad: number | null;
     boundMarkingId?: InternalMarking["id"];
 };

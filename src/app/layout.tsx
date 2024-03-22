@@ -1,7 +1,9 @@
 "use client";
 
-import { Inter } from "next/font/google";
 import "./globals.css";
+import "@/lib/locales/i18n";
+
+import { Inter } from "next/font/google";
 import { ReactNode } from "react";
 import { ThemeProvider } from "@/providers/theme-provider";
 import { Toaster } from "@/components/ui/sonner";

@@ -1,6 +1,9 @@
 /* eslint-disable no-param-reassign */
 
-import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import {
+    CANVAS_ID,
+    CanvasMetadata,
+} from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     ShallowViewportSize,
@@ -8,8 +11,8 @@ import {
     _createShallowViewportStore as createStore,
 } from "./ShallowViewport.store";
 
-const useLeftStore = createStore("left");
-const useRightStore = createStore("right");
+const useLeftStore = createStore(CANVAS_ID.LEFT);
+const useRightStore = createStore(CANVAS_ID.RIGHT);
 
 class StoreClass {
     readonly use: typeof useLeftStore | typeof useRightStore;
@@ -37,8 +40,8 @@ class StoreClass {
     }
 }
 
-const LeftStore = new StoreClass("left");
-const RightStore = new StoreClass("right");
+const LeftStore = new StoreClass(CANVAS_ID.LEFT);
+const RightStore = new StoreClass(CANVAS_ID.RIGHT);
 
 export const Store = (id: CanvasMetadata["id"]) => {
     switch (id) {

@@ -7,19 +7,34 @@ import { tauriStorage } from "../tauri-storage-adapter.helpers";
 const STORE_NAME = "global-settings";
 const STORE_FILE = new Store(`${STORE_NAME}.dat`);
 
+export const enum THEMES {
+    SYSTEM = "system",
+    LIGHT = "light",
+    DARK = "dark",
+}
+
+export enum PRERENDER_RADIUS_OPTIONS {
+    AUTO = "auto",
+    NONE = "none",
+    LOW = "low",
+    MEDIUM = "medium",
+    HIGH = "high",
+    VERY_HIGH = "very high",
+}
+
+export enum LANGUAGES {
+    ENGLISH = "en",
+    POLISH = "pl",
+}
+
 type Settings = {
+    language: LANGUAGES;
     interface: {
-        theme: "system" | "light" | "dark";
+        theme: THEMES;
     };
     video: {
         rendering: {
-            prerenderRadius:
-                | "auto"
-                | "none"
-                | "low"
-                | "medium"
-                | "high"
-                | "very high";
+            prerenderRadius: PRERENDER_RADIUS_OPTIONS;
         };
     };
 };
@@ -30,12 +45,13 @@ type State = {
 
 const INITIAL_STATE: State = {
     settings: {
+        language: LANGUAGES.ENGLISH,
         interface: {
-            theme: "system",
+            theme: THEMES.SYSTEM,
         },
         video: {
             rendering: {
-                prerenderRadius: "auto",
+                prerenderRadius: PRERENDER_RADIUS_OPTIONS.AUTO,
             },
         },
     },

@@ -1,7 +1,7 @@
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupProps } from "@/components/ui/radio-group";
 import { cn } from "@/lib/utils/shadcn";
-import { Children } from "react";
+import { Children, ReactElement, cloneElement, useId } from "react";
 
 export type SettingsRadioGroupProps = RadioGroupProps;
 export function SettingsRadioGroup({
@@ -10,31 +10,33 @@ export function SettingsRadioGroup({
     children,
     ...props
 }: SettingsRadioGroupProps) {
-    const arrayChildren = Children.toArray(children);
+    const arrayChildren = Children.toArray(children) as ReactElement[];
     return (
         <RadioGroup
             {...props}
             className={cn("flex flex-wrap justify-evenly", className)}
         >
-            {Children.map(arrayChildren, child => (
-                <div className="flex items-center space-x-2">
-                    {child}
-                    <Label
-                        className={cn("cursor-pointer", {
-                            // @ts-expect-error - child is expected to be RadioGroupItem
-                            "font-normal": value === child.props.value,
-                            "font-light opacity-80":
-                                // @ts-expect-error - child is expected to be RadioGroupItem
-                                value !== child.props.value,
+            {Children.map(arrayChildren, child => {
+                // eslint-disable-next-line react-hooks/rules-of-hooks
+                const id = useId();
+                return (
+                    <div className="flex items-center space-x-2">
+                        {cloneElement(child, {
+                            id,
                         })}
-                        // @ts-expect-error - child is expected to be RadioGroupItem
-                        htmlFor={child.props.id}
-                    >
-                        {/* @ts-expect-error - child is expected to be RadioGroupItem */}
-                        {child.props.label}
-                    </Label>
-                </div>
-            ))}
+                        <Label
+                            className={cn("cursor-pointer", {
+                                "font-normal": value === child.props.value,
+                                "font-light opacity-80":
+                                    value !== child.props.value,
+                            })}
+                            htmlFor={id}
+                        >
+                            {child.props.label}
+                        </Label>
+                    </div>
+                );
+            })}
         </RadioGroup>
     );
 }

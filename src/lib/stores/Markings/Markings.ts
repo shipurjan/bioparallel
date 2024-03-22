@@ -1,7 +1,10 @@
 /* eslint-disable no-param-reassign */
 
 import { Draft, produce } from "immer";
-import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import {
+    CANVAS_ID,
+    CanvasMetadata,
+} from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     InternalMarking,
@@ -10,8 +13,8 @@ import {
     _createMarkingsStore as createStore,
 } from "./Markings.store";
 
-const useLeftStore = createStore("left");
-const useRightStore = createStore("right");
+const useLeftStore = createStore(CANVAS_ID.LEFT);
+const useRightStore = createStore(CANVAS_ID.RIGHT);
 
 function* labelGenerator(): Generator<string> {
     const initialSymbols = "ABCDEFGHIJKLMNPQRSTUVWXYZαβΓδεζηλμπρΣτΦΩ";
@@ -147,8 +150,8 @@ class StoreClass {
     };
 }
 
-const LeftStore = new StoreClass("left");
-const RightStore = new StoreClass("right");
+const LeftStore = new StoreClass(CANVAS_ID.LEFT);
+const RightStore = new StoreClass(CANVAS_ID.RIGHT);
 
 export const Store = (id: CanvasMetadata["id"]) => {
     switch (id) {

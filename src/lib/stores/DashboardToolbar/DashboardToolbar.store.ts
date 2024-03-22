@@ -3,19 +3,19 @@ import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { Immer, produceCallback } from "../immer.helpers";
 import { tauriStorage } from "../tauri-storage-adapter.helpers";
-import { MARKING_TYPE, Marking } from "../Markings";
+import { MARKING_TYPES, Marking } from "../Markings";
 
 const STORE_NAME = "toolbar-settings";
 const STORE_FILE = new Store(`${STORE_NAME}.dat`);
 
-export const enum CURSOR_MODE {
+export const enum CURSOR_MODES {
     SELECTION = "selection",
     MARKING = "marking",
 }
 
 type Settings = {
     cursor: {
-        mode: CURSOR_MODE;
+        mode: CURSOR_MODES;
     };
     marking: {
         type: Marking["type"];
@@ -36,10 +36,10 @@ type State = {
 const INITIAL_STATE: State = {
     settings: {
         cursor: {
-            mode: CURSOR_MODE.SELECTION,
+            mode: CURSOR_MODES.SELECTION,
         },
         marking: {
-            type: MARKING_TYPE.POINT,
+            type: MARKING_TYPES.POINT,
             backgroundColor: "#61bd67",
             textColor: "#0a130a",
             size: 10,

@@ -15,6 +15,7 @@ import { MOUSE_BUTTON, MOUSE_BUTTONS } from "@/lib/utils/const";
 import { getNormalizedPosition } from "../overlays/utils/get-viewport-local-position";
 import { useGlobalViewport } from "./hooks/useGlobalViewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
+import { getOppositeCanvasId } from "../canvas/utils/get-opposite-canvas-id";
 
 type Delta = CachedViewportZoom | CachedViewportPosition | null;
 
@@ -158,9 +159,7 @@ export const handleMove = (e: MovedEvent, params: ViewportHandlerParams) => {
     // Jeśli Viewport jest zalockowany (L): wyślij eventy do drugiego viewportu
 
     // eslint-disable-next-line react-hooks/rules-of-hooks
-    const oppositeViewport = useGlobalViewport(
-        id === "left" ? "right" : "left"
-    );
+    const oppositeViewport = useGlobalViewport(getOppositeCanvasId(id));
     if (oppositeViewport === null) return;
 
     const delta = calculateDelta(e, params, oppositeViewport);
@@ -315,6 +314,5 @@ export const handleMouseLeave = (
     params: ViewportHandlerParams
 ) => {
     // eslint-disable-next-line no-void
-    void params;
-    console.log("mouse leave", e);
+    void { e, params };
 };

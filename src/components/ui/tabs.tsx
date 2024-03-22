@@ -12,16 +12,28 @@ const Tabs = TabsPrimitive.Root;
 const TabsList = React.forwardRef<
     React.ElementRef<typeof TabsPrimitive.List>,
     React.ComponentPropsWithoutRef<typeof TabsPrimitive.List>
->(({ className, ...props }, ref) => (
-    <TabsPrimitive.List
-        ref={ref}
-        className={cn(
-            "inline-flex h-fit items-center justify-center rounded-lg bg-background p-0 text-muted-foreground",
-            className
-        )}
-        {...props}
-    />
-));
+>(({ className, ...props }, ref) => {
+    const truthyChildren = React.Children.map(props.children, c => !!c)?.filter(
+        Boolean
+    ) as boolean[];
+
+    const isSingleChild = truthyChildren.length === 1;
+
+    if (isSingleChild) {
+        return null;
+    }
+
+    return (
+        <TabsPrimitive.List
+            ref={ref}
+            className={cn(
+                "inline-flex h-fit items-center justify-center rounded-lg bg-background p-0 text-muted-foreground",
+                className
+            )}
+            {...props}
+        />
+    );
+});
 TabsList.displayName = TabsPrimitive.List.displayName;
 
 const TabsTrigger = React.forwardRef<
