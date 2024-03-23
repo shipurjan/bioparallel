@@ -14,7 +14,8 @@ export const useCanvas = (id: CanvasMetadata["id"], preventError?: boolean) => {
             case CANVAS_ID.RIGHT:
                 return CANVAS_REFS.rightCanvas;
             default:
-                throw new Error(`Invalid id: ${id}`);
+                id satisfies never;
+                throw new Error(`Unknown canvas ID: ${id}`);
         }
     })();
 };

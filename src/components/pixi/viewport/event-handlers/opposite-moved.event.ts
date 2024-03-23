@@ -4,7 +4,11 @@ import {
     CachedViewportZoom,
 } from "@/lib/stores/CachedViewport";
 import { round } from "@/lib/utils/math/round";
-import { Delta, ViewportHandlerParams, calculatePreviousValues } from "./utils";
+import {
+    Delta,
+    ViewportHandlerParams,
+    updateCachedViewportStore,
+} from "./utils";
 
 export const handleOppositeMove = (
     event: MovedEvent,
@@ -45,9 +49,10 @@ export const handleOppositeMove = (
             break;
         }
         default:
+            console.warn("Unknown event type", event.type);
             break;
     }
 
     updateViewport();
-    calculatePreviousValues(params);
+    updateCachedViewportStore(params);
 };

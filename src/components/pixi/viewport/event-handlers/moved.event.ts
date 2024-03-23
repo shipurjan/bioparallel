@@ -2,7 +2,11 @@
 import { MovedEvent } from "pixi-viewport/dist/types";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
-import { Delta, ViewportHandlerParams, calculatePreviousValues } from "./utils";
+import {
+    Delta,
+    ViewportHandlerParams,
+    updateCachedViewportStore,
+} from "./utils";
 import { useGlobalViewport } from "../hooks/useGlobalViewport";
 import { getOppositeCanvasId } from "../../canvas/utils/get-opposite-canvas-id";
 
@@ -51,7 +55,7 @@ export const handleMove = (e: MovedEvent, params: ViewportHandlerParams) => {
     const isLocked = DashboardToolbarStore.state.settings.viewport.locked;
 
     if (!isLocked) {
-        calculatePreviousValues(params);
+        updateCachedViewportStore(params);
         return;
     }
 
@@ -62,6 +66,6 @@ export const handleMove = (e: MovedEvent, params: ViewportHandlerParams) => {
     if (oppositeViewport === null) return;
 
     const delta = calculateDelta(e, params, oppositeViewport);
-    calculatePreviousValues(params);
+    updateCachedViewportStore(params);
     oppositeViewport.emit("opposite-moved", e, delta);
 };

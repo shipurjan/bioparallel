@@ -20,7 +20,7 @@ export type ViewportHandlerParams = {
 
 export type Delta = CachedViewportZoom | CachedViewportPosition | null;
 
-export function calculatePreviousValues(params: ViewportHandlerParams) {
+export function updateCachedViewportStore(params: ViewportHandlerParams) {
     const { store, viewport } = params;
     store.actions.viewport.setScaled(viewport.scaled);
     store.actions.viewport.setPosition({
@@ -89,6 +89,7 @@ export function addMarkingToStore(
             break;
         }
         default:
-            throw new Error(`Invalid marking type: ${markingType}`);
+            markingType satisfies never;
+            throw new Error(`Unknown marking type: ${markingType}`);
     }
 }

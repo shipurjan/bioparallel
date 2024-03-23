@@ -20,7 +20,7 @@ export function InformationTabs() {
     const ref = useResizeObserver<HTMLDivElement>((target, entry) => {
         const tabpanel = target.querySelector(
             '[role="tabpanel"]'
-        ) as HTMLDivElement | null;
+        ) as HTMLElement | null;
         if (tabpanel === null) return;
 
         setTableHeight(

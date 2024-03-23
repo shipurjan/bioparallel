@@ -19,7 +19,7 @@ export const handleMouseDown = (
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
     if (cursorMode === CURSOR_MODES.MARKING) {
-        if (e.buttons !== MOUSE_BUTTONS.PRIMARY) return;
+        if ((e.buttons as MOUSE_BUTTONS) !== MOUSE_BUTTONS.PRIMARY) return;
 
         const markingType = DashboardToolbarStore.state.settings.marking.type;
 
@@ -75,9 +75,8 @@ export const handleMouseDown = (
                 viewport.on("mousemove", updateTemporaryMarking);
                 break;
             }
-
             default:
-                throw new Error(`Invalid marking type: ${markingType}`);
+                throw new Error(markingType satisfies never);
         }
     }
 };

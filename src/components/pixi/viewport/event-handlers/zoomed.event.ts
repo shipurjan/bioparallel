@@ -2,11 +2,13 @@ import { ZoomedEvent } from "pixi-viewport/dist/types";
 import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
 import { ViewportHandlerParams } from "./utils";
 
-export const handleZoom = (e: ZoomedEvent, params: ViewportHandlerParams) => {
-    // eslint-disable-next-line no-void
-    void e;
-
+export const handleZoom = (
+    _event: ZoomedEvent,
+    params: ViewportHandlerParams
+) => {
     const { id, viewport } = params;
+
+    // update shallow viewport store size
     const { setSize: setShallowViewportSize } =
         ShallowViewportStore(id).actions.size;
 

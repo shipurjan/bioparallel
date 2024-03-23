@@ -15,7 +15,7 @@ const useLeftStore = createStore(CANVAS_ID.LEFT);
 const useRightStore = createStore(CANVAS_ID.RIGHT);
 
 class StoreClass {
-    readonly use: typeof useLeftStore | typeof useRightStore;
+    readonly use: typeof useLeftStore;
 
     constructor(id: CanvasMetadata["id"]) {
         this.use = id === CANVAS_ID.LEFT ? useLeftStore : useRightStore;
@@ -84,7 +84,7 @@ export const Store = (id: CanvasMetadata["id"]) => {
         case CANVAS_ID.RIGHT:
             return RightStore;
         default:
-            throw new Error(`Invalid canvas id: ${id}`);
+            throw new Error(id satisfies never);
     }
 };
 

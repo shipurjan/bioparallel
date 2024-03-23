@@ -35,12 +35,12 @@ const labelGen = labelGenerator();
 function getMarkingWithLabelAndId(marking: Marking): InternalMarking {
     return produce(marking, (draft: Draft<InternalMarking>) => {
         draft.id = crypto.randomUUID();
-        draft.label = labelGen.next().value;
+        draft.label = labelGen.next().value as string;
     }) as InternalMarking;
 }
 
 class StoreClass {
-    readonly use: typeof useLeftStore | typeof useRightStore;
+    readonly use: typeof useLeftStore;
 
     constructor(id: CanvasMetadata["id"]) {
         this.use = id === CANVAS_ID.LEFT ? useLeftStore : useRightStore;
@@ -160,7 +160,7 @@ export const Store = (id: CanvasMetadata["id"]) => {
         case CANVAS_ID.RIGHT:
             return RightStore;
         default:
-            throw new Error(`Invalid canvas id: ${id}`);
+            throw new Error(id satisfies never);
     }
 };
 

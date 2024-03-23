@@ -3,7 +3,10 @@
 import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
 import { Application, ICanvas, Graphics as PixiGraphics } from "pixi.js";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import {
+    GlobalSettingsStore,
+    PRERENDER_RADIUS_OPTIONS,
+} from "@/lib/stores/GlobalSettings";
 
 export const getFontName = (fontSize: number) => {
     const ceiledFontSize = Math.ceil(fontSize);
@@ -36,21 +39,21 @@ export function isVisible(
         switch (
             GlobalSettingsStore.state.settings.video.rendering.prerenderRadius
         ) {
-            case "auto":
+            case PRERENDER_RADIUS_OPTIONS.AUTO:
                 if (markingsLength < 100) return 2 * VERY_HIGH;
                 if (markingsLength < 200) return VERY_HIGH;
                 if (markingsLength < 500) return HIGH;
                 if (markingsLength < 1000) return MEDIUM;
                 return LOW;
-            case "none":
+            case PRERENDER_RADIUS_OPTIONS.NONE:
                 return NONE;
-            case "low":
+            case PRERENDER_RADIUS_OPTIONS.LOW:
                 return LOW;
-            case "medium":
+            case PRERENDER_RADIUS_OPTIONS.MEDIUM:
                 return MEDIUM;
-            case "high":
+            case PRERENDER_RADIUS_OPTIONS.HIGH:
                 return HIGH;
-            case "very high":
+            case PRERENDER_RADIUS_OPTIONS.VERY_HIGH:
                 return VERY_HIGH;
             default:
                 return HIGH;
