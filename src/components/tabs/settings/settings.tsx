@@ -18,7 +18,7 @@ import { SettingsRadioGroup } from "./settings-radio-group";
 import { SettingsCardTitle } from "./settings-card-title";
 import { SettingsCardDescription } from "./settings-card-description";
 
-export const enum TABS {
+const enum TABS {
     INTERFACE = "interface",
     VIDEO = "video",
 }

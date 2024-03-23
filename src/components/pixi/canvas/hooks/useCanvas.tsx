@@ -1,5 +1,5 @@
 import { CANVAS_REFS } from "@/lib/refs/pixi";
-import { CanvasMetadata } from "./useCanvasContext";
+import { CANVAS_ID, CanvasMetadata } from "./useCanvasContext";
 
 export const useCanvas = (id: CanvasMetadata["id"], preventError?: boolean) => {
     if (preventError !== true)
@@ -9,9 +9,9 @@ export const useCanvas = (id: CanvasMetadata["id"], preventError?: boolean) => {
 
     return (() => {
         switch (id) {
-            case "left":
+            case CANVAS_ID.LEFT:
                 return CANVAS_REFS.leftCanvas;
-            case "right":
+            case CANVAS_ID.RIGHT:
                 return CANVAS_REFS.rightCanvas;
             default:
                 throw new Error(`Invalid id: ${id}`);

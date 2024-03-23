@@ -5,7 +5,10 @@
 import { useApp } from "@pixi/react";
 import { useEffect, useRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import {
+    CANVAS_ID,
+    CanvasMetadata,
+} from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { normalizeSpriteSize } from "@/lib/utils/viewport/normalize-sprite-size";
 import { loadSprite } from "@/lib/utils/viewport/load-sprite";
 import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
@@ -61,7 +64,7 @@ export function PixiApp({ width, height, canvasMetadata }: PixiAppProps) {
         const png02 =
             "C:/Users/niar-windows/Documents/repos/bioparallel/public/images/L2U.png";
 
-        loadSprite(canvasMetadata.id === "left" ? png01 : png02)
+        loadSprite(canvasMetadata.id === CANVAS_ID.LEFT ? png01 : png02)
             .then(sprite => {
                 const normalizedSprite = normalizeSpriteSize(viewport, sprite);
                 // @ts-expect-error it's fine

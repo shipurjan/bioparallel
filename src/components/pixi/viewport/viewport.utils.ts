@@ -1,11 +1,14 @@
 /* eslint-disable no-underscore-dangle */
-import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
+import {
+    CURSOR_MODES,
+    DashboardToolbarStore,
+} from "@/lib/stores/DashboardToolbar";
 import { MovedEvent, ZoomedEvent } from "pixi-viewport/dist/types";
 import { FederatedPointerEvent } from "pixi.js";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { round } from "@/lib/utils/math/round";
 import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
-import { Marking, MarkingsStore } from "@/lib/stores/Markings";
+import { MARKING_TYPES, Marking, MarkingsStore } from "@/lib/stores/Markings";
 import {
     CachedViewportPosition,
     CachedViewportStoreClass,
@@ -103,7 +106,7 @@ function followLockedViewport(
             const oldScale = viewport.scaled;
             const newScale = round(oldScale * value, 3);
 
-            if (newScale !== store.state.otherScaled) {
+            if (newScale !== store.state.oppositeScaled) {
                 viewport.setZoom(newScale);
 
                 viewport.moveCorner(
@@ -117,7 +120,7 @@ function followLockedViewport(
                 viewport,
             });
 
-            store.actions.viewport.other.setScaled(newScale);
+            store.actions.viewport.opposite.setScaled(newScale);
             break;
         }
         default:
@@ -144,6 +147,42 @@ function createMarking(
     };
 }
 
+const addMarkingToStore = (
+    store: CachedViewportStoreClass,
+    id: CanvasMetadata["id"],
+    markingType: MARKING_TYPES,
+    clickPosition: CachedViewportPosition
+) => {
+    switch (markingType) {
+        case MARKING_TYPES.POINT: {
+            const marking = createMarking(markingType, null, clickPosition);
+            if (marking === null) return;
+
+            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
+                null
+            );
+            MarkingsStore(id).actions.markings.addOne(marking);
+            break;
+        }
+        case MARKING_TYPES.RAY: {
+            const marking = createMarking(
+                markingType,
+                store.state.rayAngleRad,
+                store.state.rayPosition
+            );
+            if (marking === null) return;
+
+            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
+                null
+            );
+            MarkingsStore(id).actions.markings.addOne(marking);
+            break;
+        }
+        default:
+            throw new Error(`Invalid marking type: ${markingType}`);
+    }
+};
+
 export const handleMove = (e: MovedEvent, params: ViewportHandlerParams) => {
     const { id, updateViewport } = params;
 
@@ -164,7 +203,7 @@ export const handleMove = (e: MovedEvent, params: ViewportHandlerParams) => {
 
     const delta = calculateDelta(e, params, oppositeViewport);
     calculatePreviousValues(params);
-    oppositeViewport.emit("other-moved", e, delta);
+    oppositeViewport.emit("opposite-moved", e, delta);
 };
 
 export const handleOtherMove = (
@@ -191,6 +230,7 @@ export const handleZoom = (e: ZoomedEvent, params: ViewportHandlerParams) => {
     });
 };
 
+let updateTemporaryMarking: (ev: FederatedPointerEvent) => void = () => {};
 export const handleMouseDown = (
     e: FederatedPointerEvent,
     params: ViewportHandlerParams
@@ -198,14 +238,14 @@ export const handleMouseDown = (
     const { id, viewport, store } = params;
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
-    if (cursorMode === "selection") {
+    if (cursorMode === CURSOR_MODES.MARKING) {
         if (e.buttons !== MOUSE_BUTTONS.PRIMARY) return;
 
         const markingType = DashboardToolbarStore.state.settings.marking.type;
 
         switch (markingType) {
-            case "point": {
-                const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
+            case MARKING_TYPES.POINT: {
+                updateTemporaryMarking = (ev: FederatedPointerEvent) => {
                     const mousePos = getNormalizedMousePosition(ev, viewport);
                     if (mousePos === undefined) return;
 
@@ -223,8 +263,8 @@ export const handleMouseDown = (
                 break;
             }
 
-            case "ray": {
-                const updateTemporaryMarking = (ev: FederatedPointerEvent) => {
+            case MARKING_TYPES.RAY: {
+                updateTemporaryMarking = (ev: FederatedPointerEvent) => {
                     const mousePos = getNormalizedMousePosition(ev, viewport);
                     if (mousePos === undefined) return;
                     store.actions.viewport.setRayAngleRad(
@@ -246,11 +286,6 @@ export const handleMouseDown = (
                     ).actions.temporaryMarking.setTemporaryMarking(marking);
                 };
 
-                const mousePos = getNormalizedMousePosition(e, viewport);
-                if (mousePos === undefined) return;
-
-                store.actions.viewport.setRayPosition(mousePos);
-
                 updateTemporaryMarking(e);
 
                 viewport.on("mousemove", updateTemporaryMarking);
@@ -268,44 +303,33 @@ export const handleMouseUp = (
     params: ViewportHandlerParams
 ) => {
     const { id, viewport, store } = params;
+
+    viewport.off("mousemove", updateTemporaryMarking);
+
     const cursorMode = DashboardToolbarStore.state.settings.cursor.mode;
 
-    if (cursorMode !== "marking") return;
-    if (e.button !== MOUSE_BUTTON.PRIMARY) return;
-    if (MarkingsStore(id).state.temporaryMarking === null) return;
+    if (cursorMode === CURSOR_MODES.MARKING) {
+        if (e.button !== MOUSE_BUTTON.PRIMARY) return;
 
-    const clickPos = getNormalizedMousePosition(e, viewport);
-    if (clickPos === undefined) return;
+        const markingType = DashboardToolbarStore.state.settings.marking.type;
 
-    const markingType = DashboardToolbarStore.state.settings.marking.type;
+        switch (markingType) {
+            case MARKING_TYPES.POINT: {
+                const position =
+                    MarkingsStore(id).state.temporaryMarking?.position;
+                if (position === undefined) return;
 
-    switch (markingType) {
-        case "point": {
-            const marking = createMarking(markingType, null, clickPos);
-            if (marking === null) return;
-
-            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
-                null
-            );
-            MarkingsStore(id).actions.markings.addOne(marking);
-            break;
+                const markingType =
+                    DashboardToolbarStore.state.settings.marking.type;
+                addMarkingToStore(store, id, markingType, position);
+                break;
+            }
+            case MARKING_TYPES.RAY: {
+                break;
+            }
+            default:
+                throw new Error(`Invalid marking type: ${markingType}`);
         }
-        case "ray": {
-            const marking = createMarking(
-                markingType,
-                store.state.rayAngleRad,
-                store.state.rayPosition
-            );
-            if (marking === null) return;
-
-            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
-                null
-            );
-            MarkingsStore(id).actions.markings.addOne(marking);
-            break;
-        }
-        default:
-            throw new Error(`Invalid marking type: ${markingType}`);
     }
 };
 

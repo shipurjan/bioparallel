@@ -17,7 +17,7 @@ class StoreClass {
     readonly use: typeof useLeftStore | typeof useRightStore;
 
     constructor(id: CanvasMetadata["id"]) {
-        this.use = id === "left" ? useLeftStore : useRightStore;
+        this.use = id === CANVAS_ID.LEFT ? useLeftStore : useRightStore;
     }
 
     private setScaled(callback: ActionProduceCallback<State["scaled"], State>) {
@@ -34,11 +34,11 @@ class StoreClass {
         });
     }
 
-    private setOtherScaled(
-        callback: ActionProduceCallback<State["otherScaled"], State>
+    private setOppositeScaled(
+        callback: ActionProduceCallback<State["oppositeScaled"], State>
     ) {
         this.use.getState().set(draft => {
-            draft.otherScaled = callback(draft.otherScaled, draft);
+            draft.oppositeScaled = callback(draft.oppositeScaled, draft);
         });
     }
 
@@ -60,9 +60,9 @@ class StoreClass {
 
     readonly actions = {
         viewport: {
-            other: {
-                setScaled: (scaled: State["otherScaled"]) => {
-                    this.setOtherScaled(() => scaled);
+            opposite: {
+                setScaled: (scaled: State["oppositeScaled"]) => {
+                    this.setOppositeScaled(() => scaled);
                 },
             },
             setScaled: (scaled: State["scaled"]) => {
@@ -90,9 +90,9 @@ const RightStore = new StoreClass(CANVAS_ID.RIGHT);
 
 export const Store = (id: CanvasMetadata["id"]) => {
     switch (id) {
-        case "left":
+        case CANVAS_ID.LEFT:
             return LeftStore;
-        case "right":
+        case CANVAS_ID.RIGHT:
             return RightStore;
         default:
             throw new Error(`Invalid canvas id: ${id}`);

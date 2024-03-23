@@ -15,7 +15,7 @@ import {
     handleMouseLeave,
     handleMouseUp,
     handleMove,
-    handleOtherMove,
+    handleOtherMove as handleOppositeMove,
     handleZoom,
 } from "./viewport.utils";
 
@@ -73,8 +73,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
                     viewport.on("moved", e => handleMove(e, handlerParams));
 
-                    viewport.on("other-moved", (e, delta) =>
-                        handleOtherMove(e, handlerParams, delta)
+                    viewport.on("opposite-moved", (e, delta) =>
+                        handleOppositeMove(e, handlerParams, delta)
                     );
 
                     viewport.on("zoomed", e => {

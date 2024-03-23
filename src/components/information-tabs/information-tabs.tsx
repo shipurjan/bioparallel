@@ -6,7 +6,7 @@ import { useTranslation } from "react-i18next";
 import { MarkingsInfo } from "./markings-info/markings-info";
 import { DebugInfo } from "./debug-info/debug-info";
 
-export const enum TABS {
+const enum TABS {
     MARKINGS = "markings",
     DEBUG = "debug",
 }

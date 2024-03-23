@@ -14,7 +14,7 @@ const Homepage = dynamic(
     { ssr: false }
 );
 
-export const enum TABS {
+const enum TABS {
     HOMEPAGE = "homepage",
     SETTINGS = "settings",
 }

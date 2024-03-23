@@ -6,10 +6,6 @@ import { MARKING_TYPES } from "../stores/Markings";
 import { useKeyDown } from "./useKeyDown";
 
 export const useKeyboardShortcuts = () => {
-    const cursorMode = DashboardToolbarStore.use(
-        state => state.settings.cursor.mode
-    );
-
     const { actions } = DashboardToolbarStore;
     const {
         cursor: cursorActions,
@@ -30,15 +26,11 @@ export const useKeyboardShortcuts = () => {
     }, ["F2"]);
 
     useKeyDown(() => {
-        if (cursorMode === CURSOR_MODES.MARKING) {
-            setMarkingType(MARKING_TYPES.POINT);
-        }
+        setMarkingType(MARKING_TYPES.POINT);
     }, ["1"]);
 
     useKeyDown(() => {
-        if (cursorMode === CURSOR_MODES.MARKING) {
-            setMarkingType(MARKING_TYPES.RAY);
-        }
+        setMarkingType(MARKING_TYPES.RAY);
     }, ["2"]);
 
     useKeyDown(() => {

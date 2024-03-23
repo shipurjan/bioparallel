@@ -10,11 +10,15 @@ import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContex
 import { cn } from "@/lib/utils/shadcn";
 import { useGlobalViewport } from "@/components/pixi/viewport/hooks/useGlobalViewport";
 import { useGlobalApp } from "@/components/pixi/app/hooks/useGlobalApp";
+import { DisplayObjectEvents } from "pixi.js";
+import { Viewport } from "pixi-viewport";
 
 export type TableKeys = {
     keys: string[];
     values: string[];
 }[];
+
+export type EventName = Exclude<keyof DisplayObjectEvents, symbol>;
 
 function getNestedValue(obj: unknown, keys: string[]): string | number {
     const value = keys.reduce(
@@ -35,8 +39,8 @@ function getNestedValue(obj: unknown, keys: string[]): string | number {
 }
 
 function getPrimitiveValues(obj: unknown | undefined): string[] {
-    if (obj === undefined) return [];
-    return Object.keys(obj as Record<string, unknown>).filter(e =>
+    if (!obj) return [];
+    return Object.keys(obj).filter(e =>
         ["string", "number", "boolean"].includes(
             // eslint-disable-next-line security/detect-object-injection
             typeof (obj as Record<string, unknown>)[e]
@@ -99,6 +103,45 @@ export const DebugInfoTables = (
             </TableBody>
         </Table>
     ));
+
+export function viewportListenersTable(
+    viewport: Viewport,
+    eventListeners: EventName[],
+    className: string
+) {
+    return (
+        <Table
+            className="caption-top grow overflow-hidden w-fit"
+            divClassName="w-fit"
+        >
+            <TableCaption className={cn("text-md font-bold", className)}>
+                <div className="[&>div]:leading-none">
+                    <div>viewport</div>
+                    <div>.listenerCount</div>
+                </div>
+            </TableCaption>
+            <TableBody className="[&>tr>td]:text-xs [&>tr>td]:leading-none [&>tr]:border-none">
+                {eventListeners.map(event => {
+                    const count = viewport.listenerCount(event);
+                    if (count === 0) return null;
+                    return (
+                        <TableRow
+                            // eslint-disable-next-line react/no-array-index-key
+                            key={`${event}`}
+                            className="flex gap-1"
+                        >
+                            <TableCell className=" grow font-semibold text-right p-0">
+                                {event}
+                            </TableCell>
+
+                            <TableCell className="grow p-0">{count}</TableCell>
+                        </TableRow>
+                    );
+                })}
+            </TableBody>
+        </Table>
+    );
+}
 
 export type DebugInfoProps = Omit<HTMLAttributes<HTMLDivElement>, "children">;
 export function DebugInfo({ ...props }: DebugInfoProps) {
@@ -192,6 +235,114 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
         },
     ];
 
+    // lista eventów, które nasłuchuje viewport
+    const viewportListeners: EventName[] = [
+        // from DisplayObjectEvents type
+        "added",
+        "removed",
+        "destroyed",
+        "childAdded",
+        "childRemoved",
+
+        // from https://davidfig.github.io/pixi-viewport/jsdoc/
+        "bounce-x-end",
+        "bounce-x-start",
+        "bounce-y-end",
+        "bounce-y-start",
+        "clicked",
+        "drag-end",
+        "drag-start",
+        "frame-end",
+        "mouse-edge-end",
+        "mouse-edge-start",
+        "moved",
+        "moved-end",
+        "pinch-end",
+        "pinch-start",
+        "snap-end",
+        "snap-start",
+        "snap-zoom-end",
+        "snap-zoom-start",
+        "wheel",
+        "wheel-scroll",
+        "zoomed",
+        "zoomed-end",
+
+        // custom events
+        "opposite-moved",
+
+        // the rest of the events
+        "globalmousemove",
+        "globalpointermove",
+        "globaltouchmove",
+
+        "mousedown",
+        "mousedowncapture",
+        "mouseup",
+        "mouseupcapture",
+        "mouseleave",
+        "mouseleavecapture",
+        "mousemove",
+        "mousemovecapture",
+        "mouseenter",
+        "mouseentercapture",
+        "mouseout",
+        "mouseoutcapture",
+        "mouseover",
+        "mouseovercapture",
+        "mouseupoutside",
+        "mouseupoutsidecapture",
+
+        "click",
+        "clickcapture",
+        "rightclick",
+        "rightclickcapture",
+        "rightdown",
+        "rightdowncapture",
+        "rightup",
+        "rightupcapture",
+        "rightupoutside",
+        "rightupoutsidecapture",
+
+        "plugin-remove",
+        "pointercancel",
+        "pointercancelcapture",
+        "pointerdown",
+        "pointerdowncapture",
+        "pointerup",
+        "pointerupcapture",
+        "pointerupoutside",
+        "pointerupoutsidecapture",
+        "pointerout",
+        "pointeroutcapture",
+        "pointermove",
+        "pointermovecapture",
+        "pointerenter",
+        "pointerentercapture",
+        "pointerleave",
+        "pointerleavecapture",
+        "pointerover",
+        "pointerovercapture",
+        "pointertap",
+        "pointertapcapture",
+
+        "tap",
+        "tapcapture",
+        "touchcancel",
+        "touchcancelcapture",
+        "touchend",
+        "touchendcapture",
+        "touchendoutside",
+        "touchendoutsidecapture",
+        "touchmove",
+        "touchmovecapture",
+        "touchstart",
+        "touchstartcapture",
+
+        "wheel-start",
+        "wheelcapture",
+    ];
+
     return (
         <div className="w-full h-fit overflow-auto">
             <div
@@ -212,6 +363,12 @@ export function DebugInfo({ ...props }: DebugInfoProps) {
                         viewportKeys,
                         "viewport",
                         "text-sky-400"
+                    )}
+                {viewport &&
+                    viewportListenersTable(
+                        viewport,
+                        viewportListeners,
+                        "text-amber-400"
                     )}
             </div>
         </div>
