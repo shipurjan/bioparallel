@@ -9,15 +9,13 @@ import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import { CachedViewportStore } from "@/lib/stores/CachedViewport";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
+import { ViewportHandlerParams } from "./event-handlers/utils";
 import {
-    ViewportHandlerParams,
     handleMouseDown,
-    handleMouseLeave,
-    handleMouseUp,
     handleMove,
-    handleOtherMove as handleOppositeMove,
+    handleOppositeMove,
     handleZoom,
-} from "./viewport.utils";
+} from "./event-handlers";
 
 export type ViewportProps = {
     children?: ReactNode;
@@ -71,11 +69,13 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         store: CachedViewportStore(id),
                     };
 
-                    viewport.on("moved", e => handleMove(e, handlerParams));
+                    viewport.on("moved", e => {
+                        handleMove(e, handlerParams);
+                    });
 
-                    viewport.on("opposite-moved", (e, delta) =>
-                        handleOppositeMove(e, handlerParams, delta)
-                    );
+                    viewport.on("opposite-moved", (e, delta) => {
+                        handleOppositeMove(e, handlerParams, delta);
+                    });
 
                     viewport.on("zoomed", e => {
                         handleZoom(e, handlerParams);
@@ -83,14 +83,6 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
 
                     viewport.on("mousedown", e => {
                         handleMouseDown(e, handlerParams);
-                    });
-
-                    viewport.on("mouseup", e => {
-                        handleMouseUp(e, handlerParams);
-                    });
-
-                    viewport.on("mouseleave", e => {
-                        handleMouseLeave(e, handlerParams);
                     });
 
                     return viewport;
