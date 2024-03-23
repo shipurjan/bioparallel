@@ -104,7 +104,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 >
                     <ToggleGroupItem
                         value={MARKING_TYPES.POINT}
-                        title={`${t("Type.Point", { ns: "marking" })} (1)`}
+                        title={`${t("Marking.Keys.type.Keys.point", { ns: "object" })} (1)`}
                         onClick={() => {
                             setMarkingType(MARKING_TYPES.POINT);
                         }}
@@ -113,7 +113,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     </ToggleGroupItem>
                     <ToggleGroupItem
                         value={MARKING_TYPES.RAY}
-                        title={`${t("Type.Ray", { ns: "marking" })} (2)`}
+                        title={`${t("Marking.Keys.type.Keys.ray", { ns: "object" })} (2)`}
                         onClick={() => {
                             setMarkingType(MARKING_TYPES.RAY);
                         }}
@@ -128,7 +128,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
             <ToolbarGroup>
                 <Input
                     className="size-6 cursor-pointer"
-                    title={`${t("Color.Background", { ns: "marking" })}`}
+                    title={`${t("Marking.Keys.backgroundColor", { ns: "object" })}`}
                     type="color"
                     value={marking.backgroundColor}
                     onChange={e => {
@@ -137,7 +137,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                 />
                 <Input
                     className="size-6 cursor-pointer"
-                    title={`${t("Color.Text", { ns: "marking" })}`}
+                    title={`${t("Marking.Keys.textColor", { ns: "object" })}`}
                     type="color"
                     value={marking.textColor}
                     onChange={e => {
@@ -148,7 +148,7 @@ export function GlobalToolbar({ className, ...props }: GlobalToolbarProps) {
                     className="w-12 h-6 !p-0"
                     min={6}
                     max={32}
-                    title={`${t("Size", { ns: "marking" })}`}
+                    title={`${t("Marking.Keys.size", { ns: "object" })}`}
                     type="number"
                     value={marking.size}
                     onChange={e => {

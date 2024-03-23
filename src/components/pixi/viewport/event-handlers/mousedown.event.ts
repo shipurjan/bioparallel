@@ -7,6 +7,7 @@ import { MOUSE_BUTTONS } from "@/lib/utils/const";
 import { MARKING_TYPES, MarkingsStore } from "@/lib/stores/Markings";
 import {
     ViewportHandlerParams,
+    addMarkingToStore,
     createMarking,
     getNormalizedMousePosition,
 } from "./utils";
@@ -71,6 +72,8 @@ export const handleMouseDown = (
 
                 store.actions.viewport.setRayPosition(mousePos);
                 updateTemporaryMarking(e);
+
+                addMarkingToStore(store, id, markingType, mousePos);
 
                 viewport.on("mousemove", updateTemporaryMarking);
                 break;

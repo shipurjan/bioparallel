@@ -3,13 +3,14 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InternalMarking } from "@/lib/stores/Markings";
+import { t } from "i18next";
 
 export type ExtendedMarking = InternalMarking & {
     x: number;
     y: number;
 };
 
-export const columns: ColumnDef<ExtendedMarking>[] = [
+export const getColumns: () => ColumnDef<ExtendedMarking>[] = () => [
     {
         id: "select",
         header: ({ table }) => (
@@ -21,14 +22,12 @@ export const columns: ColumnDef<ExtendedMarking>[] = [
                 onCheckedChange={value =>
                     table.toggleAllPageRowsSelected(!!value)
                 }
-                aria-label="Select all"
             />
         ),
         cell: ({ row }) => (
             <Checkbox
                 checked={row.getIsSelected()}
                 onCheckedChange={value => row.toggleSelected(!!value)}
-                aria-label="Select row"
             />
         ),
         enableSorting: false,
@@ -36,16 +35,16 @@ export const columns: ColumnDef<ExtendedMarking>[] = [
     },
     {
         accessorKey: "label",
-        header: "Label",
+        header: t("Marking.Keys.label", { ns: "object" }),
     },
     {
         accessorKey: "type",
-        header: "Type",
+        header: t("Marking.Keys.type.Name", { ns: "object" }),
         cell: ({ row }) => {
             const marking = row.original;
-            return (
-                marking.type.slice(0, 1).toUpperCase() + marking.type.slice(1)
-            );
+            return t(`Marking.Keys.type.Keys.${marking.type}`, {
+                ns: "object",
+            });
         },
     },
 ];

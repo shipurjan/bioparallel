@@ -12,7 +12,7 @@ i18next
     )
     .use(initReactI18next)
     .init({
-        defaultNS: ["keywords", "cursor", "marking", "tooltip", "description"],
+        defaultNS: ["keywords", "cursor", "object", "tooltip", "description"],
         lng: GlobalSettingsStore.state.settings.language,
         fallbackLng: LANGUAGES.ENGLISH,
         load: "languageOnly",

@@ -11,7 +11,6 @@ import { useEffect } from "react";
 import { ICON } from "@/lib/utils/const";
 import { Moon, Sun } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { capitalize } from "@/lib/utils/string/capitalize";
 import { SettingsCard } from "./settings-card";
 import { SettingsSwitch } from "./settings-swtich";
 import { SettingsRadioGroup } from "./settings-radio-group";
@@ -122,7 +121,7 @@ export function Settings() {
             >
                 <SettingsCard className="h-full" title={t("Rendering")}>
                     <SettingsCardTitle>
-                        {t("Prerendering radius")}
+                        {t("PrerenderingRadius.Name", { ns: "object" })}
                     </SettingsCardTitle>
                     <SettingsCardDescription>
                         {t("Prerendering radius", { ns: "description" })}
@@ -146,7 +145,12 @@ export function Settings() {
                                 <RadioGroupItem
                                     key={key}
                                     value={value}
-                                    label={`${capitalize(value)}`}
+                                    label={t(
+                                        `PrerenderingRadius.Keys.${value}`,
+                                        {
+                                            ns: "object",
+                                        }
+                                    )}
                                 />
                             );
                         })}

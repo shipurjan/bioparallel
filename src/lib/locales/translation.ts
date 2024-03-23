@@ -1,3 +1,6 @@
+import { PRERENDER_RADIUS_OPTIONS, THEMES } from "../stores/GlobalSettings";
+import { InternalMarking, Marking } from "../stores/Markings";
+
 type Recordify<T extends string> = { [K in T as `${K}`]: string };
 
 export type i18nKeywords = Recordify<
@@ -20,10 +23,24 @@ export type i18nCursor = {
     Mode: Recordify<"Selection" | "Marking">;
 };
 
-export type i18nMarking = {
-    Type: Recordify<"Point" | "Ray">;
-    Color: Recordify<"Background" | "Text">;
-    Size: string;
+export type i18nObject = {
+    Marking: {
+        Name: string;
+        Keys: Omit<Recordify<keyof InternalMarking>, "type"> & {
+            type: {
+                Name: string;
+                Keys: Recordify<Marking["type"]>;
+            };
+        };
+    };
+    PrerenderingRadius: {
+        Name: string;
+        Keys: Recordify<PRERENDER_RADIUS_OPTIONS>;
+    };
+    Theme: {
+        Name: string;
+        Keys: Recordify<THEMES>;
+    };
 };
 
 export type i18nTooltip = Recordify<
