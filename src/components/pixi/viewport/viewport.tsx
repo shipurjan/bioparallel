@@ -7,6 +7,7 @@ import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import { CachedViewportStore } from "@/lib/stores/CachedViewport";
+import { MarkingsStore } from "@/lib/stores/Markings";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { ViewportHandlerParams } from "./event-handlers/utils";
@@ -66,7 +67,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         viewport,
                         id,
                         updateViewport,
-                        store: CachedViewportStore(id),
+                        cachedViewportStore: CachedViewportStore(id),
+                        markingsStore: MarkingsStore(id),
                     };
 
                     viewport.on("moved", e => {

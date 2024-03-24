@@ -5,6 +5,7 @@ import {
     CANVAS_ID,
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     CanvasToolbarState as State,
@@ -27,7 +28,7 @@ class StoreClass {
 
     private setWithCleanup: typeof this.state.set = callback => {
         this.state.set(callback);
-        document.dispatchEvent(new Event("cleanup"));
+        document.dispatchEvent(new Event(CUSTOM_GLOBAL_EVENTS.CLEANUP));
     };
 
     private setTextureSettings(

@@ -3,6 +3,7 @@ import {
     DashboardToolbarStore,
 } from "../stores/DashboardToolbar";
 import { MARKING_TYPES } from "../stores/Markings";
+import { CUSTOM_GLOBAL_EVENTS } from "../utils/const";
 import { useKeyDown } from "./useKeyDown";
 
 export const useKeyboardShortcuts = () => {
@@ -16,6 +17,12 @@ export const useKeyboardShortcuts = () => {
     const { setMarkingType } = markingActions;
     const { setCursorMode } = cursorActions;
     const { toggleLockedViewport, toggleLockScaleSync } = viewportActions;
+
+    useKeyDown(() => {
+        document.dispatchEvent(
+            new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
+        );
+    }, ["Escape"]);
 
     useKeyDown(() => {
         setCursorMode(CURSOR_MODES.SELECTION);

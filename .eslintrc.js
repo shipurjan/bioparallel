@@ -39,14 +39,11 @@ module.exports = {
         ecmaFeatures: {
             jsx: true,
         },
-        project: ["./tsconfig.json"],
     },
 
     rules: {
         "default-case": "error",
         "@typescript-eslint/prefer-enum-initializers": "error",
-        "@typescript-eslint/no-unsafe-enum-comparison": "error",
-        "@typescript-eslint/no-mixed-enums": "error",
         "@typescript-eslint/no-duplicate-enum-values": "error",
         "@typescript-eslint/no-unused-vars": "error",
         "@typescript-eslint/no-explicit-any": "error",

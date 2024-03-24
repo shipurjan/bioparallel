@@ -146,6 +146,15 @@ class StoreClass {
                     ...marking,
                 }));
             },
+            updateTemporaryMarking: (props: Partial<Marking>) => {
+                this.setTemporaryMarking(
+                    produce(state => {
+                        if (state !== null) {
+                            Object.assign(state, props);
+                        }
+                    })
+                );
+            },
         },
     };
 }

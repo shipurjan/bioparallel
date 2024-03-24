@@ -1,6 +1,7 @@
 /* eslint-disable no-param-reassign */
 
 import { produce } from "immer";
+import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     DashboardToolbarState as State,
@@ -16,7 +17,7 @@ class StoreClass {
 
     private setWithCleanup: typeof this.state.set = callback => {
         this.state.set(callback);
-        document.dispatchEvent(new Event("cleanup"));
+        document.dispatchEvent(new Event(CUSTOM_GLOBAL_EVENTS.CLEANUP));
     };
 
     private setCursorSettings(

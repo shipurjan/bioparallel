@@ -116,30 +116,35 @@ export const drawRayMarking = (
 ) => {
     if (!visible) return;
 
-    g.lineStyle(shadowWidth, textColor);
-    g.drawCircle(x, y, size);
-    g.beginFill(backgroundColor);
-    g.drawCircle(x, y, size - shadowWidth);
-    g.endFill();
+    if (angleRad !== null) {
+        const a = new PixiGraphics();
+        a.pivot.set(x, y);
+        a.rotation = angleRad;
 
-    if (!showMarkingLabels) {
-        g.beginHole();
-        g.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
-        g.endHole();
-        g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
+        a.moveTo(x, y - 3 * shadowWidth);
+        a.lineStyle(lineWidth + 3 * shadowWidth, textColor);
+        a.lineTo(x, y + lineLength * size + 3 * shadowWidth);
+
+        a.moveTo(x, y);
+        a.lineStyle(lineWidth, backgroundColor);
+        a.lineTo(x, y + lineLength * size);
+        a.position.set(x, y);
+        g.addChild(a);
     }
 
-    const a = new PixiGraphics();
-    a.pivot.set(x, y);
-    a.rotation = angleRad ?? 0;
+    const b = new PixiGraphics();
+    b.lineStyle(shadowWidth, textColor);
+    b.drawCircle(x, y, size);
+    b.beginFill(backgroundColor);
+    b.drawCircle(x, y, size - shadowWidth);
+    b.endFill();
 
-    a.moveTo(x, y - 3 * shadowWidth);
-    a.lineStyle(lineWidth + 3 * shadowWidth, textColor);
-    a.lineTo(x, y + lineLength * size + 3 * shadowWidth);
+    if (!showMarkingLabels) {
+        b.beginHole();
+        b.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
+        b.endHole();
+        b.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
+    }
 
-    a.moveTo(x, y);
-    a.lineStyle(lineWidth, backgroundColor);
-    a.lineTo(x, y + lineLength * size);
-    a.position.set(x, y);
-    g.addChild(a);
+    g.addChild(b);
 };

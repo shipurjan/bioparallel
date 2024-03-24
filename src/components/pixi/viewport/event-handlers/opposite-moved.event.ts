@@ -15,7 +15,7 @@ export const handleOppositeMove = (
     params: ViewportHandlerParams,
     delta: Delta
 ) => {
-    const { viewport, store, updateViewport } = params;
+    const { viewport, cachedViewportStore: store, updateViewport } = params;
     switch (event.type) {
         case "drag": {
             const { x, y } = delta as CachedViewportPosition;

@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils/shadcn";
 import dynamic from "next/dynamic";
 import { GlobalToolbar } from "@/components/toolbar/toolbar";
 import { useTranslation } from "react-i18next";
+import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
 
 const Homepage = dynamic(
     () =>
@@ -26,17 +27,21 @@ export default function Home() {
     const [currentTab, setCurrentTab] = useState<TABS>(initialTab);
 
     useEffect(() => {
-        const cleanupCallback = (e: Event) => {
-            // eslint-disable-next-line no-void
-            void e;
+        const performCleanup = () => {
+            document.dispatchEvent(
+                new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
+            );
         };
 
-        document.addEventListener("cleanup", cleanupCallback);
+        document.addEventListener(CUSTOM_GLOBAL_EVENTS.CLEANUP, performCleanup);
 
         return () => {
-            document.removeEventListener("cleanup", cleanupCallback);
+            document.removeEventListener(
+                CUSTOM_GLOBAL_EVENTS.CLEANUP,
+                performCleanup
+            );
         };
-    }, []);
+    });
 
     return (
         <main

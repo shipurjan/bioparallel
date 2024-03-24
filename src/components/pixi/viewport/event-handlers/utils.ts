@@ -6,7 +6,11 @@ import {
 } from "@/lib/stores/CachedViewport";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { FederatedPointerEvent } from "pixi.js";
-import { MARKING_TYPES, Marking, MarkingsStore } from "@/lib/stores/Markings";
+import {
+    MARKING_TYPES,
+    Marking,
+    MarkingsStoreClass,
+} from "@/lib/stores/Markings";
 import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
 import { getNormalizedPosition } from "../../overlays/utils/get-viewport-local-position";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
@@ -15,13 +19,14 @@ export type ViewportHandlerParams = {
     viewport: PixiViewport;
     id: CanvasMetadata["id"];
     updateViewport: () => void;
-    store: CachedViewportStoreClass;
+    cachedViewportStore: CachedViewportStoreClass;
+    markingsStore: MarkingsStoreClass;
 };
 
 export type Delta = CachedViewportZoom | CachedViewportPosition | null;
 
 export function updateCachedViewportStore(params: ViewportHandlerParams) {
-    const { store, viewport } = params;
+    const { cachedViewportStore: store, viewport } = params;
     store.actions.viewport.setScaled(viewport.scaled);
     store.actions.viewport.setPosition({
         x: viewport.position._x,
@@ -43,7 +48,7 @@ export function createMarking(
     type: Marking["type"],
     angleRad: Marking["angleRad"],
     position: Marking["position"]
-): Marking | null {
+): Marking {
     const { size, backgroundColor, textColor } =
         DashboardToolbarStore.state.settings.marking;
 
@@ -58,34 +63,22 @@ export function createMarking(
 }
 
 export function addMarkingToStore(
-    store: CachedViewportStoreClass,
-    id: CanvasMetadata["id"],
-    markingType: Marking["type"],
-    clickPosition: Marking["position"]
+    newMarking: Marking,
+    params: ViewportHandlerParams
 ) {
+    const { type: markingType, position: markingPos, angleRad } = newMarking;
+    const { markingsStore } = params;
+    const { addOne: addMarking } = markingsStore.actions.markings;
+
     switch (markingType) {
         case MARKING_TYPES.POINT: {
-            const marking = createMarking(markingType, null, clickPosition);
-            if (marking === null) return;
-
-            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
-                null
-            );
-            MarkingsStore(id).actions.markings.addOne(marking);
+            const marking = createMarking(markingType, null, markingPos);
+            addMarking(marking);
             break;
         }
         case MARKING_TYPES.RAY: {
-            const marking = createMarking(
-                markingType,
-                store.state.rayAngleRad,
-                store.state.rayPosition
-            );
-            if (marking === null) return;
-
-            MarkingsStore(id).actions.temporaryMarking.setTemporaryMarking(
-                null
-            );
-            MarkingsStore(id).actions.markings.addOne(marking);
+            const marking = createMarking(markingType, angleRad, markingPos);
+            addMarking(marking);
             break;
         }
         default:

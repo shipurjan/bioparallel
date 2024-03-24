@@ -15,29 +15,34 @@ function calculateDelta(
     params: ViewportHandlerParams,
     oppositeViewport: PixiViewport
 ): Delta {
-    const { viewport, store } = params;
+    const { viewport, cachedViewportStore } = params;
+
     switch (e.type) {
         case "drag": {
             const isScaleSync =
                 DashboardToolbarStore.state.settings.viewport.scaleSync;
+
+            const { position: cachedPosition } = cachedViewportStore.state;
+
             return {
                 x:
-                    (viewport.position._x - store.state.position.x) /
+                    (viewport.position._x - cachedPosition.x) /
                     (isScaleSync ? viewport.scaled : oppositeViewport.scaled),
                 y:
-                    (viewport.position._y - store.state.position.y) /
+                    (viewport.position._y - cachedPosition.y) /
                     (isScaleSync ? viewport.scaled : oppositeViewport.scaled),
             };
         }
         case "wheel": {
+            const { position: cachedPosition } = cachedViewportStore.state;
             return {
-                value: viewport.scaled / store.state.scaled,
+                value: viewport.scaled / cachedViewportStore.state.scaled,
                 offset: {
                     x:
-                        (viewport.position._x - store.state.position.x) /
+                        (viewport.position._x - cachedPosition.x) /
                         viewport.scaled,
                     y:
-                        (viewport.position._y - store.state.position.y) /
+                        (viewport.position._y - cachedPosition.y) /
                         viewport.scaled,
                 },
             };
@@ -52,9 +57,10 @@ export const handleMove = (e: MovedEvent, params: ViewportHandlerParams) => {
 
     updateViewport();
 
-    const isLocked = DashboardToolbarStore.state.settings.viewport.locked;
+    const { locked: isViewportLocked } =
+        DashboardToolbarStore.state.settings.viewport;
 
-    if (!isLocked) {
+    if (!isViewportLocked) {
         updateCachedViewportStore(params);
         return;
     }
