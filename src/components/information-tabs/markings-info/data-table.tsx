@@ -1,3 +1,4 @@
+/* eslint-disable func-names */
 /* eslint-disable security/detect-object-injection */
 /* eslint-disable jsx-a11y/click-events-have-key-events */
 
@@ -14,10 +15,11 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 
-import { HTMLAttributes, forwardRef, useState } from "react";
-import { TableVirtuoso } from "react-virtuoso";
+import { HTMLAttributes, Ref, forwardRef, useState } from "react";
+import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso";
 import { cn } from "@/lib/utils/shadcn";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { Checkbox } from "@/components/ui/checkbox";
 
 // Original Table is wrapped with a <div> (see https://ui.shadcn.com/docs/components/table#radix-:r24:-content-manual),
 // but here we don't want it, so let's use a new component with only <table> tag
@@ -41,6 +43,10 @@ const TableRowComponent = <TData,>(rows: Row<TData>[]) =>
 
         if (!row) return null;
 
+        const cells = row.getVisibleCells();
+
+        const isLastRow = rows.length === index + 1;
+
         return (
             <TableRow
                 key={row.id}
@@ -48,14 +54,25 @@ const TableRowComponent = <TData,>(rows: Row<TData>[]) =>
                 data-state={row.getIsSelected() && "selected"}
                 {...props}
             >
-                {row.getVisibleCells().map(cell => (
-                    <TableCell key={cell.id}>
-                        {flexRender(
-                            cell.column.columnDef.cell,
-                            cell.getContext()
-                        )}
+                {isLastRow ? (
+                    <TableCell className="p-0" colSpan={cells.length}>
+                        <div className="size-full p-0.5 bg-gradient-to-r from-transparent via-card-foreground/25 to-transparent">
+                            <Checkbox className="absolute invisible" />
+                            <div className="flex justify-center items-center">
+                                <span>. . .</span>
+                            </div>
+                        </div>
                     </TableCell>
-                ))}
+                ) : (
+                    cells.map(cell => (
+                        <TableCell key={cell.id}>
+                            {flexRender(
+                                cell.column.columnDef.cell,
+                                cell.getContext()
+                            )}
+                        </TableCell>
+                    ))
+                )}
             </TableRow>
         );
     };
@@ -80,11 +97,14 @@ interface DataTableProps<TData, TValue> {
     height: string;
 }
 
-export function DataTable<TData, TValue>({
-    columns,
-    data,
-    height,
-}: DataTableProps<TData, TValue>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const DataTable = forwardRef<TableVirtuosoHandle, any>(function <
+    TData,
+    TValue,
+>(
+    { columns, data, height }: DataTableProps<TData, TValue>,
+    ref: Ref<TableVirtuosoHandle> | undefined
+) {
     const [sorting, setSorting] = useState<SortingState>([]);
     const table = useReactTable({
         data,
@@ -102,6 +122,8 @@ export function DataTable<TData, TValue>({
     return (
         <div>
             <TableVirtuoso
+                ref={ref}
+                followOutput
                 style={{
                     height,
                     scrollbarGutter: "stable both-edges",
@@ -115,7 +137,7 @@ export function DataTable<TData, TValue>({
                     table.getHeaderGroups().map(headerGroup => (
                         // Change header background color to non-transparent
                         <TableRow
-                            className="bg-card hover:bg-muted border-b-0 shadow-red-400 shadow-bottom"
+                            className="bg-card hover:bg-muted border-b-0 shadow-bottom"
                             key={headerGroup.id}
                         >
                             {headerGroup.headers.map(header => {
@@ -161,4 +183,4 @@ export function DataTable<TData, TValue>({
             />
         </div>
     );
-}
+});

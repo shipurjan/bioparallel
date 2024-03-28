@@ -1,13 +1,33 @@
 import { MarkingsStore } from "@/lib/stores/Markings";
 import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
+import { LABEL_MAP } from "@/lib/utils/const";
+import { TableVirtuosoHandle } from "react-virtuoso";
 import { DataTable } from "./data-table";
-import { ExtendedMarking, getColumns } from "./columns";
+import { EmptyMarking, EmptyableMarking, getColumns } from "./columns";
+
+const EMPTY: EmptyMarking = {};
 
 export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     const { id } = useCanvasContext();
-    const { markings } = MarkingsStore(id).use(
+    const tableRef = useRef<TableVirtuosoHandle>(null);
+
+    const { markings: thisMarkings } = MarkingsStore(id).use(
+        state => ({
+            markings: state.markings,
+            hash: state.markingsHash,
+        }),
+        (oldState, newState) => {
+            // re-rendering tylko wtedy, gdy zmieni się hash stanu
+            return oldState.hash === newState.hash;
+        }
+    );
+
+    const { markings: oppositeMarkings } = MarkingsStore(
+        getOppositeCanvasId(id)
+    ).use(
         state => ({
             markings: state.markings,
             hash: state.markingsHash,
@@ -20,6 +40,32 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
 
     const [columns, setColumns] = useState(getColumns());
 
+    const markings = useMemo(() => {
+        const thisIds = thisMarkings.map(m => m.id);
+        const thisLabels = thisMarkings.map(m => m.label);
+        const m = [
+            ...thisMarkings,
+            ...oppositeMarkings.filter(m => !thisLabels.includes(m.label)),
+        ]
+            .sort((a, b) => {
+                let aIdx = LABEL_MAP.indexOf(a.label);
+                if (aIdx === -1) aIdx = Number(a.label) + LABEL_MAP.length;
+                let bIdx = LABEL_MAP.indexOf(b.label);
+                if (bIdx === -1) bIdx = Number(b.label) + LABEL_MAP.length;
+
+                return aIdx - bIdx;
+            })
+            .map(m =>
+                thisIds.includes(m.id) ? m : { boundMarkingId: m.id }
+            ) as EmptyableMarking[];
+
+        const lastElement = m.at(-1);
+
+        if (lastElement === undefined || "id" in lastElement) m.push(EMPTY);
+
+        return m;
+    }, [oppositeMarkings, thisMarkings]);
+
     useEffect(() => {
         setColumns(getColumns());
         // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -28,9 +74,10 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     return (
         <div className="w-full h-fit py-0.5">
             <DataTable
+                ref={tableRef}
                 height={`${tableHeight}px`}
                 columns={columns}
-                data={markings as ExtendedMarking[]}
+                data={markings}
             />
         </div>
     );

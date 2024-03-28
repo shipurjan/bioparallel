@@ -2,6 +2,8 @@
 export const IS_DEV_ENVIRONMENT =
     process && process.env.NODE_ENV === "development";
 
+export const LABEL_MAP = "ABCDEFGHIJKLMNPQRSTUVWXYZαβΓδεζηλμπρΣτΦΩ";
+
 export const ICON = {
     SIZE: 20,
     STROKE_WIDTH: 1.5,

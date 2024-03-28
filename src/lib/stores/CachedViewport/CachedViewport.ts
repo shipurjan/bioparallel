@@ -14,9 +14,12 @@ const useLeftStore = createStore(CANVAS_ID.LEFT);
 const useRightStore = createStore(CANVAS_ID.RIGHT);
 
 class StoreClass {
+    readonly id: CANVAS_ID;
+
     readonly use: typeof useLeftStore;
 
     constructor(id: CanvasMetadata["id"]) {
+        this.id = id;
         this.use = id === CANVAS_ID.LEFT ? useLeftStore : useRightStore;
     }
 
