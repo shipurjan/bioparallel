@@ -53,6 +53,7 @@ export function createMarking(
         DashboardToolbarStore.state.settings.marking;
 
     return {
+        selected: false,
         size,
         position,
         backgroundColor,

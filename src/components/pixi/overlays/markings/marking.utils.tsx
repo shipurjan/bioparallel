@@ -74,6 +74,7 @@ export const drawPointMarking = (
     g: PixiGraphics,
     {
         visible,
+        selected,
         backgroundColor,
         textColor,
         position: { x, y },
@@ -91,18 +92,24 @@ export const drawPointMarking = (
     g.drawCircle(x, y, size - shadowWidth);
     g.endFill();
 
-    if (showMarkingLabels) return;
+    if (!showMarkingLabels) {
+        g.beginHole();
+        g.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
+        g.endHole();
+        g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
+    }
 
-    g.beginHole();
-    g.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
-    g.endHole();
-    g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
+    if (selected) {
+        g.lineStyle(1, textColor);
+        g.drawRect(x - size - 1, y - size - 1, size * 2 + 2, size * 2 + 2);
+    }
 };
 
 export const drawRayMarking = (
     g: PixiGraphics,
     {
         visible,
+        selected,
         backgroundColor,
         textColor,
         position: { x, y },
@@ -129,6 +136,12 @@ export const drawRayMarking = (
         a.lineStyle(lineWidth, backgroundColor);
         a.lineTo(x, y + lineLength * size);
         a.position.set(x, y);
+
+        if (selected) {
+            a.lineStyle(1, textColor);
+            a.drawRect(x - size, y - size, 2 * size, a.height + size);
+        }
+
         g.addChild(a);
     }
 
@@ -147,4 +160,6 @@ export const drawRayMarking = (
     }
 
     g.addChild(b);
+
+    console.log(g.height, g.width);
 };

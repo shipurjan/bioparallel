@@ -5,6 +5,7 @@ const d: Dictionary = {
         Name: "Adnotacja",
         Keys: {
             id: "ID",
+            selected: "Zaznaczony",
             label: "Znacznik",
             angleRad: "Kąt",
             backgroundColor: "Kolor tła",

@@ -20,11 +20,13 @@ export type EmptyableMarking =
 type EmptyableCellContext = CellContext<EmptyableMarking, unknown>;
 type DataCellContext = CellContext<InternalMarking, unknown>;
 
-function isInternalMarking(cell: EmptyableMarking): cell is InternalMarking {
+export function isInternalMarking(
+    cell: EmptyableMarking
+): cell is InternalMarking {
     return "id" in cell;
 }
 
-function isEmptyBoundMarking(
+export function isEmptyBoundMarking(
     cell: EmptyMarking | EmptyBoundMarking
 ): cell is EmptyBoundMarking {
     return "boundMarkingId" in cell;
@@ -63,12 +65,6 @@ export const getColumns: () => ColumnDef<EmptyableMarking>[] = () => [
                 onCheckedChange={value =>
                     table.toggleAllPageRowsSelected(!!value)
                 }
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={value => row.toggleSelected(!!value)}
             />
         ),
         enableSorting: false,

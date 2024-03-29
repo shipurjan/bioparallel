@@ -6,9 +6,7 @@ import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite
 import { LABEL_MAP } from "@/lib/utils/const";
 import { TableVirtuosoHandle } from "react-virtuoso";
 import { DataTable } from "./data-table";
-import { EmptyMarking, EmptyableMarking, getColumns } from "./columns";
-
-const EMPTY: EmptyMarking = {};
+import { EmptyableMarking, getColumns } from "./columns";
 
 export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     const { id } = useCanvasContext();
@@ -43,6 +41,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     const markings = useMemo(() => {
         const thisIds = thisMarkings.map(m => m.id);
         const thisLabels = thisMarkings.map(m => m.label);
+        // eslint-disable-next-line sonarjs/prefer-immediate-return
         const m = [
             ...thisMarkings,
             ...oppositeMarkings.filter(m => !thisLabels.includes(m.label)),
@@ -59,10 +58,6 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
                 thisIds.includes(m.id) ? m : { boundMarkingId: m.id }
             ) as EmptyableMarking[];
 
-        const lastElement = m.at(-1);
-
-        if (lastElement === undefined || "id" in lastElement) m.push(EMPTY);
-
         return m;
     }, [oppositeMarkings, thisMarkings]);
 
@@ -75,6 +70,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
         <div className="w-full h-fit py-0.5">
             <DataTable
                 ref={tableRef}
+                canvasId={id}
                 height={`${tableHeight}px`}
                 columns={columns}
                 data={markings}

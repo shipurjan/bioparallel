@@ -1,3 +1,4 @@
+/* eslint-disable security/detect-object-injection */
 /* eslint-disable no-use-before-define */
 /* eslint-disable no-param-reassign */
 
@@ -7,6 +8,7 @@ import {
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { LABEL_MAP } from "@/lib/utils/const";
+import { MarkingNotFoundError } from "@/lib/custom-errors/MarkingNotFoundError";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     InternalMarking,
@@ -23,7 +25,6 @@ function* labelGenerator(): Generator<string> {
     let index = 0;
     while (true) {
         const offset =
-            // eslint-disable-next-line security/detect-object-injection
             (yield LABEL_MAP[index] ?? String(index - LABEL_MAP.length + 1)) ===
             "prev"
                 ? -1
@@ -122,9 +123,8 @@ class StoreClass {
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
                         const index = state.findIndex(m => m.id === id);
-                        if (index === -1) throw new Error("Marking not found");
+                        if (index === -1) throw new MarkingNotFoundError();
 
-                        // eslint-disable-next-line security/detect-object-injection
                         Object.assign(state[index]!, newMarking);
                     })
                 );
@@ -133,10 +133,26 @@ class StoreClass {
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
                         const index = state.findIndex(m => m.id === id);
-                        if (index === -1) throw new Error("Marking not found");
+                        if (index === -1) throw new MarkingNotFoundError();
 
-                        // eslint-disable-next-line security/detect-object-injection
                         Object.assign(state[index]!, { boundMarkingId });
+                    })
+                );
+            },
+            selectOneById: (
+                id: string,
+                callback: (
+                    oldSelected: Marking["selected"]
+                ) => Marking["selected"]
+            ) => {
+                this.setMarkingsAndUpdateHash(
+                    produce(state => {
+                        const index = state.findIndex(m => m.id === id);
+                        if (index === -1) throw new MarkingNotFoundError();
+
+                        state[index]!.selected = callback(
+                            state[index]!.selected
+                        );
                     })
                 );
             },
@@ -197,9 +213,9 @@ function getInferredMarking(
             // Weź znacznik z ostatnio dodanego markingu i powiąż go z tym markingiem
 
             draft.boundMarkingId = lastAddedMarking.id;
-            Store(lastAddedMarking.canvasId).actions.markings.editOneById(
+            Store(lastAddedMarking.canvasId).actions.markings.bindOneById(
                 lastAddedMarking.id,
-                { boundMarkingId: draft.id }
+                draft.id
             );
 
             const isLabelAlreadyUsed =
