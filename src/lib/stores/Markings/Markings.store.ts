@@ -32,12 +32,14 @@ export type RenderableMarking = InternalMarking & {
 export type Marking = Omit<InternalMarking, "id" | "label">;
 
 type State = {
+    cursor: number;
     markingsHash: string;
     markings: InternalMarking[];
     temporaryMarking: InternalMarking | null;
 };
 
 const INITIAL_STATE: State = {
+    cursor: 0,
     markingsHash: crypto.randomUUID(),
     temporaryMarking: null,
     markings: [],

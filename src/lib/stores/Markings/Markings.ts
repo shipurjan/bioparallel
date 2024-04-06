@@ -51,6 +51,12 @@ class StoreClass {
         return this.use.getState();
     }
 
+    private setCursor(callback: ActionProduceCallback<State["cursor"], State>) {
+        this.state.set(draft => {
+            draft.cursor = callback(draft.cursor, draft);
+        });
+    }
+
     private setMarkingsHash(
         callback: ActionProduceCallback<State["markingsHash"], State>
     ) {
@@ -88,6 +94,11 @@ class StoreClass {
     }
 
     readonly actions = {
+        cursor: {
+            updateCursor: (newIndex: number) => {
+                this.setCursor(() => newIndex);
+            },
+        },
         markings: {
             addOne: (marking: Marking) => {
                 this.setMarkingsAndUpdateHash(
