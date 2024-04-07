@@ -54,6 +54,7 @@ export function createMarking(
 
     return {
         selected: false,
+        hidden: false,
         size,
         position,
         backgroundColor,

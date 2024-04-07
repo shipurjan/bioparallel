@@ -33,6 +33,7 @@ type MarkingTextProps = Pick<
 > & {
     visible: boolean;
 };
+
 function MarkingText({
     visible,
     label,
@@ -154,10 +155,18 @@ export const Markings = memo(
                 <Graphics draw={drawMarkings} />
                 {showMarkingLabels &&
                     renderableMarkings.map(
-                        ({ visible, id, label, size, position, textColor }) => {
+                        ({
+                            visible,
+                            hidden,
+                            id,
+                            label,
+                            size,
+                            position,
+                            textColor,
+                        }) => {
                             return (
                                 <MarkingText
-                                    visible={visible}
+                                    visible={visible && !hidden}
                                     key={id}
                                     label={label}
                                     size={size}

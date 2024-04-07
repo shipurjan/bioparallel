@@ -73,6 +73,7 @@ export function isVisible(
 export const drawPointMarking = (
     g: PixiGraphics,
     {
+        hidden,
         visible,
         selected,
         backgroundColor,
@@ -84,7 +85,7 @@ export const drawPointMarking = (
     lineWidth: number = 2,
     shadowWidth: number = 0.5
 ) => {
-    if (!visible) return;
+    if (!visible || hidden) return;
 
     g.lineStyle(shadowWidth, textColor);
     g.drawCircle(x, y, size);
@@ -108,6 +109,7 @@ export const drawPointMarking = (
 export const drawRayMarking = (
     g: PixiGraphics,
     {
+        hidden,
         visible,
         selected,
         backgroundColor,
@@ -121,7 +123,7 @@ export const drawRayMarking = (
     shadowWidth: number = 0.5,
     lineLength: number = 4
 ) => {
-    if (!visible) return;
+    if (!visible || hidden) return;
 
     if (angleRad !== null) {
         const a = new PixiGraphics();

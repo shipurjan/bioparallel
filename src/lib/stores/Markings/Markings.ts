@@ -98,6 +98,9 @@ class StoreClass {
             updateCursor: (newIndex: number) => {
                 this.setCursor(() => newIndex);
             },
+            getMarkingAtCursor: () => {
+                return this.state.markings.at(this.state.cursor);
+            },
         },
         markings: {
             addOne: (marking: Marking) => {
@@ -169,14 +172,17 @@ class StoreClass {
             },
         },
         temporaryMarking: {
-            setTemporaryMarking: (marking: Marking | null) => {
+            setTemporaryMarking: (
+                marking: Marking | null,
+                label?: InternalMarking["label"]
+            ) => {
                 if (marking === null) {
                     this.setTemporaryMarking(() => null);
                     return;
                 }
                 this.setTemporaryMarking(() => ({
                     id: "\0",
-                    label: "\0",
+                    label: label ?? "\0",
                     ...marking,
                 }));
             },

@@ -6,6 +6,7 @@ const d: Dictionary = {
         Keys: {
             id: "ID",
             selected: "Selected",
+            hidden: "Hidden",
             label: "Label",
             angleRad: "Angle",
             backgroundColor: "Background color",

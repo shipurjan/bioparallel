@@ -91,8 +91,8 @@ export function MarkingOverlay({ canvasMetadata }: MarkingOverlayProps) {
         <Container position={getViewportPosition(viewport)}>
             <Markings
                 canvasMetadata={canvasMetadata}
-                showMarkingLabels={showMarkingLabels}
                 markings={relativeMarkings}
+                showMarkingLabels={showMarkingLabels}
             />
             {relativeTemporaryMarking !== null && (
                 <Markings
