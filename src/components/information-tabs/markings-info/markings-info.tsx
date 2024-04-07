@@ -3,14 +3,32 @@ import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContex
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
-import { LABEL_MAP } from "@/lib/utils/const";
+import { CUSTOM_GLOBAL_EVENTS, LABEL_MAP } from "@/lib/utils/const";
 import { TableVirtuosoHandle } from "react-virtuoso";
+import { sleep } from "@/lib/utils/misc/sleep";
 import { DataTable } from "./data-table";
 import { EmptyableMarking, getColumns } from "./columns";
 
 export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     const { id } = useCanvasContext();
-    const tableRef = useRef<TableVirtuosoHandle>(null);
+    const virtuosoTableRef = useRef<TableVirtuosoHandle>(null);
+    const cursor = MarkingsStore(id).use(state => state.cursor);
+
+    useEffect(() => {
+        const resetCursor = () => {
+            MarkingsStore(id).actions.cursor.updateCursor(Infinity);
+        };
+        document.addEventListener(
+            CUSTOM_GLOBAL_EVENTS.RESET_MARKING_CURSOR,
+            resetCursor
+        );
+        return () => {
+            document.removeEventListener(
+                CUSTOM_GLOBAL_EVENTS.RESET_MARKING_CURSOR,
+                resetCursor
+            );
+        };
+    }, []);
 
     const { markings: thisMarkings } = MarkingsStore(id).use(
         state => ({
@@ -58,8 +76,36 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
                 thisIds.includes(m.id) ? m : { boundMarkingId: m.id }
             ) as EmptyableMarking[];
 
+        if (cursor === Infinity) {
+            m.push({});
+        }
+
         return m;
-    }, [oppositeMarkings, thisMarkings]);
+    }, [oppositeMarkings, thisMarkings, cursor]);
+
+    useEffect(() => {
+        const virtuoso = virtuosoTableRef.current;
+        if (virtuoso === null) return;
+
+        const getIndex = () => {
+            if (Number.isFinite(cursor)) {
+                if (cursor < 0) {
+                    return markings.length + cursor;
+                }
+                return cursor;
+            }
+            return markings.length - 1;
+        };
+
+        const index = getIndex();
+        sleep(0).then(() => {
+            virtuoso.scrollToIndex({
+                index,
+                align: "center",
+                behavior: "smooth",
+            });
+        });
+    }, [cursor]);
 
     useEffect(() => {
         setColumns(getColumns());
@@ -69,7 +115,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     return (
         <div className="w-full h-fit py-0.5">
             <DataTable
-                ref={tableRef}
+                ref={virtuosoTableRef}
                 canvasId={id}
                 height={`${tableHeight}px`}
                 columns={columns}

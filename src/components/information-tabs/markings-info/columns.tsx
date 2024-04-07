@@ -27,9 +27,13 @@ export function isInternalMarking(
 }
 
 export function isEmptyBoundMarking(
-    cell: EmptyMarking | EmptyBoundMarking
+    cell: EmptyableMarking
 ): cell is EmptyBoundMarking {
-    return "boundMarkingId" in cell;
+    return !isInternalMarking(cell) && "boundMarkingId" in cell;
+}
+
+export function isEmptyMarking(cell: EmptyableMarking): cell is EmptyMarking {
+    return Object.keys(cell).length === 0 && cell.constructor === Object;
 }
 
 const formatCell = <T,>(
@@ -43,6 +47,10 @@ const formatCell = <T,>(
         return callback(context as DataCellContext);
     }
 
+    if (isEmptyMarking(row)) {
+        return "ㅤ";
+    }
+
     if (isEmptyBoundMarking(row) && context.column.id === "boundMarkingId") {
         return row.boundMarkingId.slice(0, 8);
     }
@@ -53,7 +61,7 @@ const formatCell = <T,>(
     return isLastRow ? lastRowEmptyValue : "";
 };
 
-export const getColumns: () => ColumnDef<EmptyableMarking>[] = () => [
+export const getColumns: () => Array<ColumnDef<EmptyableMarking>> = () => [
     {
         id: "select",
         header: ({ table }) => (
@@ -81,7 +89,7 @@ export const getColumns: () => ColumnDef<EmptyableMarking>[] = () => [
                           row.original.id.slice(0, 8)
                       ),
               },
-          ] as ColumnDef<EmptyableMarking>[])
+          ] as Array<ColumnDef<EmptyableMarking>>)
         : []),
     {
         accessorKey: "label",
@@ -99,7 +107,7 @@ export const getColumns: () => ColumnDef<EmptyableMarking>[] = () => [
                           row.original.boundMarkingId?.slice(0, 8)
                       ),
               },
-          ] as ColumnDef<EmptyableMarking>[])
+          ] as Array<ColumnDef<EmptyableMarking>>)
         : []),
     {
         accessorKey: "type",

@@ -160,6 +160,4 @@ export const drawRayMarking = (
     }
 
     g.addChild(b);
-
-    console.log(g.height, g.width);
 };

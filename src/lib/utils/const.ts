@@ -60,5 +60,6 @@ export const enum CUSTOM_VIEWPORT_EVENTS {
 
 export const enum CUSTOM_GLOBAL_EVENTS {
     INTERRUPT_MARKING = "interrupt-marking",
+    RESET_MARKING_CURSOR = "reset-marking-cursor",
     CLEANUP = "cleanup",
 }

@@ -39,7 +39,7 @@ type State = {
 };
 
 const INITIAL_STATE: State = {
-    cursor: 0,
+    cursor: Infinity,
     markingsHash: crypto.randomUUID(),
     temporaryMarking: null,
     markings: [],

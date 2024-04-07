@@ -43,17 +43,25 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) =>
         const index = props["data-index"];
         const row = rows[index];
 
+        const cursor = MarkingsStore(canvasId).use(state => state.cursor);
+
         if (!row) return null;
 
         const marking = row.original as EmptyableMarking;
         const selected = isInternalMarking(marking) ? marking.selected : false;
-
         const cells = row.getVisibleCells();
+
+        const isCursorOnThisRow = Number.isFinite(cursor)
+            ? rows.at(cursor)?.index === index
+            : index === rows.length - 1;
 
         return (
             <TableRow
                 key={row.id}
-                className="last:border-b-0"
+                className={cn("last:border-b-0", {
+                    // TODO: zmień na inny kolor
+                    "bg-red-500": isCursorOnThisRow,
+                })}
                 data-state={selected && "selected"}
                 onClick={() => {
                     if (!isInternalMarking(marking)) return;

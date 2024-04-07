@@ -31,6 +31,9 @@ export default function Home() {
             document.dispatchEvent(
                 new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
             );
+            document.dispatchEvent(
+                new Event(CUSTOM_GLOBAL_EVENTS.RESET_MARKING_CURSOR)
+            );
         };
 
         document.addEventListener(CUSTOM_GLOBAL_EVENTS.CLEANUP, performCleanup);
