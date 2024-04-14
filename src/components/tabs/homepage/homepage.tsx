@@ -40,21 +40,19 @@ export function Homepage() {
                     direction="vertical"
                     className="rounded-lg border"
                 >
-                    <ResizablePanel defaultSize={75} minSize={2}>
-                        <div className="flex flex-col h-full w-full items-center justify-center">
-                            <CanvasContext.Provider value={leftCanvasMetadata}>
+                    <CanvasContext.Provider value={leftCanvasMetadata}>
+                        <ResizablePanel defaultSize={75} minSize={2}>
+                            <div className="flex flex-col h-full w-full items-center justify-center">
                                 <CanvasContainer />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel defaultSize={25} minSize={2}>
-                        <div className="flex h-full w-full">
-                            <CanvasContext.Provider value={leftCanvasMetadata}>
+                            </div>
+                        </ResizablePanel>
+                        <ResizableHandle />
+                        <ResizablePanel defaultSize={25} minSize={2}>
+                            <div className="flex h-full w-full">
                                 <InformationTabs />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
+                            </div>
+                        </ResizablePanel>
+                    </CanvasContext.Provider>
                 </ResizablePanelGroup>
             </ResizablePanel>
             <ResizableHandle />
@@ -63,21 +61,19 @@ export function Homepage() {
                     direction="vertical"
                     className="rounded-lg border"
                 >
-                    <ResizablePanel defaultSize={75} minSize={2}>
-                        <div className="flex flex-col h-full w-full items-center justify-center">
-                            <CanvasContext.Provider value={rightCanvasMetadata}>
+                    <CanvasContext.Provider value={rightCanvasMetadata}>
+                        <ResizablePanel defaultSize={75} minSize={2}>
+                            <div className="flex flex-col h-full w-full items-center justify-center">
                                 <CanvasContainer />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel defaultSize={25} minSize={2}>
-                        <div className="flex h-full w-full">
-                            <CanvasContext.Provider value={rightCanvasMetadata}>
+                            </div>
+                        </ResizablePanel>
+                        <ResizableHandle />
+                        <ResizablePanel defaultSize={25} minSize={2}>
+                            <div className="flex h-full w-full">
                                 <InformationTabs />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
+                            </div>
+                        </ResizablePanel>
+                    </CanvasContext.Provider>
                 </ResizablePanelGroup>
             </ResizablePanel>
         </ResizablePanelGroup>

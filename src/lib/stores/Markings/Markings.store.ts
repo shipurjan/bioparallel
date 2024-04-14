@@ -30,7 +30,8 @@ export type RenderableMarking = InternalMarking & {
     visible: boolean;
 };
 
-export type Marking = Omit<InternalMarking, "id" | "label">;
+export type Marking = Omit<InternalMarking, "id" | "label"> &
+    Partial<Pick<InternalMarking, "label">>;
 
 type State = {
     cursor: number;

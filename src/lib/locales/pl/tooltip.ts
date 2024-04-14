@@ -1,6 +1,7 @@
 import { i18nTooltip as Dictionary } from "@/lib/locales/translation";
 
 const d: Dictionary = {
+    "Load markings data from file": "Załaduj dane adnotacji z pliku",
     "Save markings data to a JSON file": "Zapisz dane adnotacji do pliku JSON",
     "Load forensic mark image": "Załaduj obraz śladu kryminalistycznego",
     "Fit height": "Dopasuj wysokość",

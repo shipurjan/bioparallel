@@ -65,6 +65,11 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) =>
                     "border-primary last:border-b-4": isCursorAtTail,
                 })}
                 data-state={selected && "selected"}
+                onClick={() => {
+                    MarkingsStore(canvasId).actions.cursor.updateCursor(
+                        row.index
+                    );
+                }}
                 {...props}
             >
                 {cells.map(cell => (

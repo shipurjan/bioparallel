@@ -5,6 +5,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { InternalMarking } from "@/lib/stores/Markings";
 import { t } from "i18next";
 import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
+import { GlobalStateStore } from "@/lib/stores/GlobalState";
 
 export type ExtendedMarking = InternalMarking & {
     x: number;
@@ -96,8 +97,15 @@ export const getColumns: () => Array<ColumnDef<EmptyableMarking>> = () => [
                   accessorKey: "id",
                   header: t("Marking.Keys.id", { ns: "object" }),
                   cell: cell =>
-                      formatCell(cell, ({ row }) =>
-                          row.original.id.slice(0, 8)
+                      formatCell(
+                          cell,
+                          ({ row }) =>
+                              row.original.id.slice(0, 8) +
+                              (isInternalMarking(row.original) &&
+                              GlobalStateStore.state.lastAddedMarking?.id ===
+                                  row.original.id
+                                  ? " (last) "
+                                  : "")
                       ),
               },
           ] as Array<ColumnDef<EmptyableMarking>>)

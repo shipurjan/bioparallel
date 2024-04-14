@@ -40,13 +40,18 @@ export const handleMouseDown = (
     params: ViewportHandlerParams
 ) => {
     const { viewport, cachedViewportStore, markingsStore } = params;
+
+    if (viewport.children.length < 1) return;
+
     const { mode: cursorMode } = DashboardToolbarStore.state.settings.cursor;
 
     const { setTemporaryMarking, updateTemporaryMarking } =
         markingsStore.actions.temporaryMarking;
 
     const { temporaryMarking } = markingsStore.state;
-    if (temporaryMarking !== null) return;
+    if (temporaryMarking !== null) {
+        setTemporaryMarking(null);
+    }
 
     let onMouseMove: (e: FederatedPointerEvent) => void = () => {};
     let onMouseUp: (e: FederatedPointerEvent) => void = () => {};

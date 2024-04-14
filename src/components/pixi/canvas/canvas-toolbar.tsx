@@ -9,13 +9,15 @@ import {
     MoveVertical,
     ImageUp,
     Save,
+    FileInput,
 } from "lucide-react";
 import { ICON } from "@/lib/utils/const";
 import { ToolbarGroup } from "@/components/toolbar/group";
 import { Toggle } from "@/components/ui/toggle";
 import { useTranslation } from "react-i18next";
-import { loadImageFromDialog } from "@/lib/utils/viewport/load-image-from-dialog";
-import { saveMarkingsDataToFile } from "@/lib/utils/viewport/save-markings-data-to-file";
+import { loadImageWithDialog } from "@/lib/utils/viewport/loadImageWithDialog";
+import { saveMarkingsDataWithDialog } from "@/lib/utils/viewport/saveMarkingsDataWithDialog";
+import { loadMarkingsDataWithDialog } from "@/lib/utils/viewport/loadMarkingsDataWithDialog";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useCanvasContext } from "./hooks/useCanvasContext";
 import {
@@ -57,10 +59,26 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     variant="outline"
                     pressed={false}
                     onClick={() => {
-                        loadImageFromDialog(viewport);
+                        loadImageWithDialog(viewport);
                     }}
                 >
                     <ImageUp size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
+                </Toggle>
+                <Toggle
+                    title={t("Load markings data from file", {
+                        ns: "tooltip",
+                    })}
+                    size="icon"
+                    variant="outline"
+                    pressed={false}
+                    onClick={() => {
+                        loadMarkingsDataWithDialog(viewport);
+                    }}
+                >
+                    <FileInput
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
+                    />
                 </Toggle>
                 <Toggle
                     title={t("Save markings data to a JSON file", {
@@ -70,7 +88,7 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     variant="outline"
                     pressed={false}
                     onClick={() => {
-                        saveMarkingsDataToFile(viewport);
+                        saveMarkingsDataWithDialog(viewport);
                     }}
                 >
                     <Save size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
@@ -128,7 +146,9 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
             <ToolbarGroup>
                 <Toggle
                     variant="outline"
-                    title={t("Toggle marking labels", { ns: "tooltip" })}
+                    title={t("Toggle marking labels", {
+                        ns: "tooltip",
+                    })}
                     size="icon"
                     pressed={markings.showLabels}
                     onClick={() => {

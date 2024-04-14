@@ -68,8 +68,9 @@ export function addMarkingToStore(
     newMarking: Marking,
     params: ViewportHandlerParams
 ) {
-    const { type: markingType, position: markingPos, angleRad } = newMarking;
     const { markingsStore } = params;
+
+    const { type: markingType, position: markingPos, angleRad } = newMarking;
     const { addOne: addMarking } = markingsStore.actions.markings;
 
     switch (markingType) {

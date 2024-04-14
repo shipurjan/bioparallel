@@ -10,6 +10,7 @@ import {
 import { LABEL_MAP } from "@/lib/utils/const";
 import { MarkingNotFoundError } from "@/lib/errors/custom-errors/MarkingNotFoundError";
 import { showErrorDialog } from "@/lib/errors/showErrorDialog";
+import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     InternalMarking,
@@ -71,11 +72,12 @@ class StoreClass {
     ) {
         this.state.set(draft => {
             const newMarkings = callback(draft.markings, draft);
-            const lastMarking = newMarkings.at(-1);
-            if (lastMarking !== undefined) {
-                setLastAddedMarking({ ...lastMarking, canvasId: this.id });
-            }
             draft.markings = newMarkings;
+
+            const lastMarking = newMarkings.at(-1);
+            console.log(lastMarking?.id, lastMarking?.boundMarkingId);
+            if (lastMarking !== undefined)
+                setLastAddedMarking({ ...lastMarking, canvasId: this.id });
         });
     }
 
@@ -237,6 +239,29 @@ function getInferredMarking(
     return produce(marking, (draft: Draft<InternalMarking>) => {
         draft.id = crypto.randomUUID();
 
+        if (draft.label !== undefined) {
+            // Przypadek gdy ostatnio dodany marking ma już przypisany label
+            // (Najczęściej jest to sytuacja gdy wgrywamy plik z danymi markingu)
+            // Znajdź czy istnieje znacznik z takim samym labelem w przeciwnym canvasie
+            // Jeśli tak to przypisz go do tego markingu i powiąż je
+            const oppositeCanvasId = getOppositeCanvasId(canvasId);
+            const boundMarking = Store(oppositeCanvasId).state.markings.find(
+                e => e.label === draft.label
+            );
+
+            if (boundMarking === undefined) {
+                draft.label = labelGen.next().value;
+                return;
+            }
+            Store(oppositeCanvasId).actions.markings.bindOneById(
+                boundMarking.id,
+                draft.id
+            );
+            draft.boundMarkingId = boundMarking.id;
+            draft.label = boundMarking.label;
+            return;
+        }
+
         const { lastAddedMarking } = GlobalStateStore.state;
         const isLastAddedMarkingInOppositeCanvas =
             lastAddedMarking !== null && lastAddedMarking.canvasId !== canvasId;
@@ -244,12 +269,6 @@ function getInferredMarking(
         if (isLastAddedMarkingInOppositeCanvas) {
             // Przypadek gdy ostatnio dodany marking jest z przeciwnego canvasa
             // Weź znacznik z ostatnio dodanego markingu i powiąż go z tym markingiem
-
-            draft.boundMarkingId = lastAddedMarking.id;
-            Store(lastAddedMarking.canvasId).actions.markings.bindOneById(
-                lastAddedMarking.id,
-                draft.id
-            );
 
             const isLabelAlreadyUsed =
                 Store(canvasId).state.markings.findLastIndex(
@@ -259,11 +278,21 @@ function getInferredMarking(
             draft.label = isLabelAlreadyUsed
                 ? labelGen.next().value
                 : lastAddedMarking.label;
-        } else {
-            // Przypadek gdy ostatnio dodany marking jest z tego samego canvasa
-            // Po prostu wygeneruj nowy znacznik
-            draft.label = labelGen.next().value;
+
+            if (lastAddedMarking.label === draft.label) {
+                draft.boundMarkingId = lastAddedMarking.id;
+                Store(lastAddedMarking.canvasId).actions.markings.bindOneById(
+                    lastAddedMarking.id,
+                    draft.id
+                );
+            }
+
+            return;
         }
+
+        // Przypadek gdy ostatnio dodany marking jest z tego samego canvasa
+        // Po prostu wygeneruj nowy znacznik
+        draft.label = labelGen.next().value;
     }) as InternalMarking;
 }
 

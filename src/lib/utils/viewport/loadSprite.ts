@@ -2,7 +2,7 @@ import * as PIXI from "pixi.js";
 import { readFile } from "@tauri-apps/plugin-fs";
 import md5 from "md5";
 
-export async function loadSprite(data: string | Uint8Array) {
+export async function loadSprite(data: string | Uint8Array, name?: string) {
     const imageBytes = await (async () => {
         if (typeof data === "string") {
             return readFile(data);
@@ -23,7 +23,13 @@ export async function loadSprite(data: string | Uint8Array) {
 
     const bitmap = await createImageBitmap(new Blob([imageBytes]));
     const sprite = new PIXI.Sprite(PIXI.Texture.from(bitmap));
+
+    const path = typeof data === "string" ? data.split(/[\\/]/) : null;
+
     // @ts-expect-error custom property
     sprite.hash = hash;
+    sprite.name = name ?? (path === null ? null : path.pop() ?? null);
+    // @ts-expect-error custom property
+    sprite.path = path === null ? null : path.join("/");
     return sprite;
 }
