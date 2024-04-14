@@ -15,6 +15,14 @@ class StoreClass {
         return this.use.getState();
     }
 
+    private setLanguageSettings(
+        callback: ActionProduceCallback<State["settings"]["language"], State>
+    ) {
+        this.state.set(draft => {
+            draft.settings.language = callback(draft.settings.language, draft);
+        });
+    }
+
     private setInterfaceSettings(
         callback: ActionProduceCallback<State["settings"]["interface"], State>
     ) {
@@ -36,7 +44,20 @@ class StoreClass {
 
     readonly actions = {
         settings: {
+            language: {
+                /** Ta funkcja zmienia stan języka TYLKO w store
+                 *
+                 * Żeby zmienić język aplikacji użyj useTranslation().i18n.changeLanguage
+                 * */
+                setLanguage: (newLanguage: State["settings"]["language"]) => {
+                    this.setLanguageSettings(() => newLanguage);
+                },
+            },
             interface: {
+                /** Ta funkcja zmienia theme TYLKO w store
+                 *
+                 * Żeby zmienić theme aplikacji użyj useTheme().setTheme
+                 * */
                 setTheme: (
                     newTheme: State["settings"]["interface"]["theme"]
                 ) => {

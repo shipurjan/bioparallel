@@ -1,21 +1,28 @@
 /* eslint-disable no-param-reassign */
 
 import { produce } from "immer";
-import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import {
+    CANVAS_ID,
+    CanvasMetadata,
+} from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     CanvasToolbarState as State,
     _createCanvasToolbarStore as createStore,
 } from "./CanvasToolbar.store";
 
-const useLeftStore = createStore("left");
-const useRightStore = createStore("right");
+const useLeftStore = createStore(CANVAS_ID.LEFT);
+const useRightStore = createStore(CANVAS_ID.RIGHT);
 
 class StoreClass {
-    readonly use: typeof useLeftStore | typeof useRightStore;
+    readonly id: CANVAS_ID;
+
+    readonly use: typeof useLeftStore;
 
     constructor(id: CanvasMetadata["id"]) {
-        this.use = id === "left" ? useLeftStore : useRightStore;
+        this.id = id;
+        this.use = id === CANVAS_ID.LEFT ? useLeftStore : useRightStore;
     }
 
     get state() {
@@ -24,7 +31,7 @@ class StoreClass {
 
     private setWithCleanup: typeof this.state.set = callback => {
         this.state.set(callback);
-        document.dispatchEvent(new Event("cleanup"));
+        document.dispatchEvent(new Event(CUSTOM_GLOBAL_EVENTS.CLEANUP));
     };
 
     private setTextureSettings(
@@ -71,17 +78,17 @@ class StoreClass {
     };
 }
 
-const LeftStore = new StoreClass("left");
-const RightStore = new StoreClass("right");
+const LeftStore = new StoreClass(CANVAS_ID.LEFT);
+const RightStore = new StoreClass(CANVAS_ID.RIGHT);
 
 export const Store = (id: CanvasMetadata["id"]) => {
     switch (id) {
-        case "left":
+        case CANVAS_ID.LEFT:
             return LeftStore;
-        case "right":
+        case CANVAS_ID.RIGHT:
             return RightStore;
         default:
-            throw new Error(`Invalid canvas id: ${id}`);
+            throw new Error(id satisfies never);
     }
 };
 

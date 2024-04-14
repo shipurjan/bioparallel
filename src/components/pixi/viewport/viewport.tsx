@@ -7,16 +7,16 @@ import { ReactNode, forwardRef } from "react";
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
 import { CachedViewportStore } from "@/lib/stores/CachedViewport";
+import { MarkingsStore } from "@/lib/stores/Markings";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
+import { ViewportHandlerParams } from "./event-handlers/utils";
 import {
-    ViewportHandlerParams,
     handleMouseDown,
-    handleMouseUp,
     handleMove,
-    handleOtherMove,
+    handleOppositeMove,
     handleZoom,
-} from "./viewport.utils";
+} from "./event-handlers";
 
 export type ViewportProps = {
     children?: ReactNode;
@@ -57,6 +57,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                             minScale: 1 / 4,
                         });
 
+                    viewport.on("childAdded", updateViewport);
+                    viewport.on("childRemoved", updateViewport);
                     viewport.on("frame-end", updateViewport);
 
                     setTimeout(() => {
@@ -67,14 +69,17 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         viewport,
                         id,
                         updateViewport,
-                        store: CachedViewportStore(id),
+                        cachedViewportStore: CachedViewportStore(id),
+                        markingsStore: MarkingsStore(id),
                     };
 
-                    viewport.on("moved", e => handleMove(e, handlerParams));
+                    viewport.on("moved", e => {
+                        handleMove(e, handlerParams);
+                    });
 
-                    viewport.on("other-moved", (e, delta) =>
-                        handleOtherMove(e, handlerParams, delta)
-                    );
+                    viewport.on("opposite-moved", (e, delta) => {
+                        handleOppositeMove(e, handlerParams, delta);
+                    });
 
                     viewport.on("zoomed", e => {
                         handleZoom(e, handlerParams);
@@ -84,9 +89,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         handleMouseDown(e, handlerParams);
                     });
 
-                    viewport.on("mouseup", e => {
-                        handleMouseUp(e, handlerParams);
-                    });
+                    // eslint-disable-next-line no-param-reassign
+                    viewport.name = id;
 
                     return viewport;
                 }}

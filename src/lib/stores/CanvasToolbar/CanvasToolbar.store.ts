@@ -33,6 +33,7 @@ const createStore = (id: CanvasMetadata["id"]) =>
             set => ({
                 ...INITIAL_STATE,
                 set: callback => set(produceCallback(callback)),
+                reset: () => set(INITIAL_STATE),
             }),
             { name: id }
         )

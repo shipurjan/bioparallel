@@ -1,12 +1,5 @@
 module.exports = {
     root: true,
-    parserOptions: {
-        ecmaVersion: 2020,
-        sourceType: "module",
-        ecmaFeatures: {
-            jsx: true,
-        },
-    },
 
     env: {
         browser: true,
@@ -39,7 +32,19 @@ module.exports = {
         "plugin:react-hooks/recommended",
     ],
 
+    parser: "@typescript-eslint/parser",
+    parserOptions: {
+        ecmaVersion: 2020,
+        sourceType: "module",
+        ecmaFeatures: {
+            jsx: true,
+        },
+    },
+
     rules: {
+        "default-case": "error",
+        "@typescript-eslint/prefer-enum-initializers": "error",
+        "@typescript-eslint/no-duplicate-enum-values": "error",
         "@typescript-eslint/no-unused-vars": "error",
         "@typescript-eslint/no-explicit-any": "error",
         "react/react-in-jsx-scope": "off",
@@ -72,5 +77,6 @@ module.exports = {
         "import/prefer-default-export": "off",
         "react/require-default-props": "off",
         "class-methods-use-this": "off",
+        "no-shadow": ["off"],
     },
 };

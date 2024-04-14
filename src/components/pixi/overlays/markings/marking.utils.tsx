@@ -3,7 +3,10 @@
 import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
 import { Application, ICanvas, Graphics as PixiGraphics } from "pixi.js";
 import { Viewport as PixiViewport } from "pixi-viewport";
-import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
+import {
+    GlobalSettingsStore,
+    PRERENDER_RADIUS_OPTIONS,
+} from "@/lib/stores/GlobalSettings";
 
 export const getFontName = (fontSize: number) => {
     const ceiledFontSize = Math.ceil(fontSize);
@@ -36,21 +39,21 @@ export function isVisible(
         switch (
             GlobalSettingsStore.state.settings.video.rendering.prerenderRadius
         ) {
-            case "auto":
+            case PRERENDER_RADIUS_OPTIONS.AUTO:
                 if (markingsLength < 100) return 2 * VERY_HIGH;
                 if (markingsLength < 200) return VERY_HIGH;
                 if (markingsLength < 500) return HIGH;
                 if (markingsLength < 1000) return MEDIUM;
                 return LOW;
-            case "none":
+            case PRERENDER_RADIUS_OPTIONS.NONE:
                 return NONE;
-            case "low":
+            case PRERENDER_RADIUS_OPTIONS.LOW:
                 return LOW;
-            case "medium":
+            case PRERENDER_RADIUS_OPTIONS.MEDIUM:
                 return MEDIUM;
-            case "high":
+            case PRERENDER_RADIUS_OPTIONS.HIGH:
                 return HIGH;
-            case "very high":
+            case PRERENDER_RADIUS_OPTIONS.VERY_HIGH:
                 return VERY_HIGH;
             default:
                 return HIGH;
@@ -70,7 +73,9 @@ export function isVisible(
 export const drawPointMarking = (
     g: PixiGraphics,
     {
+        hidden,
         visible,
+        selected,
         backgroundColor,
         textColor,
         position: { x, y },
@@ -80,38 +85,7 @@ export const drawPointMarking = (
     lineWidth: number = 2,
     shadowWidth: number = 0.5
 ) => {
-    if (!visible) return;
-
-    g.lineStyle(shadowWidth, textColor);
-    g.drawCircle(x, y, size);
-    g.beginFill(backgroundColor);
-    g.drawCircle(x, y, size - shadowWidth);
-    g.endFill();
-
-    if (showMarkingLabels) return;
-
-    g.beginHole();
-    g.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
-    g.endHole();
-    g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
-};
-
-export const drawRayMarking = (
-    g: PixiGraphics,
-    {
-        visible,
-        backgroundColor,
-        textColor,
-        position: { x, y },
-        size,
-        angleRad,
-    }: RenderableMarking,
-    showMarkingLabels?: boolean,
-    lineWidth: number = 2,
-    shadowWidth: number = 0.5,
-    lineLength: number = 4
-) => {
-    if (!visible) return;
+    if (!visible || hidden) return;
 
     g.lineStyle(shadowWidth, textColor);
     g.drawCircle(x, y, size);
@@ -126,17 +100,66 @@ export const drawRayMarking = (
         g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
     }
 
-    const a = new PixiGraphics();
-    a.pivot.set(x, y);
-    a.rotation = angleRad ?? 0;
+    if (selected) {
+        g.lineStyle(1, textColor);
+        g.drawRect(x - size - 1, y - size - 1, size * 2 + 2, size * 2 + 2);
+    }
+};
 
-    a.moveTo(x, y - 3 * shadowWidth);
-    a.lineStyle(lineWidth + 3 * shadowWidth, textColor);
-    a.lineTo(x, y + lineLength * size + 3 * shadowWidth);
+export const drawRayMarking = (
+    g: PixiGraphics,
+    {
+        hidden,
+        visible,
+        selected,
+        backgroundColor,
+        textColor,
+        position: { x, y },
+        size,
+        angleRad,
+    }: RenderableMarking,
+    showMarkingLabels?: boolean,
+    lineWidth: number = 2,
+    shadowWidth: number = 0.5,
+    lineLength: number = 4
+) => {
+    if (!visible || hidden) return;
 
-    a.moveTo(x, y);
-    a.lineStyle(lineWidth, backgroundColor);
-    a.lineTo(x, y + lineLength * size);
-    a.position.set(x, y);
-    g.addChild(a);
+    if (angleRad !== null) {
+        const a = new PixiGraphics();
+        a.pivot.set(x, y);
+        a.rotation = angleRad;
+
+        a.moveTo(x, y - 3 * shadowWidth);
+        a.lineStyle(lineWidth + 3 * shadowWidth, textColor);
+        a.lineTo(x, y + lineLength * size + 3 * shadowWidth);
+
+        a.moveTo(x, y);
+        a.lineStyle(lineWidth, backgroundColor);
+        a.lineTo(x, y + lineLength * size);
+        a.position.set(x, y);
+
+        if (selected) {
+            a.lineStyle(1, textColor);
+            a.drawRect(x - size, y - size, 2 * size, a.height + size);
+        }
+
+        g.addChild(a);
+    }
+
+    const b = new PixiGraphics();
+    b.lineStyle(shadowWidth, textColor);
+    b.drawCircle(x, y, size);
+    b.beginFill(backgroundColor);
+    b.drawCircle(x, y, size - shadowWidth);
+    b.endFill();
+
+    if (!showMarkingLabels) {
+        b.beginHole();
+        b.drawCircle(x, y, size - lineWidth - 1 - shadowWidth);
+        b.endHole();
+        b.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
+    }
+
+    g.addChild(b);
 };

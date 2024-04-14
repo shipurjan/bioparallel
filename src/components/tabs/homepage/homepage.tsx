@@ -6,25 +6,26 @@ import {
     ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import {
+    CANVAS_ID,
     CanvasContext,
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { useMemo } from "react";
 import { useKeyboardShortcuts } from "@/lib/hooks/useKeyboardShortcuts";
 
-export function Dashboard() {
+export function Homepage() {
     useKeyboardShortcuts();
 
     const leftCanvasMetadata: CanvasMetadata = useMemo(
         () => ({
-            id: "left",
+            id: CANVAS_ID.LEFT,
         }),
         []
     );
 
     const rightCanvasMetadata: CanvasMetadata = useMemo(
         () => ({
-            id: "right",
+            id: CANVAS_ID.RIGHT,
         }),
         []
     );
@@ -39,21 +40,19 @@ export function Dashboard() {
                     direction="vertical"
                     className="rounded-lg border"
                 >
-                    <ResizablePanel defaultSize={75} minSize={2}>
-                        <div className="flex flex-col h-full w-full items-center justify-center">
-                            <CanvasContext.Provider value={leftCanvasMetadata}>
+                    <CanvasContext.Provider value={leftCanvasMetadata}>
+                        <ResizablePanel defaultSize={75} minSize={2}>
+                            <div className="flex flex-col h-full w-full items-center justify-center">
                                 <CanvasContainer />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel defaultSize={25} minSize={2}>
-                        <div className="flex h-full w-full">
-                            <CanvasContext.Provider value={leftCanvasMetadata}>
+                            </div>
+                        </ResizablePanel>
+                        <ResizableHandle />
+                        <ResizablePanel defaultSize={25} minSize={2}>
+                            <div className="flex h-full w-full">
                                 <InformationTabs />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
+                            </div>
+                        </ResizablePanel>
+                    </CanvasContext.Provider>
                 </ResizablePanelGroup>
             </ResizablePanel>
             <ResizableHandle />
@@ -62,21 +61,19 @@ export function Dashboard() {
                     direction="vertical"
                     className="rounded-lg border"
                 >
-                    <ResizablePanel defaultSize={75} minSize={2}>
-                        <div className="flex flex-col h-full w-full items-center justify-center">
-                            <CanvasContext.Provider value={rightCanvasMetadata}>
+                    <CanvasContext.Provider value={rightCanvasMetadata}>
+                        <ResizablePanel defaultSize={75} minSize={2}>
+                            <div className="flex flex-col h-full w-full items-center justify-center">
                                 <CanvasContainer />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
-                    <ResizableHandle />
-                    <ResizablePanel defaultSize={25} minSize={2}>
-                        <div className="flex h-full w-full">
-                            <CanvasContext.Provider value={rightCanvasMetadata}>
+                            </div>
+                        </ResizablePanel>
+                        <ResizableHandle />
+                        <ResizablePanel defaultSize={25} minSize={2}>
+                            <div className="flex h-full w-full">
                                 <InformationTabs />
-                            </CanvasContext.Provider>
-                        </div>
-                    </ResizablePanel>
+                            </div>
+                        </ResizablePanel>
+                    </CanvasContext.Provider>
                 </ResizablePanelGroup>
             </ResizablePanel>
         </ResizablePanelGroup>

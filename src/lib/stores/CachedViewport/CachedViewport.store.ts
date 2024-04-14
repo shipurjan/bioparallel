@@ -16,7 +16,7 @@ type Zoom = {
 type State = {
     scaled: ZoomValue;
     position: Position;
-    otherScaled: ZoomValue;
+    oppositeScaled: ZoomValue;
     rayPosition: Position;
     rayAngleRad: number;
 };
@@ -24,7 +24,7 @@ type State = {
 const INITIAL_STATE: State = {
     scaled: 1,
     position: { x: 0, y: 0 },
-    otherScaled: 1,
+    oppositeScaled: 1,
     rayPosition: { x: 0, y: 0 },
     rayAngleRad: 0,
 };
@@ -35,6 +35,7 @@ const createStore = (id: CanvasMetadata["id"]) =>
             set => ({
                 ...INITIAL_STATE,
                 set: callback => set(produceCallback(callback)),
+                reset: () => set(INITIAL_STATE),
             }),
             { name: id }
         )

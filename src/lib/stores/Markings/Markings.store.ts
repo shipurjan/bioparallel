@@ -4,8 +4,15 @@ import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext"
 import { createWithEqualityFn } from "zustand/traditional";
 import { Immer, produceCallback } from "../immer.helpers";
 
+export const enum MARKING_TYPES {
+    POINT = "point",
+    RAY = "ray",
+}
+
 export type InternalMarking = {
     id: string;
+    selected: boolean;
+    hidden: boolean;
     label: string;
     position: {
         x: number;
@@ -14,7 +21,7 @@ export type InternalMarking = {
     backgroundColor: ColorSource;
     textColor: ColorSource;
     size: number;
-    type: "point" | "ray";
+    type: MARKING_TYPES;
     angleRad: number | null;
     boundMarkingId?: InternalMarking["id"];
 };
@@ -23,15 +30,18 @@ export type RenderableMarking = InternalMarking & {
     visible: boolean;
 };
 
-export type Marking = Omit<InternalMarking, "id" | "label">;
+export type Marking = Omit<InternalMarking, "id" | "label"> &
+    Partial<Pick<InternalMarking, "label">>;
 
 type State = {
+    cursor: number;
     markingsHash: string;
     markings: InternalMarking[];
     temporaryMarking: InternalMarking | null;
 };
 
 const INITIAL_STATE: State = {
+    cursor: Infinity,
     markingsHash: crypto.randomUUID(),
     temporaryMarking: null,
     markings: [],
@@ -43,6 +53,7 @@ const createStore = (id: CanvasMetadata["id"]) =>
             set => ({
                 ...INITIAL_STATE,
                 set: callback => set(produceCallback(callback)),
+                reset: () => set(INITIAL_STATE),
             }),
             { name: id }
         )

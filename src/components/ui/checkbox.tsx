@@ -7,7 +7,7 @@ import * as CheckboxPrimitive from "@radix-ui/react-checkbox";
 
 import { cn } from "@/lib/utils/shadcn";
 import { Check } from "lucide-react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
 
 export type CheckboxProps = React.ComponentPropsWithoutRef<
     typeof CheckboxPrimitive.Root
@@ -29,8 +29,8 @@ const Checkbox = React.forwardRef<
             className={cn("flex items-center justify-center text-current")}
         >
             <Check
-                size={ICON_SIZE}
-                strokeWidth={ICON_STROKE_WIDTH}
+                size={ICON.SIZE}
+                strokeWidth={ICON.STROKE_WIDTH}
                 className="size-3.5"
             />
         </CheckboxPrimitive.Indicator>
