@@ -1,9 +1,12 @@
 import * as PIXI from "pixi.js";
-import { readFile } from "../filesystem/read-file";
+import { readFile } from "@tauri-apps/plugin-fs";
+import md5 from "md5";
 
 export async function loadSprite(data: string | Uint8Array) {
     const imageBytes = await (async () => {
-        if (typeof data === "string") return readFile(data);
+        if (typeof data === "string") {
+            return readFile(data);
+        }
         if (data instanceof Uint8Array) return data;
 
         throw new Error(
@@ -16,6 +19,11 @@ export async function loadSprite(data: string | Uint8Array) {
     if (!imageBytes)
         throw new Error("Failed to receive a byte representation of a file");
 
+    const hash = md5(imageBytes);
+
     const bitmap = await createImageBitmap(new Blob([imageBytes]));
-    return new PIXI.Sprite(PIXI.Texture.from(bitmap));
+    const sprite = new PIXI.Sprite(PIXI.Texture.from(bitmap));
+    // @ts-expect-error custom property
+    sprite.hash = hash;
+    return sprite;
 }

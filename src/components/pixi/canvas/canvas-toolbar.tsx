@@ -2,18 +2,20 @@ import { cn } from "@/lib/utils/shadcn";
 import { HTMLAttributes } from "react";
 import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import {
-    Eye,
     Flag,
     FlagOff,
     MoveDiagonal,
     MoveHorizontal,
     MoveVertical,
-    Waves,
+    ImageUp,
+    Save,
 } from "lucide-react";
 import { ICON } from "@/lib/utils/const";
 import { ToolbarGroup } from "@/components/toolbar/group";
 import { Toggle } from "@/components/ui/toggle";
 import { useTranslation } from "react-i18next";
+import { loadImageFromDialog } from "@/lib/utils/viewport/load-image-from-dialog";
+import { saveMarkingsDataToFile } from "@/lib/utils/viewport/save-markings-data-to-file";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useCanvasContext } from "./hooks/useCanvasContext";
 import {
@@ -30,15 +32,15 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
     const { id } = useCanvasContext();
     const store = CanvasToolbarStore(id);
 
-    const { texture, markings } = store.use(state => state.settings);
+    const { markings } = store.use(state => state.settings);
 
-    const { texture: textureActions, markings: markingsActions } =
-        store.actions.settings;
+    const { markings: markingsActions } = store.actions.settings;
 
-    const { setScaleMode } = textureActions;
     const { setShowLabels } = markingsActions;
 
     const viewport = useGlobalViewport(id, { autoUpdate: true });
+
+    if (viewport === null) return null;
 
     return (
         <div
@@ -48,6 +50,33 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
             )}
             {...props}
         >
+            <ToolbarGroup>
+                <Toggle
+                    title={t("Load forensic mark image", { ns: "tooltip" })}
+                    size="icon"
+                    variant="outline"
+                    pressed={false}
+                    onClick={() => {
+                        loadImageFromDialog(viewport);
+                    }}
+                >
+                    <ImageUp size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
+                </Toggle>
+                <Toggle
+                    title={t("Save markings data to a JSON file", {
+                        ns: "tooltip",
+                    })}
+                    size="icon"
+                    variant="outline"
+                    pressed={false}
+                    onClick={() => {
+                        saveMarkingsDataToFile(viewport);
+                    }}
+                >
+                    <Save size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
+                </Toggle>
+            </ToolbarGroup>
+
             <ToolbarGroup>
                 <Toggle
                     title={t("Fit world", { ns: "tooltip" })}
@@ -93,31 +122,6 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                         size={ICON.SIZE}
                         strokeWidth={ICON.STROKE_WIDTH}
                     />
-                </Toggle>
-            </ToolbarGroup>
-
-            <ToolbarGroup>
-                <Toggle
-                    variant="outline"
-                    title={t("Toggle scale mode", { ns: "tooltip" })}
-                    size="icon"
-                    pressed={texture.scaleMode === "linear"}
-                    onClick={() => {
-                        setScaleMode(
-                            texture.scaleMode === "nearest"
-                                ? "linear"
-                                : "nearest"
-                        );
-                    }}
-                >
-                    {texture.scaleMode === "nearest" ? (
-                        <Eye size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
-                    ) : (
-                        <Waves
-                            size={ICON.SIZE}
-                            strokeWidth={ICON.STROKE_WIDTH}
-                        />
-                    )}
                 </Toggle>
             </ToolbarGroup>
 

@@ -1,6 +1,6 @@
 import { CanvasUpdaterOptions } from "@/lib/types/types";
 import { CanvasUpdater } from "@/lib/stores/CanvasUpdater";
-import { useCanvas } from "../../canvas/hooks/useCanvas";
+import { getCanvas } from "../../canvas/hooks/useCanvas";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
 
 export const useGlobalApp = (
@@ -15,6 +15,6 @@ export const useGlobalApp = (
             CanvasUpdater.use(id, "app");
         }
     }
-    const { app } = useCanvas(id, true);
+    const { app } = getCanvas(id, true);
     return app;
 };

@@ -8,5 +8,6 @@ export const produceCallback = <T>(callback: (draft: T) => void) =>
 
 export type Immer<T> = T & {
     set: ProduceCallback<T>;
+    reset: () => void;
 };
 export type ActionProduceCallback<S, T> = (prop: S, draft: T) => S;

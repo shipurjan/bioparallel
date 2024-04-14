@@ -57,6 +57,8 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                             minScale: 1 / 4,
                         });
 
+                    viewport.on("childAdded", updateViewport);
+                    viewport.on("childRemoved", updateViewport);
                     viewport.on("frame-end", updateViewport);
 
                     setTimeout(() => {
@@ -86,6 +88,9 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                     viewport.on("mousedown", e => {
                         handleMouseDown(e, handlerParams);
                     });
+
+                    // eslint-disable-next-line no-param-reassign
+                    viewport.name = id;
 
                     return viewport;
                 }}

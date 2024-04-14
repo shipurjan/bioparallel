@@ -51,25 +51,20 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) =>
         const selected = isInternalMarking(marking) ? marking.selected : false;
         const cells = row.getVisibleCells();
 
-        const isCursorOnThisRow = Number.isFinite(cursor)
-            ? rows.at(cursor)?.index === index
-            : index === rows.length - 1;
+        const isCursorOnThisRow =
+            Number.isFinite(cursor) && rows.at(cursor)?.index === index;
+
+        const isCursorAtTail =
+            !Number.isFinite(cursor) && index === rows.length - 1;
 
         return (
             <TableRow
                 key={row.id}
                 className={cn("last:border-b-0", {
-                    // TODO: zmień na inny kolor
-                    "bg-red-500": isCursorOnThisRow,
+                    "border-primary border-4 last:border-4": isCursorOnThisRow,
+                    "border-primary last:border-b-4": isCursorAtTail,
                 })}
                 data-state={selected && "selected"}
-                onClick={() => {
-                    if (!isInternalMarking(marking)) return;
-                    MarkingsStore(canvasId).actions.markings.selectOneById(
-                        marking.id,
-                        s => !s
-                    );
-                }}
                 {...props}
             >
                 {cells.map(cell => (
@@ -114,77 +109,93 @@ export const DataTable = forwardRef<TableVirtuosoHandle, any>(function <
     ref: Ref<TableVirtuosoHandle> | undefined
 ) {
     const [sorting, setSorting] = useState<SortingState>([]);
+    const [rowSelection, setRowSelection] = useState({});
     const table = useReactTable({
         data,
         columns,
         state: {
             sorting,
+            rowSelection,
         },
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        onRowSelectionChange: setRowSelection,
     });
+
+    const cursor = MarkingsStore(canvasId).use(state => state.cursor);
+
+    const isCursorAtFirstItem = Number.isFinite(cursor) && cursor === 0;
 
     const { rows } = table.getRowModel();
 
     return (
-        <TableVirtuoso
-            ref={ref}
-            followOutput
-            style={{
-                height,
-                scrollbarGutter: "stable both-edges",
-            }}
-            totalCount={rows.length}
-            components={{
-                Table: TableComponent,
-                TableRow: TableRowComponent(rows, canvasId),
-            }}
-            fixedHeaderContent={() =>
-                table.getHeaderGroups().map(headerGroup => (
-                    // Change header background color to non-transparent
-                    <TableRow
-                        className="bg-card hover:bg-muted border-b-0 shadow-bottom"
-                        key={headerGroup.id}
-                    >
-                        {headerGroup.headers.map(header => {
-                            return (
-                                <TableHead
-                                    key={header.id}
-                                    colSpan={header.colSpan}
-                                    style={{
-                                        width: header.getSize(),
-                                    }}
-                                >
-                                    {header.isPlaceholder ? null : (
-                                        <div
-                                            className="flex items-center"
-                                            {...{
-                                                style: header.column.getCanSort()
-                                                    ? {
-                                                          cursor: "pointer",
-                                                          userSelect: "none",
-                                                      }
-                                                    : {},
-                                                onClick:
-                                                    header.column.getToggleSortingHandler(),
-                                            }}
-                                        >
-                                            {flexRender(
-                                                header.column.columnDef.header,
-                                                header.getContext()
-                                            )}
-                                            <SortingIndicator
-                                                isSorted={header.column.getIsSorted()}
-                                            />
-                                        </div>
-                                    )}
-                                </TableHead>
-                            );
-                        })}
-                    </TableRow>
-                ))
-            }
-        />
+        <>
+            <div className="flex-1 text-center text-sm text-muted-foreground">
+                {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                {table.getFilteredRowModel().rows.length} row(s) selected
+            </div>
+            <TableVirtuoso
+                ref={ref}
+                followOutput
+                style={{
+                    height,
+                    scrollbarGutter: "stable both-edges",
+                }}
+                totalCount={rows.length}
+                components={{
+                    Table: TableComponent,
+                    TableRow: TableRowComponent(rows, canvasId),
+                }}
+                fixedHeaderContent={() =>
+                    table.getHeaderGroups().map(headerGroup => (
+                        <TableRow
+                            className={cn("bg-card hover:bg-muted border-b-0", {
+                                "shadow-bottom": !isCursorAtFirstItem,
+                            })}
+                            key={headerGroup.id}
+                        >
+                            {headerGroup.headers.map(header => {
+                                return (
+                                    <TableHead
+                                        key={header.id}
+                                        colSpan={header.colSpan}
+                                        style={{
+                                            width: header.getSize(),
+                                        }}
+                                    >
+                                        {header.isPlaceholder ? null : (
+                                            <div
+                                                className="flex items-center"
+                                                {...{
+                                                    style: header.column.getCanSort()
+                                                        ? {
+                                                              cursor: "pointer",
+                                                              userSelect:
+                                                                  "none",
+                                                          }
+                                                        : {},
+                                                    onClick:
+                                                        header.column.getToggleSortingHandler(),
+                                                }}
+                                            >
+                                                {flexRender(
+                                                    header.column.columnDef
+                                                        .header,
+                                                    header.getContext()
+                                                )}
+                                                <SortingIndicator
+                                                    isSorted={header.column.getIsSorted()}
+                                                />
+                                            </div>
+                                        )}
+                                    </TableHead>
+                                );
+                            })}
+                        </TableRow>
+                    ))
+                }
+            />
+        </>
     );
 });

@@ -46,6 +46,8 @@ export type i18nObject = {
 export type i18nTooltip = Recordify<
     | "Lock viewports"
     | "Synchronize viewports with scale"
+    | "Save markings data to a JSON file"
+    | "Load forensic mark image"
     | "Fit world"
     | "Fit height"
     | "Fit width"

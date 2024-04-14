@@ -14,10 +14,16 @@
             "menu:default",
             "tray:default",
             "fs:allow-read-file",
+            "fs:allow-write-text-file",
             "store:allow-set",
             "store:allow-get",
             "store:allow-save",
-            "store:allow-delete"
+            "store:allow-delete",
+            "dialog:allow-open",
+            "dialog:allow-save",
+            "dialog:allow-message",
+            "dialog:allow-ask",
+            "dialog:allow-confirm"
         ]
     }
 }

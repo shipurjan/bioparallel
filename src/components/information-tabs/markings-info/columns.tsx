@@ -70,9 +70,20 @@ export const getColumns: () => Array<ColumnDef<EmptyableMarking>> = () => [
                     table.getIsAllPageRowsSelected() ||
                     (table.getIsSomePageRowsSelected() && "indeterminate")
                 }
-                onCheckedChange={value =>
-                    table.toggleAllPageRowsSelected(!!value)
-                }
+                onCheckedChange={value => {
+                    const newValue = !!value;
+                    table.toggleAllPageRowsSelected(newValue);
+                }}
+            />
+        ),
+        cell: ({ row }) => (
+            <Checkbox
+                checked={row.getIsSelected()}
+                onCheckedChange={value => {
+                    const newValue = !!value;
+                    row.toggleSelected(newValue);
+                }}
+                aria-label="Select row"
             />
         ),
         enableSorting: false,

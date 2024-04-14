@@ -8,7 +8,8 @@ import {
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { LABEL_MAP } from "@/lib/utils/const";
-import { MarkingNotFoundError } from "@/lib/custom-errors/MarkingNotFoundError";
+import { MarkingNotFoundError } from "@/lib/errors/custom-errors/MarkingNotFoundError";
+import { showErrorDialog } from "@/lib/errors/showErrorDialog";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     InternalMarking,
@@ -103,6 +104,9 @@ class StoreClass {
             },
         },
         markings: {
+            reset: () => {
+                this.state.reset();
+            },
             addOne: (marking: Marking) => {
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
@@ -136,20 +140,28 @@ class StoreClass {
             editOneById: (id: string, newMarking: Partial<Marking>) => {
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
-                        const index = state.findIndex(m => m.id === id);
-                        if (index === -1) throw new MarkingNotFoundError();
+                        try {
+                            const index = state.findIndex(m => m.id === id);
+                            if (index === -1) throw new MarkingNotFoundError();
 
-                        Object.assign(state[index]!, newMarking);
+                            Object.assign(state[index]!, newMarking);
+                        } catch (error) {
+                            showErrorDialog(error);
+                        }
                     })
                 );
             },
             bindOneById: (id: string, boundMarkingId: string) => {
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
-                        const index = state.findIndex(m => m.id === id);
-                        if (index === -1) throw new MarkingNotFoundError();
+                        try {
+                            const index = state.findIndex(m => m.id === id);
+                            if (index === -1) throw new MarkingNotFoundError();
 
-                        Object.assign(state[index]!, { boundMarkingId });
+                            Object.assign(state[index]!, { boundMarkingId });
+                        } catch (error) {
+                            showErrorDialog(error);
+                        }
                     })
                 );
             },
@@ -161,12 +173,16 @@ class StoreClass {
             ) => {
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
-                        const index = state.findIndex(m => m.id === id);
-                        if (index === -1) throw new MarkingNotFoundError();
+                        try {
+                            const index = state.findIndex(m => m.id === id);
+                            if (index === -1) throw new MarkingNotFoundError();
 
-                        state[index]!.selected = callback(
-                            state[index]!.selected
-                        );
+                            state[index]!.selected = callback(
+                                state[index]!.selected
+                            );
+                        } catch (error) {
+                            showErrorDialog(error);
+                        }
                     })
                 );
             },

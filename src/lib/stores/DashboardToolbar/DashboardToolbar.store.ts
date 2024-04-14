@@ -56,6 +56,7 @@ const useStore = create<Immer<State>>()(
         devtools(set => ({
             ...INITIAL_STATE,
             set: callback => set(produceCallback(callback)),
+            reset: () => set(INITIAL_STATE),
         })),
         {
             name: STORE_NAME,

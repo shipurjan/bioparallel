@@ -28,7 +28,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
                 resetCursor
             );
         };
-    }, []);
+    }, [id]);
 
     const { markings: thisMarkings } = MarkingsStore(id).use(
         state => ({
@@ -76,11 +76,8 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
                 thisIds.includes(m.id) ? m : { boundMarkingId: m.id }
             ) as EmptyableMarking[];
 
-        if (cursor === Infinity) {
-            m.push({});
-        }
-
         return m;
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [oppositeMarkings, thisMarkings, cursor]);
 
     useEffect(() => {
@@ -105,7 +102,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
                 behavior: "smooth",
             });
         });
-    }, [cursor]);
+    }, [cursor, markings.length]);
 
     useEffect(() => {
         setColumns(getColumns());

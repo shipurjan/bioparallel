@@ -1,11 +1,13 @@
 import { i18nTooltip as Dictionary } from "@/lib/locales/translation";
 
 const d: Dictionary = {
+    "Save markings data to a JSON file": "Zapisz dane adnotacji do pliku JSON",
+    "Load forensic mark image": "Załaduj obraz śladu kryminalistycznego",
     "Fit height": "Dopasuj wysokość",
     "Fit width": "Dopasuj szerokość",
     "Fit world": "Dopasuj przekątną",
-    "Lock viewports": "Zablokuj ze sobą widoki",
-    "Synchronize viewports with scale": "Synchornizuj prędkość ruchu ze skalą",
+    "Lock viewports": "Zablokuj widoki ze sobą",
+    "Synchronize viewports with scale": "Synchronizuj prędkość ruchu ze skalą",
     "Toggle marking labels": "Przełącz szczegóły adnotacji",
     "Toggle scale mode": "Przełącz tryb skalowania",
 };
