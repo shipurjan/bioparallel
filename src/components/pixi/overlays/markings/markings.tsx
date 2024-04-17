@@ -3,7 +3,11 @@
 import { BitmapText, Graphics } from "@pixi/react";
 import { Graphics as PixiGraphics } from "pixi.js";
 import { memo, useCallback, useEffect, useState } from "react";
-import { InternalMarking, RenderableMarking } from "@/lib/stores/Markings";
+import {
+    InternalMarking,
+    MARKING_TYPES,
+    RenderableMarking,
+} from "@/lib/stores/Markings";
 import { useGlobalViewport } from "../../viewport/hooks/useGlobalViewport";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
 import { useGlobalApp } from "../../app/hooks/useGlobalApp";
@@ -29,6 +33,7 @@ type MarkingTextProps = Pick<
 > & {
     visible: boolean;
 };
+
 function MarkingText({
     visible,
     label,
@@ -114,7 +119,7 @@ export const Markings = memo(
                 g.removeChildren();
                 renderableMarkings.forEach(marking => {
                     switch (marking.type) {
-                        case "point":
+                        case MARKING_TYPES.POINT:
                             drawPointMarking(
                                 g,
                                 marking,
@@ -123,7 +128,7 @@ export const Markings = memo(
                                 shadowWidth
                             );
                             break;
-                        case "ray":
+                        case MARKING_TYPES.RAY:
                             drawRayMarking(
                                 g,
                                 marking,
@@ -133,8 +138,12 @@ export const Markings = memo(
                                 lineLength
                             );
                             break;
+
                         default:
-                            throw new Error("Unknown marking type");
+                            marking.type satisfies never;
+                            throw new Error(
+                                `Unknown marking type: ${marking.type}`
+                            );
                     }
                 });
             },
@@ -146,10 +155,18 @@ export const Markings = memo(
                 <Graphics draw={drawMarkings} />
                 {showMarkingLabels &&
                     renderableMarkings.map(
-                        ({ visible, id, label, size, position, textColor }) => {
+                        ({
+                            visible,
+                            hidden,
+                            id,
+                            label,
+                            size,
+                            position,
+                            textColor,
+                        }) => {
                             return (
                                 <MarkingText
-                                    visible={visible}
+                                    visible={visible && !hidden}
                                     key={id}
                                     label={label}
                                     size={size}

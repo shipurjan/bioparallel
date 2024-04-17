@@ -35,14 +35,6 @@ async fn close_splashscreen_if_exists(window: tauri::Window) {
     }
 }
 
-#[tauri::command]
-async fn read_file(path: std::path::PathBuf) -> Result<Vec<u8>, String> {
-    match std::fs::read(path) {
-        Ok(data) => Ok(data),
-        Err(err) => Err(format!("Failed to read file: {}", err)),
-    }
-}
-
 fn main() {
     tauri::Builder::default()
         .plugin(tauri_plugin_fs::init())
@@ -62,7 +54,6 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             show_main_window_if_hidden,
             close_splashscreen_if_exists,
-            read_file
         ])
         .setup(|_app| {
             #[cfg(debug_assertions)] // only include this code on debug builds

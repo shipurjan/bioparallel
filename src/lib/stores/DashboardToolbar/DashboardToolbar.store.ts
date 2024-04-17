@@ -3,14 +3,19 @@ import { create } from "zustand";
 import { createJSONStorage, devtools, persist } from "zustand/middleware";
 import { Immer, produceCallback } from "../immer.helpers";
 import { tauriStorage } from "../tauri-storage-adapter.helpers";
-import { Marking } from "../Markings";
+import { MARKING_TYPES, Marking } from "../Markings";
 
 const STORE_NAME = "toolbar-settings";
 const STORE_FILE = new Store(`${STORE_NAME}.dat`);
 
+export const enum CURSOR_MODES {
+    SELECTION = "selection",
+    MARKING = "marking",
+}
+
 type Settings = {
     cursor: {
-        mode: "select" | "marking";
+        mode: CURSOR_MODES;
     };
     marking: {
         type: Marking["type"];
@@ -31,10 +36,10 @@ type State = {
 const INITIAL_STATE: State = {
     settings: {
         cursor: {
-            mode: "select",
+            mode: CURSOR_MODES.SELECTION,
         },
         marking: {
-            type: "point",
+            type: MARKING_TYPES.POINT,
             backgroundColor: "#61bd67",
             textColor: "#0a130a",
             size: 10,
@@ -51,6 +56,7 @@ const useStore = create<Immer<State>>()(
         devtools(set => ({
             ...INITIAL_STATE,
             set: callback => set(produceCallback(callback)),
+            reset: () => set(INITIAL_STATE),
         })),
         {
             name: STORE_NAME,

@@ -1,11 +1,12 @@
-import { DashboardToolbarStore } from "../stores/DashboardToolbar";
+import {
+    CURSOR_MODES,
+    DashboardToolbarStore,
+} from "../stores/DashboardToolbar";
+import { MARKING_TYPES } from "../stores/Markings";
+import { CUSTOM_GLOBAL_EVENTS } from "../utils/const";
 import { useKeyDown } from "./useKeyDown";
 
 export const useKeyboardShortcuts = () => {
-    const cursorMode = DashboardToolbarStore.use(
-        state => state.settings.cursor.mode
-    );
-
     const { actions } = DashboardToolbarStore;
     const {
         cursor: cursorActions,
@@ -18,23 +19,25 @@ export const useKeyboardShortcuts = () => {
     const { toggleLockedViewport, toggleLockScaleSync } = viewportActions;
 
     useKeyDown(() => {
-        setCursorMode("select");
+        document.dispatchEvent(
+            new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
+        );
+    }, ["Escape"]);
+
+    useKeyDown(() => {
+        setCursorMode(CURSOR_MODES.SELECTION);
     }, ["F1"]);
 
     useKeyDown(() => {
-        setCursorMode("marking");
+        setCursorMode(CURSOR_MODES.MARKING);
     }, ["F2"]);
 
     useKeyDown(() => {
-        if (cursorMode === "marking") {
-            setMarkingType("point");
-        }
+        setMarkingType(MARKING_TYPES.POINT);
     }, ["1"]);
 
     useKeyDown(() => {
-        if (cursorMode === "marking") {
-            setMarkingType("ray");
-        }
+        setMarkingType(MARKING_TYPES.RAY);
     }, ["2"]);
 
     useKeyDown(() => {

@@ -1,13 +1,14 @@
 /* eslint-disable react/prop-types */
-import * as React from "react";
-
 import { cn } from "@/lib/utils/shadcn";
+import * as React from "react";
 
 const Table = React.forwardRef<
     HTMLTableElement,
-    React.HTMLAttributes<HTMLTableElement>
->(({ className, ...props }, ref) => (
-    <div className="relative grow overflow-auto">
+    React.HTMLAttributes<HTMLTableElement> & {
+        divClassName?: string;
+    }
+>(({ className, divClassName, ...props }, ref) => (
+    <div className={cn("relative w-full overflow-auto", divClassName)}>
         <table
             ref={ref}
             className={cn("w-full caption-bottom text-sm", className)}
@@ -74,7 +75,7 @@ const TableHead = React.forwardRef<
     <th
         ref={ref}
         className={cn(
-            "h-4 px-2 border-y-2 text-left align-middle font-bold text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "h-10 px-2 text-left align-middle font-medium text-muted-foreground [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
             className
         )}
         {...props}
@@ -89,7 +90,7 @@ const TableCell = React.forwardRef<
     <td
         ref={ref}
         className={cn(
-            "px-2 align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
+            "p-0.5 overflow-hidden text-ellipsis whitespace-nowrap align-middle [&:has([role=checkbox])]:pr-0 [&>[role=checkbox]]:translate-y-[2px]",
             className
         )}
         {...props}

@@ -1,20 +1,26 @@
 /* eslint-disable no-param-reassign */
 
-import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import {
+    CANVAS_ID,
+    CanvasMetadata,
+} from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     CachedViewportState as State,
     _createCachedViewportStore as createStore,
 } from "./CachedViewport.store";
 
-const useLeftStore = createStore("left");
-const useRightStore = createStore("right");
+const useLeftStore = createStore(CANVAS_ID.LEFT);
+const useRightStore = createStore(CANVAS_ID.RIGHT);
 
 class StoreClass {
-    readonly use: typeof useLeftStore | typeof useRightStore;
+    readonly id: CANVAS_ID;
+
+    readonly use: typeof useLeftStore;
 
     constructor(id: CanvasMetadata["id"]) {
-        this.use = id === "left" ? useLeftStore : useRightStore;
+        this.id = id;
+        this.use = id === CANVAS_ID.LEFT ? useLeftStore : useRightStore;
     }
 
     private setScaled(callback: ActionProduceCallback<State["scaled"], State>) {
@@ -31,11 +37,11 @@ class StoreClass {
         });
     }
 
-    private setOtherScaled(
-        callback: ActionProduceCallback<State["otherScaled"], State>
+    private setOppositeScaled(
+        callback: ActionProduceCallback<State["oppositeScaled"], State>
     ) {
         this.use.getState().set(draft => {
-            draft.otherScaled = callback(draft.otherScaled, draft);
+            draft.oppositeScaled = callback(draft.oppositeScaled, draft);
         });
     }
 
@@ -57,9 +63,9 @@ class StoreClass {
 
     readonly actions = {
         viewport: {
-            other: {
-                setScaled: (scaled: State["otherScaled"]) => {
-                    this.setOtherScaled(() => scaled);
+            opposite: {
+                setScaled: (scaled: State["oppositeScaled"]) => {
+                    this.setOppositeScaled(() => scaled);
                 },
             },
             setScaled: (scaled: State["scaled"]) => {
@@ -82,17 +88,17 @@ class StoreClass {
     }
 }
 
-const LeftStore = new StoreClass("left");
-const RightStore = new StoreClass("right");
+const LeftStore = new StoreClass(CANVAS_ID.LEFT);
+const RightStore = new StoreClass(CANVAS_ID.RIGHT);
 
 export const Store = (id: CanvasMetadata["id"]) => {
     switch (id) {
-        case "left":
+        case CANVAS_ID.LEFT:
             return LeftStore;
-        case "right":
+        case CANVAS_ID.RIGHT:
             return RightStore;
         default:
-            throw new Error(`Invalid canvas id: ${id}`);
+            throw new Error(id satisfies never);
     }
 };
 

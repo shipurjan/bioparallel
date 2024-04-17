@@ -41,20 +41,20 @@
         "incremental": true,
         "plugins": [
             {
-                "name": "next",
-            },
+                "name": "next"
+            }
         ],
         "baseUrl": "./",
         "paths": {
-            "@/*": ["src/*"],
-        },
+            "@/*": ["src/*"]
+        }
     },
     "include": [
         "next-env.d.ts",
         "**/*.ts",
         "**/*.tsx",
         ".next/types/**/*.ts",
-        "dist/types/**/*.ts",
+        "dist/types/**/*.ts"
     ],
-    "exclude": ["node_modules", "src-tauri"],
+    "exclude": ["node_modules", "src-tauri"]
 }

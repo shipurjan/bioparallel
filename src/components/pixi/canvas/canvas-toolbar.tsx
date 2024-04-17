@@ -2,17 +2,22 @@ import { cn } from "@/lib/utils/shadcn";
 import { HTMLAttributes } from "react";
 import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import {
-    Eye,
     Flag,
     FlagOff,
     MoveDiagonal,
     MoveHorizontal,
     MoveVertical,
-    Waves,
+    ImageUp,
+    Save,
+    FileInput,
 } from "lucide-react";
-import { ICON_SIZE, ICON_STROKE_WIDTH } from "@/lib/utils/const";
+import { ICON } from "@/lib/utils/const";
 import { ToolbarGroup } from "@/components/toolbar/group";
 import { Toggle } from "@/components/ui/toggle";
+import { useTranslation } from "react-i18next";
+import { loadImageWithDialog } from "@/lib/utils/viewport/loadImageWithDialog";
+import { saveMarkingsDataWithDialog } from "@/lib/utils/viewport/saveMarkingsDataWithDialog";
+import { loadMarkingsDataWithDialog } from "@/lib/utils/viewport/loadMarkingsDataWithDialog";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
 import { useCanvasContext } from "./hooks/useCanvasContext";
 import {
@@ -24,18 +29,20 @@ import {
 
 export type CanvasToolbarProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
+    const { t } = useTranslation();
+
     const { id } = useCanvasContext();
     const store = CanvasToolbarStore(id);
 
-    const { texture, markings } = store.use(state => state.settings);
+    const { markings } = store.use(state => state.settings);
 
-    const { texture: textureActions, markings: markingsActions } =
-        store.actions.settings;
+    const { markings: markingsActions } = store.actions.settings;
 
-    const { setScaleMode } = textureActions;
     const { setShowLabels } = markingsActions;
 
     const viewport = useGlobalViewport(id, { autoUpdate: true });
+
+    if (viewport === null) return null;
 
     return (
         <div
@@ -47,7 +54,50 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
         >
             <ToolbarGroup>
                 <Toggle
-                    title="Fit world"
+                    title={t("Load forensic mark image", { ns: "tooltip" })}
+                    size="icon"
+                    variant="outline"
+                    pressed={false}
+                    onClick={() => {
+                        loadImageWithDialog(viewport);
+                    }}
+                >
+                    <ImageUp size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
+                </Toggle>
+                <Toggle
+                    title={t("Load markings data from file", {
+                        ns: "tooltip",
+                    })}
+                    size="icon"
+                    variant="outline"
+                    pressed={false}
+                    onClick={() => {
+                        loadMarkingsDataWithDialog(viewport);
+                    }}
+                >
+                    <FileInput
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
+                    />
+                </Toggle>
+                <Toggle
+                    title={t("Save markings data to a JSON file", {
+                        ns: "tooltip",
+                    })}
+                    size="icon"
+                    variant="outline"
+                    pressed={false}
+                    onClick={() => {
+                        saveMarkingsDataWithDialog(viewport);
+                    }}
+                >
+                    <Save size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
+                </Toggle>
+            </ToolbarGroup>
+
+            <ToolbarGroup>
+                <Toggle
+                    title={t("Fit world", { ns: "tooltip" })}
                     size="icon"
                     variant="outline"
                     pressed={false}
@@ -57,12 +107,12 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     }}
                 >
                     <MoveDiagonal
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </Toggle>
                 <Toggle
-                    title="Fit height"
+                    title={t("Fit height", { ns: "tooltip" })}
                     size="icon"
                     variant="outline"
                     pressed={false}
@@ -72,12 +122,12 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     }}
                 >
                     <MoveVertical
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </Toggle>
                 <Toggle
-                    title="Fit width"
+                    title={t("Fit width", { ns: "tooltip" })}
                     size="icon"
                     variant="outline"
                     pressed={false}
@@ -87,8 +137,8 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                     }}
                 >
                     <MoveHorizontal
-                        size={ICON_SIZE}
-                        strokeWidth={ICON_STROKE_WIDTH}
+                        size={ICON.SIZE}
+                        strokeWidth={ICON.STROKE_WIDTH}
                     />
                 </Toggle>
             </ToolbarGroup>
@@ -96,32 +146,9 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
             <ToolbarGroup>
                 <Toggle
                     variant="outline"
-                    title="Toggle scale mode"
-                    size="icon"
-                    pressed={texture.scaleMode === "linear"}
-                    onClick={() => {
-                        setScaleMode(
-                            texture.scaleMode === "nearest"
-                                ? "linear"
-                                : "nearest"
-                        );
-                    }}
-                >
-                    {texture.scaleMode === "nearest" ? (
-                        <Eye size={ICON_SIZE} strokeWidth={ICON_STROKE_WIDTH} />
-                    ) : (
-                        <Waves
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
-                        />
-                    )}
-                </Toggle>
-            </ToolbarGroup>
-
-            <ToolbarGroup>
-                <Toggle
-                    variant="outline"
-                    title="Show marking labels"
+                    title={t("Toggle marking labels", {
+                        ns: "tooltip",
+                    })}
                     size="icon"
                     pressed={markings.showLabels}
                     onClick={() => {
@@ -130,13 +157,13 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                 >
                     {markings.showLabels ? (
                         <Flag
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     ) : (
                         <FlagOff
-                            size={ICON_SIZE}
-                            strokeWidth={ICON_STROKE_WIDTH}
+                            size={ICON.SIZE}
+                            strokeWidth={ICON.STROKE_WIDTH}
                         />
                     )}
                 </Toggle>

@@ -1,5 +1,6 @@
-/* eslint-disable jsx-a11y/click-events-have-key-events */
+/* eslint-disable func-names */
 /* eslint-disable security/detect-object-injection */
+/* eslint-disable jsx-a11y/click-events-have-key-events */
 
 "use client";
 
@@ -14,29 +15,64 @@ import {
     useReactTable,
 } from "@tanstack/react-table";
 
-import { Table, TableCell, TableHead, TableRow } from "@/components/ui/table";
-import { HTMLAttributes, useState } from "react";
-import { TableVirtuoso } from "react-virtuoso";
+import { HTMLAttributes, Ref, forwardRef, useState } from "react";
+import { TableVirtuoso, TableVirtuosoHandle } from "react-virtuoso";
+import { cn } from "@/lib/utils/shadcn";
+import { TableCell, TableHead, TableRow } from "@/components/ui/table";
+import { MarkingsStore } from "@/lib/stores/Markings";
+import { CANVAS_ID } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { EmptyableMarking, isInternalMarking } from "./columns";
 
-function TableComponent(props: HTMLAttributes<HTMLTableElement>) {
-    return <Table {...props} />;
-}
+// Original Table is wrapped with a <div> (see https://ui.shadcn.com/docs/components/table#radix-:r24:-content-manual),
+// but here we don't want it, so let's use a new component with only <table> tag
+const TableComponent = forwardRef<
+    HTMLTableElement,
+    HTMLAttributes<HTMLTableElement>
+>(({ className, ...props }, ref) => (
+    <table
+        ref={ref}
+        className={cn("w-full caption-bottom text-sm bg-card/10", className)}
+        {...props}
+    />
+));
+TableComponent.displayName = "TableComponent";
 
-const TableRowComponent = <TData,>(rows: Row<TData>[]) =>
+const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) =>
     function getTableRow(props: HTMLAttributes<HTMLTableRowElement>) {
         // @ts-expect-error data-index is a valid attribute
         const index = props["data-index"];
         const row = rows[index];
 
+        const cursor = MarkingsStore(canvasId).use(state => state.cursor);
+
         if (!row) return null;
+
+        const marking = row.original as EmptyableMarking;
+        const selected = isInternalMarking(marking) ? marking.selected : false;
+        const cells = row.getVisibleCells();
+
+        const isCursorOnThisRow =
+            Number.isFinite(cursor) && rows.at(cursor)?.index === index;
+
+        const isCursorAtTail =
+            !Number.isFinite(cursor) && index === rows.length - 1;
 
         return (
             <TableRow
                 key={row.id}
-                data-state={row.getIsSelected() && "selected"}
+                className={cn("last:border-b-0", {
+                    "border-primary border-4 last:border-4": isCursorOnThisRow,
+                    "border-primary last:border-b-4": isCursorAtTail,
+                })}
+                data-state={selected && "selected"}
+                onClick={() => {
+                    MarkingsStore(canvasId).actions.cursor.updateCursor(
+                        row.index
+                    );
+                }}
                 {...props}
             >
-                {row.getVisibleCells().map(cell => (
+                {cells.map(cell => (
                     <TableCell key={cell.id}>
                         {flexRender(
                             cell.column.columnDef.cell,
@@ -66,41 +102,62 @@ interface DataTableProps<TData, TValue> {
     columns: ColumnDef<TData, TValue>[];
     data: TData[];
     height: string;
+    canvasId: CANVAS_ID;
 }
 
-export function DataTable<TData, TValue>({
-    columns,
-    data,
-    height,
-}: DataTableProps<TData, TValue>) {
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+export const DataTable = forwardRef<TableVirtuosoHandle, any>(function <
+    TData,
+    TValue,
+>(
+    { columns, data, height, canvasId }: DataTableProps<TData, TValue>,
+    ref: Ref<TableVirtuosoHandle> | undefined
+) {
     const [sorting, setSorting] = useState<SortingState>([]);
+    const [rowSelection, setRowSelection] = useState({});
     const table = useReactTable({
         data,
         columns,
         state: {
             sorting,
+            rowSelection,
         },
         onSortingChange: setSorting,
         getCoreRowModel: getCoreRowModel(),
         getSortedRowModel: getSortedRowModel(),
+        onRowSelectionChange: setRowSelection,
     });
+
+    const cursor = MarkingsStore(canvasId).use(state => state.cursor);
+
+    const isCursorAtFirstItem = Number.isFinite(cursor) && cursor === 0;
 
     const { rows } = table.getRowModel();
 
     return (
-        <div className="rounded-md border">
+        <>
+            <div className="flex-1 text-center text-sm text-muted-foreground">
+                {table.getFilteredSelectedRowModel().rows.length} of{" "}
+                {table.getFilteredRowModel().rows.length} row(s) selected
+            </div>
             <TableVirtuoso
-                style={{ height }}
+                ref={ref}
+                followOutput
+                style={{
+                    height,
+                    scrollbarGutter: "stable both-edges",
+                }}
                 totalCount={rows.length}
                 components={{
                     Table: TableComponent,
-                    TableRow: TableRowComponent(rows),
+                    TableRow: TableRowComponent(rows, canvasId),
                 }}
                 fixedHeaderContent={() =>
                     table.getHeaderGroups().map(headerGroup => (
-                        // Change header background color to non-transparent
                         <TableRow
-                            className="bg-card hover:bg-muted"
+                            className={cn("bg-card hover:bg-muted border-b-0", {
+                                "shadow-bottom": !isCursorAtFirstItem,
+                            })}
                             key={headerGroup.id}
                         >
                             {headerGroup.headers.map(header => {
@@ -144,6 +201,6 @@ export function DataTable<TData, TValue>({
                     ))
                 }
             />
-        </div>
+        </>
     );
-}
+});

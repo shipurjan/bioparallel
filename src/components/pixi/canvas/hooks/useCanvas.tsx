@@ -1,7 +1,7 @@
 import { CANVAS_REFS } from "@/lib/refs/pixi";
-import { CanvasMetadata } from "./useCanvasContext";
+import { CANVAS_ID, CanvasMetadata } from "./useCanvasContext";
 
-export const useCanvas = (id: CanvasMetadata["id"], preventError?: boolean) => {
+export const getCanvas = (id: CanvasMetadata["id"], preventError?: boolean) => {
     if (preventError !== true)
         throw new Error(
             "Prefer using useGlobalApp and useGlobalViewport hooks instead of this hook. If you know what you're doing, pass a parameter to prevent this error."
@@ -9,12 +9,13 @@ export const useCanvas = (id: CanvasMetadata["id"], preventError?: boolean) => {
 
     return (() => {
         switch (id) {
-            case "left":
+            case CANVAS_ID.LEFT:
                 return CANVAS_REFS.leftCanvas;
-            case "right":
+            case CANVAS_ID.RIGHT:
                 return CANVAS_REFS.rightCanvas;
             default:
-                throw new Error(`Invalid id: ${id}`);
+                id satisfies never;
+                throw new Error(`Unknown canvas ID: ${id}`);
         }
     })();
 };
