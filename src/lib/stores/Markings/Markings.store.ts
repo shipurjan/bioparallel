@@ -30,18 +30,35 @@ export type RenderableMarking = InternalMarking & {
     visible: boolean;
 };
 
+export type SimplifiedTableRow = {
+    id: string;
+    index: number;
+    marking: {
+        boundMarkingId?: InternalMarking["boundMarkingId"];
+        id?: InternalMarking["id"];
+    };
+};
+
 export type Marking = Omit<InternalMarking, "id" | "label"> &
     Partial<Pick<InternalMarking, "label">>;
 
+type Cursor = {
+    rowIndex: number;
+    id?: InternalMarking["id"];
+    boundMarkingId?: InternalMarking["boundMarkingId"];
+};
+
 type State = {
-    cursor: number;
+    cursor: Cursor;
+    tableRows: SimplifiedTableRow[];
     markingsHash: string;
     markings: InternalMarking[];
     temporaryMarking: InternalMarking | null;
 };
 
 const INITIAL_STATE: State = {
-    cursor: Infinity,
+    cursor: { rowIndex: Infinity },
+    tableRows: [],
     markingsHash: crypto.randomUUID(),
     temporaryMarking: null,
     markings: [],

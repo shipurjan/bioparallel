@@ -13,7 +13,10 @@ export type ExtendedMarking = InternalMarking & {
 };
 
 export type EmptyMarking = Record<string, never>;
-export type EmptyBoundMarking = { boundMarkingId: string };
+export type EmptyBoundMarking = {
+    boundMarkingId: NonNullable<InternalMarking["boundMarkingId"]>;
+    label: InternalMarking["label"];
+};
 export type EmptyableMarking =
     | InternalMarking
     | EmptyMarking
@@ -52,8 +55,10 @@ const formatCell = <T,>(
         return "ㅤ";
     }
 
-    if (isEmptyBoundMarking(row) && context.column.id === "boundMarkingId") {
-        return row.boundMarkingId.slice(0, 8);
+    if (isEmptyBoundMarking(row)) {
+        if (context.column.id === "boundMarkingId")
+            return row.boundMarkingId.slice(0, 8);
+        if (context.column.id === "label") return row.label;
     }
 
     if (lastRowEmptyValue === "") return lastRowEmptyValue;

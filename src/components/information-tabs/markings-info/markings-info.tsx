@@ -16,7 +16,11 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
 
     useEffect(() => {
         const resetCursor = () => {
-            MarkingsStore(id).actions.cursor.updateCursor(Infinity);
+            MarkingsStore(id).actions.cursor.updateCursor(
+                Infinity,
+                undefined,
+                undefined
+            );
         };
         document.addEventListener(
             CUSTOM_GLOBAL_EVENTS.RESET_MARKING_CURSOR,
@@ -73,7 +77,9 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
                 return aIdx - bIdx;
             })
             .map(m =>
-                thisIds.includes(m.id) ? m : { boundMarkingId: m.id }
+                thisIds.includes(m.id)
+                    ? m
+                    : { boundMarkingId: m.id, label: m.label }
             ) as EmptyableMarking[];
 
         return m;
@@ -85,11 +91,11 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
         if (virtuoso === null) return;
 
         const getIndex = () => {
-            if (Number.isFinite(cursor)) {
-                if (cursor < 0) {
-                    return markings.length + cursor;
+            if (Number.isFinite(cursor.rowIndex)) {
+                if (cursor.rowIndex < 0) {
+                    return markings.length + cursor.rowIndex;
                 }
-                return cursor;
+                return cursor.rowIndex;
             }
             return markings.length - 1;
         };

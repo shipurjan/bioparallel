@@ -75,7 +75,6 @@ class StoreClass {
             draft.markings = newMarkings;
 
             const lastMarking = newMarkings.at(-1);
-            console.log(lastMarking?.id, lastMarking?.boundMarkingId);
             if (lastMarking !== undefined)
                 setLastAddedMarking({ ...lastMarking, canvasId: this.id });
         });
@@ -98,11 +97,38 @@ class StoreClass {
 
     readonly actions = {
         cursor: {
-            updateCursor: (newIndex: number) => {
-                this.setCursor(() => newIndex);
+            updateCursor: (
+                rowIndex: number,
+                id?: InternalMarking["id"],
+                boundMarkingId?: InternalMarking["boundMarkingId"]
+            ) => {
+                this.setCursor(() => ({
+                    rowIndex,
+                    ...(id && { id }),
+                    ...(boundMarkingId && { boundMarkingId }),
+                }));
+            },
+            isFinite: () => {
+                return Number.isFinite(this.state.cursor.rowIndex);
             },
             getMarkingAtCursor: () => {
-                return this.state.markings.at(this.state.cursor);
+                return (
+                    this.state.markings.find(
+                        m => m.id === this.state.cursor.id
+                    ) ??
+                    this.state.markings.find(
+                        m =>
+                            m.boundMarkingId ===
+                            this.state.cursor.boundMarkingId
+                    )
+                );
+            },
+        },
+        table: {
+            setTableRows: (rows: State["tableRows"]) => {
+                this.state.set(draft => {
+                    draft.tableRows = rows;
+                });
             },
         },
         markings: {

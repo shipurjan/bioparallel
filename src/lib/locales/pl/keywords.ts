@@ -9,7 +9,7 @@ const d: Dictionary = {
     Language: "Język",
     Video: "Wideo",
     Settings: "Ustawienia",
-    Homepage: "Strona główna",
+    Homepage: "Panel",
     Markings: "Adnotacje",
     Debug: "Debug",
     On: "Wł.",
