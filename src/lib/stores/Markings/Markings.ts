@@ -13,6 +13,7 @@ import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite
 import { arrayMax } from "@/lib/utils/array/minmax";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
+    Cursor,
     InternalMarking,
     Marking,
     MarkingsState as State,
@@ -63,10 +64,7 @@ class StoreClass {
         return produce(marking, (draft: Draft<InternalMarking>) => {
             draft.id = crypto.randomUUID();
 
-            if (draft.label !== undefined) {
-                console.debug(
-                    `[Canvas ${this.id}] label is defined - ${draft.label}`
-                );
+            if (draft.label !== undefined && draft.label !== -1) {
                 // Przypadek gdy ostatnio dodany marking ma już przypisany label
                 // (Najczęściej jest to sytuacja gdy wgrywamy plik z danymi markingu)
                 // Znajdź czy istnieje znacznik z takim samym labelem w przeciwnym canvasie
@@ -77,7 +75,6 @@ class StoreClass {
                 ).state.markings.find(e => e.label === draft.label);
 
                 if (boundMarking === undefined) {
-                    draft.label = this.labelGenerator.next().value;
                     return;
                 }
                 Store(oppositeCanvasId).actions.markings.bindOneById(
@@ -95,10 +92,6 @@ class StoreClass {
                 lastAddedMarking.canvasId !== canvasId;
 
             if (isLastAddedMarkingInOppositeCanvas) {
-                console.debug(
-                    `[Canvas ${this.id}] last added marking from opposite canvas`,
-                    lastAddedMarking.label
-                );
                 // Przypadek gdy ostatnio dodany marking jest z przeciwnego canvasa
                 // Weź znacznik z ostatnio dodanego markingu i powiąż go z tym markingiem
 
@@ -126,10 +119,6 @@ class StoreClass {
 
                 return;
             }
-
-            console.debug(
-                `[Canvas ${this.id}] last added marking was from same canvas, generate new label`
-            );
 
             // Przypadek gdy ostatnio dodany marking jest z tego samego canvasa
             // Po prostu wygeneruj nowy znacznik
@@ -183,12 +172,16 @@ class StoreClass {
         cursor: {
             updateCursor: (
                 rowIndex: number,
-                id?: InternalMarking["id"],
-                boundMarkingId?: InternalMarking["boundMarkingId"]
+                label: Cursor["label"],
+                type: Cursor["type"],
+                id: Cursor["id"],
+                boundMarkingId: Cursor["boundMarkingId"]
             ) => {
                 this.setCursor(() => ({
                     rowIndex,
                     ...(id && { id }),
+                    ...(label && { label }),
+                    ...(type && { type }),
                     ...(boundMarkingId && { boundMarkingId }),
                 }));
             },

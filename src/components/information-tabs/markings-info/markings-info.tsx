@@ -19,6 +19,8 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
             MarkingsStore(id).actions.cursor.updateCursor(
                 Infinity,
                 undefined,
+                undefined,
+                undefined,
                 undefined
             );
         };

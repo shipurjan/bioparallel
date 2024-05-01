@@ -42,8 +42,10 @@ export type SimplifiedTableRow = {
 export type Marking = Omit<InternalMarking, "id" | "label"> &
     Partial<Pick<InternalMarking, "label">>;
 
-type Cursor = {
+export type Cursor = {
     rowIndex: number;
+    label?: InternalMarking["label"];
+    type?: InternalMarking["type"];
     id?: InternalMarking["id"];
     boundMarkingId?: InternalMarking["boundMarkingId"];
 };

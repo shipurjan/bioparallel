@@ -7,6 +7,7 @@ import {
 import { Viewport as PixiViewport } from "pixi-viewport";
 import { FederatedPointerEvent } from "pixi.js";
 import {
+    InternalMarking,
     MARKING_TYPES,
     Marking,
     MarkingsStoreClass,
@@ -47,12 +48,14 @@ export function getNormalizedMousePosition(
 export function createMarking(
     type: Marking["type"],
     angleRad: Marking["angleRad"],
-    position: Marking["position"]
-): Marking {
+    position: Marking["position"],
+    label?: InternalMarking["label"]
+): Marking & Partial<InternalMarking> {
     const { size, backgroundColor, textColor } =
         DashboardToolbarStore.state.settings.marking;
 
     return {
+        ...(label !== undefined && { label }),
         selected: false,
         hidden: false,
         size,
@@ -65,22 +68,32 @@ export function createMarking(
 }
 
 export function addMarkingToStore(
-    newMarking: Marking,
+    newMarking: Marking & Partial<InternalMarking>,
     params: ViewportHandlerParams
 ) {
     const { markingsStore } = params;
 
-    const { type: markingType, position: markingPos, angleRad } = newMarking;
+    const {
+        type: markingType,
+        position: markingPos,
+        angleRad,
+        label,
+    } = newMarking;
     const { addOne: addMarking } = markingsStore.actions.markings;
 
     switch (markingType) {
         case MARKING_TYPES.POINT: {
-            const marking = createMarking(markingType, null, markingPos);
+            const marking = createMarking(markingType, null, markingPos, label);
             addMarking(marking);
             break;
         }
         case MARKING_TYPES.RAY: {
-            const marking = createMarking(markingType, angleRad, markingPos);
+            const marking = createMarking(
+                markingType,
+                angleRad,
+                markingPos,
+                label
+            );
             addMarking(marking);
             break;
         }
