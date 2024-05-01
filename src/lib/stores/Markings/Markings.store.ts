@@ -13,7 +13,7 @@ export type InternalMarking = {
     id: string;
     selected: boolean;
     hidden: boolean;
-    label: string;
+    label: number;
     position: {
         x: number;
         y: number;
@@ -42,8 +42,10 @@ export type SimplifiedTableRow = {
 export type Marking = Omit<InternalMarking, "id" | "label"> &
     Partial<Pick<InternalMarking, "label">>;
 
-type Cursor = {
+export type Cursor = {
     rowIndex: number;
+    label?: InternalMarking["label"];
+    type?: InternalMarking["type"];
     id?: InternalMarking["id"];
     boundMarkingId?: InternalMarking["boundMarkingId"];
 };

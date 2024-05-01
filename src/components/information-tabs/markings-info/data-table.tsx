@@ -94,6 +94,8 @@ Received: marking{${idx},${marking.label}} !== cursor{${cursor.rowIndex},${marki
                     e.stopPropagation();
                     MarkingsStore(canvasId).actions.cursor.updateCursor(
                         row.index,
+                        marking.label,
+                        isInternalMarking(marking) ? marking.type : undefined,
                         isInternalMarking(marking) ? marking.id : undefined,
                         marking.boundMarkingId
                     );

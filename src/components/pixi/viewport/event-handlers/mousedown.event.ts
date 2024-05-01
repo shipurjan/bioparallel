@@ -57,7 +57,7 @@ export const handleMouseDown = (
 
     const interrupt = () => {
         const { temporaryMarking } = markingsStore.state;
-        if (temporaryMarking && temporaryMarking.label !== "\0") {
+        if (temporaryMarking && temporaryMarking.label !== -1) {
             const marking = markingsStore.state.markings.find(
                 m => m.label === temporaryMarking.label
             );
@@ -105,27 +105,42 @@ export const handleMouseDown = (
                     viewport.removeEventListener("mousemove", onMouseMove);
 
                     const { temporaryMarking } = markingsStore.state;
-                    if (temporaryMarking === null) return;
+                    if (temporaryMarking) {
+                        const isCursorFinite =
+                            markingsStore.actions.cursor.isFinite();
 
-                    const isCursorFinite =
-                        markingsStore.actions.cursor.isFinite();
+                        if (!isCursorFinite) {
+                            addMarkingToStore(temporaryMarking, params);
+                        } else {
+                            const markingToEdit =
+                                markingsStore.actions.cursor.getMarkingAtCursor();
 
-                    if (!isCursorFinite) {
-                        addMarkingToStore(temporaryMarking, params);
-                    } else {
-                        const markingToEdit =
-                            markingsStore.actions.cursor.getMarkingAtCursor();
+                            if (markingToEdit) {
+                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                const { id, selected, label, ...newProps } =
+                                    temporaryMarking;
 
-                        if (!markingToEdit) return;
-
-                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const { id, selected, label, ...newProps } =
-                            temporaryMarking;
-
-                        markingsStore.actions.markings.editOneById(
-                            markingToEdit.id,
-                            newProps
-                        );
+                                markingsStore.actions.markings.editOneById(
+                                    markingToEdit.id,
+                                    newProps
+                                );
+                            } else {
+                                const { cursor } = markingsStore.state;
+                                addMarkingToStore(
+                                    {
+                                        ...temporaryMarking,
+                                        ...(cursor.boundMarkingId && {
+                                            boundMarkingId:
+                                                cursor.boundMarkingId,
+                                        }),
+                                        ...(cursor.label && {
+                                            label: cursor.label,
+                                        }),
+                                    },
+                                    params
+                                );
+                            }
+                        }
                     }
 
                     document.dispatchEvent(
@@ -146,7 +161,7 @@ export const handleMouseDown = (
                 setTemporaryMarkingToEitherNewOrExisting(
                     createMarking(
                         markingType,
-                        null,
+                        0,
                         getNormalizedMousePosition(e, viewport)
                     ),
                     params
@@ -180,26 +195,42 @@ export const handleMouseDown = (
                     onMouseDown = () => {
                         viewport.removeEventListener("mousemove", onMouseMove);
 
-                        const { temporaryMarking, cursor } =
-                            markingsStore.state;
-                        if (temporaryMarking === null) return;
+                        const { temporaryMarking } = markingsStore.state;
+                        if (temporaryMarking) {
+                            const isCursorFinite =
+                                markingsStore.actions.cursor.isFinite();
+                            if (!isCursorFinite) {
+                                addMarkingToStore(temporaryMarking, params);
+                            } else {
+                                const markingToEdit =
+                                    markingsStore.actions.cursor.getMarkingAtCursor();
 
-                        if (cursor.rowIndex === Infinity) {
-                            addMarkingToStore(temporaryMarking, params);
-                        } else {
-                            const markingToEdit =
-                                markingsStore.actions.cursor.getMarkingAtCursor();
+                                if (markingToEdit) {
+                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                                    const { id, selected, label, ...newProps } =
+                                        temporaryMarking;
 
-                            if (!markingToEdit) return;
-
-                            // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            const { id, selected, label, ...newProps } =
-                                temporaryMarking;
-
-                            markingsStore.actions.markings.editOneById(
-                                markingToEdit.id,
-                                newProps
-                            );
+                                    markingsStore.actions.markings.editOneById(
+                                        markingToEdit.id,
+                                        newProps
+                                    );
+                                } else {
+                                    const { cursor } = markingsStore.state;
+                                    addMarkingToStore(
+                                        {
+                                            ...temporaryMarking,
+                                            ...(cursor.boundMarkingId && {
+                                                boundMarkingId:
+                                                    cursor.boundMarkingId,
+                                            }),
+                                            ...(cursor.label && {
+                                                label: cursor.label,
+                                            }),
+                                        },
+                                        params
+                                    );
+                                }
+                            }
                         }
 
                         document.dispatchEvent(
