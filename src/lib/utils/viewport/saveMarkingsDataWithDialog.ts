@@ -86,15 +86,17 @@ async function getData(
         },
         image: getImageData(picture),
         comparedImage: getImageData(oppositePicture),
-        markings: markings.map(m => ({
-            label: m.label,
-            position: m.position,
-            type: m.type,
-            angleRad: m.angleRad,
-            backgroundColor: m.backgroundColor,
-            size: m.size,
-            textColor: m.textColor,
-        })),
+        markings: markings
+            .toSorted((a, b) => a.label - b.label)
+            .map(m => ({
+                label: m.label,
+                position: m.position,
+                type: m.type,
+                angleRad: m.angleRad,
+                backgroundColor: m.backgroundColor,
+                size: m.size,
+                textColor: m.textColor,
+            })),
     };
 
     return JSON.stringify(exportObject, null, 2);

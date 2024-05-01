@@ -3,7 +3,7 @@ import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContex
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
-import { CUSTOM_GLOBAL_EVENTS, LABEL_MAP } from "@/lib/utils/const";
+import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
 import { TableVirtuosoHandle } from "react-virtuoso";
 import { sleep } from "@/lib/utils/misc/sleep";
 import { DataTable } from "./data-table";
@@ -16,7 +16,13 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
 
     useEffect(() => {
         const resetCursor = () => {
-            MarkingsStore(id).actions.cursor.updateCursor(Infinity);
+            MarkingsStore(id).actions.cursor.updateCursor(
+                Infinity,
+                undefined,
+                undefined,
+                undefined,
+                undefined
+            );
         };
         document.addEventListener(
             CUSTOM_GLOBAL_EVENTS.RESET_MARKING_CURSOR,
@@ -64,16 +70,11 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
             ...thisMarkings,
             ...oppositeMarkings.filter(m => !thisLabels.includes(m.label)),
         ]
-            .sort((a, b) => {
-                let aIdx = LABEL_MAP.indexOf(a.label);
-                if (aIdx === -1) aIdx = Number(a.label) + LABEL_MAP.length;
-                let bIdx = LABEL_MAP.indexOf(b.label);
-                if (bIdx === -1) bIdx = Number(b.label) + LABEL_MAP.length;
-
-                return aIdx - bIdx;
-            })
+            .sort((a, b) => a.label - b.label)
             .map(m =>
-                thisIds.includes(m.id) ? m : { boundMarkingId: m.id }
+                thisIds.includes(m.id)
+                    ? m
+                    : { boundMarkingId: m.id, label: m.label }
             ) as EmptyableMarking[];
 
         return m;
@@ -85,11 +86,11 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
         if (virtuoso === null) return;
 
         const getIndex = () => {
-            if (Number.isFinite(cursor)) {
-                if (cursor < 0) {
-                    return markings.length + cursor;
+            if (Number.isFinite(cursor.rowIndex)) {
+                if (cursor.rowIndex < 0) {
+                    return markings.length + cursor.rowIndex;
                 }
-                return cursor;
+                return cursor.rowIndex;
             }
             return markings.length - 1;
         };
