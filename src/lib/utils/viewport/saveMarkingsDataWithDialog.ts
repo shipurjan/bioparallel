@@ -17,7 +17,7 @@ type ImageInfo = {
     name: string | null;
     path: string | null;
     md5: string;
-    size: {
+    resolution: {
         width: number;
         height: number;
     };
@@ -28,20 +28,25 @@ type SoftwareInfo = {
     version: string;
 };
 
-export type ExportObject = {
+type MarkingsExportData = Pick<
+    InternalMarking,
+    "position" | "type" | "angleRad" | "backgroundColor" | "size" | "textColor"
+>[];
+
+type ExportMetadata = {
+    utcDate: Date;
     software: SoftwareInfo;
     image: ImageInfo | null;
     comparedImage: ImageInfo | null;
-    markings: Pick<
-        InternalMarking,
-        | "label"
-        | "position"
-        | "type"
-        | "angleRad"
-        | "backgroundColor"
-        | "size"
-        | "textColor"
-    >[];
+};
+
+type ExportData = {
+    markings: MarkingsExportData;
+};
+
+export type ExportObject = {
+    metadata: ExportMetadata;
+    data: ExportData;
 };
 
 function getImageData(picture: Sprite | undefined): ImageInfo | null {
@@ -59,7 +64,7 @@ function getImageData(picture: Sprite | undefined): ImageInfo | null {
         path: picture.path,
         // @ts-expect-error custom property should exist
         md5: picture.hash,
-        size: {
+        resolution: {
             width: texture.width,
             height: texture.height,
         },
@@ -80,21 +85,25 @@ async function getData(
     const appVersion = await getVersion();
 
     const exportObject: ExportObject = {
-        software: {
-            name: "bioparallel",
-            version: appVersion,
+        metadata: {
+            utcDate: new Date(),
+            software: {
+                name: "bioparallel",
+                version: appVersion,
+            },
+            image: getImageData(picture),
+            comparedImage: getImageData(oppositePicture),
         },
-        image: getImageData(picture),
-        comparedImage: getImageData(oppositePicture),
-        markings: markings.map(m => ({
-            label: m.label,
-            position: m.position,
-            type: m.type,
-            angleRad: m.angleRad,
-            backgroundColor: m.backgroundColor,
-            size: m.size,
-            textColor: m.textColor,
-        })),
+        data: {
+            markings: markings.map(m => ({
+                position: m.position,
+                type: m.type,
+                angleRad: m.angleRad,
+                backgroundColor: m.backgroundColor,
+                size: m.size,
+                textColor: m.textColor,
+            })),
+        },
     };
 
     return JSON.stringify(exportObject, null, 2);

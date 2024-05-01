@@ -45,6 +45,7 @@ export function getNormalizedMousePosition(
 }
 
 export function createMarking(
+    id: Marking["id"],
     type: Marking["type"],
     angleRad: Marking["angleRad"],
     position: Marking["position"]
@@ -53,6 +54,7 @@ export function createMarking(
         DashboardToolbarStore.state.settings.marking;
 
     return {
+        ...(id && { id }),
         selected: false,
         hidden: false,
         size,
@@ -70,17 +72,23 @@ export function addMarkingToStore(
 ) {
     const { markingsStore } = params;
 
+    const id = markingsStore.state.temporaryMarking?.id;
     const { type: markingType, position: markingPos, angleRad } = newMarking;
     const { addOne: addMarking } = markingsStore.actions.markings;
 
     switch (markingType) {
         case MARKING_TYPES.POINT: {
-            const marking = createMarking(markingType, null, markingPos);
+            const marking = createMarking(id, markingType, null, markingPos);
             addMarking(marking);
             break;
         }
         case MARKING_TYPES.RAY: {
-            const marking = createMarking(markingType, angleRad, markingPos);
+            const marking = createMarking(
+                id,
+                markingType,
+                angleRad,
+                markingPos
+            );
             addMarking(marking);
             break;
         }

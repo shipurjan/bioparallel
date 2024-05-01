@@ -2,12 +2,11 @@ import { MarkingsStore } from "@/lib/stores/Markings";
 import { useCanvasContext } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { GlobalSettingsStore } from "@/lib/stores/GlobalSettings";
-import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
-import { CUSTOM_GLOBAL_EVENTS, LABEL_MAP } from "@/lib/utils/const";
+import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
 import { TableVirtuosoHandle } from "react-virtuoso";
 import { sleep } from "@/lib/utils/misc/sleep";
 import { DataTable } from "./data-table";
-import { EmptyableMarking, getColumns } from "./columns";
+import { getColumns } from "./columns";
 
 export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     const { id } = useCanvasContext();
@@ -16,11 +15,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
 
     useEffect(() => {
         const resetCursor = () => {
-            MarkingsStore(id).actions.cursor.updateCursor(
-                Infinity,
-                undefined,
-                undefined
-            );
+            MarkingsStore(id).actions.cursor.updateCursor(Infinity, undefined);
         };
         document.addEventListener(
             CUSTOM_GLOBAL_EVENTS.RESET_MARKING_CURSOR,
@@ -45,46 +40,47 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
         }
     );
 
-    const { markings: oppositeMarkings } = MarkingsStore(
-        getOppositeCanvasId(id)
-    ).use(
-        state => ({
-            markings: state.markings,
-            hash: state.markingsHash,
-        }),
-        (oldState, newState) => {
-            // re-rendering tylko wtedy, gdy zmieni się hash stanu
-            return oldState.hash === newState.hash;
-        }
-    );
+    // const { markings: oppositeMarkings } = MarkingsStore(
+    //     getOppositeCanvasId(id)
+    // ).use(
+    //     state => ({
+    //         markings: state.markings,
+    //         hash: state.markingsHash,
+    //     }),
+    //     (oldState, newState) => {
+    //         // re-rendering tylko wtedy, gdy zmieni się hash stanu
+    //         return oldState.hash === newState.hash;
+    //     }
+    // );
 
     const [columns, setColumns] = useState(getColumns());
 
     const markings = useMemo(() => {
-        const thisIds = thisMarkings.map(m => m.id);
-        const thisLabels = thisMarkings.map(m => m.label);
-        // eslint-disable-next-line sonarjs/prefer-immediate-return
-        const m = [
-            ...thisMarkings,
-            ...oppositeMarkings.filter(m => !thisLabels.includes(m.label)),
-        ]
-            .sort((a, b) => {
-                let aIdx = LABEL_MAP.indexOf(a.label);
-                if (aIdx === -1) aIdx = Number(a.label) + LABEL_MAP.length;
-                let bIdx = LABEL_MAP.indexOf(b.label);
-                if (bIdx === -1) bIdx = Number(b.label) + LABEL_MAP.length;
+        // const thisIds = thisMarkings.map(m => m.id);
+        // const thisLabels = thisMarkings.map(m => m.label);
+        // // eslint-disable-next-line sonarjs/prefer-immediate-return
+        // const m = [
+        //     ...thisMarkings,
+        //     ...oppositeMarkings.filter(m => !thisLabels.includes(m.label)),
+        // ]
+        //     .sort((a, b) => {
+        //         let aIdx = LABEL_MAP.indexOf(a.label);
+        //         if (aIdx === -1) aIdx = Number(a.label) + LABEL_MAP.length;
+        //         let bIdx = LABEL_MAP.indexOf(b.label);
+        //         if (bIdx === -1) bIdx = Number(b.label) + LABEL_MAP.length;
 
-                return aIdx - bIdx;
-            })
-            .map(m =>
-                thisIds.includes(m.id)
-                    ? m
-                    : { boundMarkingId: m.id, label: m.label }
-            ) as EmptyableMarking[];
+        //         return aIdx - bIdx;
+        //     })
+        //     .map(m =>
+        //         thisIds.includes(m.id)
+        //             ? m
+        //             : { boundMarkingId: m.id, label: m.label }
+        //     ) as EmptyableMarking[];
 
-        return m;
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [oppositeMarkings, thisMarkings, cursor]);
+        // return m;
+        // // eslint-disable-next-line react-hooks/exhaustive-deps
+        return thisMarkings;
+    }, [thisMarkings]);
 
     useEffect(() => {
         const virtuoso = virtuosoTableRef.current;

@@ -4,8 +4,6 @@ import { CellContext, ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "@/components/ui/checkbox";
 import { InternalMarking } from "@/lib/stores/Markings";
 import { t } from "i18next";
-import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
-import { GlobalStateStore } from "@/lib/stores/GlobalState";
 
 export type ExtendedMarking = InternalMarking & {
     x: number;
@@ -13,14 +11,8 @@ export type ExtendedMarking = InternalMarking & {
 };
 
 export type EmptyMarking = Record<string, never>;
-export type EmptyBoundMarking = {
-    boundMarkingId: NonNullable<InternalMarking["boundMarkingId"]>;
-    label: InternalMarking["label"];
-};
-export type EmptyableMarking =
-    | InternalMarking
-    | EmptyMarking
-    | EmptyBoundMarking;
+export type EmptyableMarking = InternalMarking | EmptyMarking;
+
 type EmptyableCellContext = CellContext<EmptyableMarking, unknown>;
 type DataCellContext = CellContext<InternalMarking, unknown>;
 
@@ -28,12 +20,6 @@ export function isInternalMarking(
     cell: EmptyableMarking
 ): cell is InternalMarking {
     return "id" in cell;
-}
-
-export function isEmptyBoundMarking(
-    cell: EmptyableMarking
-): cell is EmptyBoundMarking {
-    return !isInternalMarking(cell) && "boundMarkingId" in cell;
 }
 
 export function isEmptyMarking(cell: EmptyableMarking): cell is EmptyMarking {
@@ -53,12 +39,6 @@ const formatCell = <T,>(
 
     if (isEmptyMarking(row)) {
         return "ㅤ";
-    }
-
-    if (isEmptyBoundMarking(row)) {
-        if (context.column.id === "boundMarkingId")
-            return row.boundMarkingId.slice(0, 8);
-        if (context.column.id === "label") return row.label;
     }
 
     if (lastRowEmptyValue === "") return lastRowEmptyValue;
@@ -95,44 +75,11 @@ export const getColumns: () => Array<ColumnDef<EmptyableMarking>> = () => [
         enableSorting: false,
         enableHiding: false,
     },
-    // ID będzie pokazane tylko podczas developmentu
-    ...(IS_DEV_ENVIRONMENT
-        ? ([
-              {
-                  accessorKey: "id",
-                  header: t("Marking.Keys.id", { ns: "object" }),
-                  cell: cell =>
-                      formatCell(
-                          cell,
-                          ({ row }) =>
-                              row.original.id.slice(0, 8) +
-                              (isInternalMarking(row.original) &&
-                              GlobalStateStore.state.lastAddedMarking?.id ===
-                                  row.original.id
-                                  ? " (last) "
-                                  : "")
-                      ),
-              },
-          ] as Array<ColumnDef<EmptyableMarking>>)
-        : []),
     {
-        accessorKey: "label",
-        header: t("Marking.Keys.label", { ns: "object" }),
-        cell: cell => formatCell(cell, ({ row }) => row.original.label),
+        accessorKey: "id",
+        header: t("Marking.Keys.id", { ns: "object" }),
+        cell: cell => formatCell(cell, ({ row }) => row.original.id),
     },
-    // Powiązane ID będzie pokazane tylko podczas developmentu
-    ...(IS_DEV_ENVIRONMENT
-        ? ([
-              {
-                  accessorKey: "boundMarkingId",
-                  header: t("Marking.Keys.boundMarkingId", { ns: "object" }),
-                  cell: cell =>
-                      formatCell(cell, ({ row }) =>
-                          row.original.boundMarkingId?.slice(0, 8)
-                      ),
-              },
-          ] as Array<ColumnDef<EmptyableMarking>>)
-        : []),
     {
         accessorKey: "type",
         header: t("Marking.Keys.type.Name", { ns: "object" }),

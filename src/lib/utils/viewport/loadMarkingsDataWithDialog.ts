@@ -15,9 +15,9 @@ function validateFileData(_data: unknown): _data is ExportObject {
         typeof data === "object" &&
         data !== null &&
         "software" in data &&
-        "name" in data.software &&
-        data.software.name === "bioparallel" &&
-        "version" in data.software
+        "name" in data.metadata.software &&
+        data.metadata.software.name === "bioparallel" &&
+        "version" in data.metadata.software
     );
 }
 
@@ -45,16 +45,17 @@ export async function loadMarkingsDataWithDialog(viewport: Viewport) {
         if (id === null) throw new Error(`Canvas ID: ${id} not found`);
 
         const file = await readTextFile(fileResponse.path);
-        const data: unknown = JSON.parse(file);
-        if (!validateFileData(data)) {
+        const filedata: unknown = JSON.parse(file);
+        if (!validateFileData(filedata))
             throw new Error("Invalid markings data file");
-        }
+
+        const { metadata, data } = filedata;
 
         const appVersion = await getVersion();
 
-        if (data.software.version !== appVersion) {
+        if (metadata.software.version !== appVersion) {
             const confirmed = confirm(
-                `The markings data was created with a different version of the application (${data.software.version}). Loading it might not work.\n\nAre you sure you want to load it?`,
+                `The markings data was created with a different version of the application (${metadata.software.version}). Loading it might not work.\n\nAre you sure you want to load it?`,
                 {
                     kind: "warning",
                     title: fileResponse?.name ?? "Are you sure?",
@@ -80,7 +81,7 @@ export async function loadMarkingsDataWithDialog(viewport: Viewport) {
             selected: false,
         }));
 
-        MarkingsStore(id).state.reset();
+        MarkingsStore(id).actions.markings.reset();
         MarkingsStore(id).actions.markings.addMany(markings);
     } catch (error) {
         if (typeof error === "string" && error === "cancel") return;

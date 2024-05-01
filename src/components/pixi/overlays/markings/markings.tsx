@@ -29,19 +29,19 @@ const getFontName = (fontSize: number) => {
 
 type MarkingTextProps = Pick<
     InternalMarking,
-    "label" | "size" | "position" | "textColor"
+    "id" | "size" | "position" | "textColor"
 > & {
     visible: boolean;
 };
 
 function MarkingText({
     visible,
-    label,
+    id,
     size,
     position,
     textColor,
 }: MarkingTextProps) {
-    const text = label;
+    const text = String(id);
     const fontSize = Math.ceil(
         +((size * 2) / (text.length === 1 ? 1 : text.length * 0.58)).toFixed(0)
     );
@@ -159,7 +159,6 @@ export const Markings = memo(
                             visible,
                             hidden,
                             id,
-                            label,
                             size,
                             position,
                             textColor,
@@ -168,7 +167,7 @@ export const Markings = memo(
                                 <MarkingText
                                     visible={visible && !hidden}
                                     key={id}
-                                    label={label}
+                                    id={id}
                                     size={size}
                                     position={position}
                                     textColor={textColor}

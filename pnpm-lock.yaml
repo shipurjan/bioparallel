@@ -112,6 +112,9 @@ dependencies:
   react-virtuoso:
     specifier: ^4.7.4
     version: 4.7.4(react-dom@18.2.0)(react@18.2.0)
+  rxjs:
+    specifier: ^7.8.1
+    version: 7.8.1
   sonner:
     specifier: 1.4.41
     version: 1.4.41(react-dom@18.2.0)(react@18.2.0)
@@ -7616,7 +7619,6 @@ packages:
     resolution: {integrity: sha512-AA3TVj+0A2iuIoQkWEK/tqFjBq2j+6PO6Y0zJcvzLAFhEFIO3HL0vls9hWLncZbAAbK0mar7oZ4V079I/qPMxg==}
     dependencies:
       tslib: 2.6.2
-    dev: true
 
   /safe-array-concat@1.1.0:
     resolution: {integrity: sha512-ZdQ0Jeb9Ofti4hbt5lX3T2JcAamT9hfzYU1MNB+z/jaEbB6wfFfPIR/zEORmZqobkCCJhSjodobH6WHNmJ97dg==}

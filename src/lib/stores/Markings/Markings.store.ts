@@ -10,10 +10,9 @@ export const enum MARKING_TYPES {
 }
 
 export type InternalMarking = {
-    id: string;
+    id: number;
     selected: boolean;
     hidden: boolean;
-    label: string;
     position: {
         x: number;
         y: number;
@@ -23,7 +22,6 @@ export type InternalMarking = {
     size: number;
     type: MARKING_TYPES;
     angleRad: number | null;
-    boundMarkingId?: InternalMarking["id"];
 };
 
 export type RenderableMarking = InternalMarking & {
@@ -34,18 +32,16 @@ export type SimplifiedTableRow = {
     id: string;
     index: number;
     marking: {
-        boundMarkingId?: InternalMarking["boundMarkingId"];
         id?: InternalMarking["id"];
     };
 };
 
-export type Marking = Omit<InternalMarking, "id" | "label"> &
-    Partial<Pick<InternalMarking, "label">>;
+export type Marking = Omit<InternalMarking, "id"> &
+    Partial<Pick<InternalMarking, "id">>;
 
 type Cursor = {
     rowIndex: number;
     id?: InternalMarking["id"];
-    boundMarkingId?: InternalMarking["boundMarkingId"];
 };
 
 type State = {

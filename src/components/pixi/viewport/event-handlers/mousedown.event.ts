@@ -29,10 +29,7 @@ function setTemporaryMarkingToEitherNewOrExisting(
         editMarkingById(markingToEdit.id, { hidden: true });
     }
 
-    setTemporaryMarking(
-        newMarking,
-        isCursorFinite && markingToEdit ? markingToEdit.label : undefined
-    );
+    setTemporaryMarking(newMarking);
 }
 
 export const handleMouseDown = (
@@ -57,9 +54,9 @@ export const handleMouseDown = (
 
     const interrupt = () => {
         const { temporaryMarking } = markingsStore.state;
-        if (temporaryMarking && temporaryMarking.label !== "\0") {
+        if (temporaryMarking) {
             const marking = markingsStore.state.markings.find(
-                m => m.label === temporaryMarking.label
+                m => m.id === temporaryMarking.id
             );
             if (marking) {
                 markingsStore.actions.markings.editOneById(marking.id, {
@@ -68,11 +65,12 @@ export const handleMouseDown = (
             }
         }
 
-        setTemporaryMarking(null);
+        setTemporaryMarking(null, { revertGeneratorId: true });
         viewport.removeEventListener("mousemove", onMouseMove);
         viewport.removeEventListener("mouseup", onMouseUp);
         viewport.removeEventListener("mousedown", onMouseDown);
     };
+
     document.addEventListener(
         CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
         interrupt
@@ -84,10 +82,13 @@ export const handleMouseDown = (
         const { type: markingType } =
             DashboardToolbarStore.state.settings.marking;
 
+        const id = markingsStore.state.temporaryMarking?.id;
+
         switch (markingType) {
             case MARKING_TYPES.POINT: {
                 setTemporaryMarkingToEitherNewOrExisting(
                     createMarking(
+                        id,
                         markingType,
                         null,
                         getNormalizedMousePosition(e, viewport)
@@ -119,8 +120,7 @@ export const handleMouseDown = (
                         if (!markingToEdit) return;
 
                         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                        const { id, selected, label, ...newProps } =
-                            temporaryMarking;
+                        const { id, selected, ...newProps } = temporaryMarking;
 
                         markingsStore.actions.markings.editOneById(
                             markingToEdit.id,
@@ -128,9 +128,10 @@ export const handleMouseDown = (
                         );
                     }
 
-                    document.dispatchEvent(
-                        new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
-                    );
+                    setTemporaryMarking(null);
+                    viewport.removeEventListener("mousemove", onMouseMove);
+                    viewport.removeEventListener("mouseup", onMouseUp);
+                    viewport.removeEventListener("mousedown", onMouseDown);
                     document.removeEventListener(
                         CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
                         interrupt
@@ -145,6 +146,7 @@ export const handleMouseDown = (
             case MARKING_TYPES.RAY: {
                 setTemporaryMarkingToEitherNewOrExisting(
                     createMarking(
+                        id,
                         markingType,
                         null,
                         getNormalizedMousePosition(e, viewport)
@@ -193,7 +195,7 @@ export const handleMouseDown = (
                             if (!markingToEdit) return;
 
                             // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                            const { id, selected, label, ...newProps } =
+                            const { id, selected, ...newProps } =
                                 temporaryMarking;
 
                             markingsStore.actions.markings.editOneById(
@@ -202,9 +204,10 @@ export const handleMouseDown = (
                             );
                         }
 
-                        document.dispatchEvent(
-                            new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
-                        );
+                        setTemporaryMarking(null);
+                        viewport.removeEventListener("mousemove", onMouseMove);
+                        viewport.removeEventListener("mouseup", onMouseUp);
+                        viewport.removeEventListener("mousedown", onMouseDown);
                         document.removeEventListener(
                             CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
                             interrupt

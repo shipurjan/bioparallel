@@ -21,8 +21,6 @@ import { cn } from "@/lib/utils/shadcn";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { MarkingsStore } from "@/lib/stores/Markings";
 import { CANVAS_ID } from "@/components/pixi/canvas/hooks/useCanvasContext";
-import invariant from "tiny-invariant";
-import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { EmptyableMarking, isInternalMarking } from "./columns";
 
 // Original Table is wrapped with a <div> (see https://ui.shadcn.com/docs/components/table#radix-:r24:-content-manual),
@@ -61,27 +59,6 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) =>
 
         const isCursorAtTail = !isCursorFinite && index === rows.length - 1;
 
-        if (IS_DEV_ENVIRONMENT && isCursorOnThisRow) {
-            const markingAtCursor =
-                MarkingsStore(canvasId).actions.cursor.getMarkingAtCursor();
-            const isInternal = isInternalMarking(marking);
-            if (isInternal) {
-                const idx = MarkingsStore(canvasId).state.markings.findIndex(
-                    e => e.id === marking.id
-                );
-                try {
-                    invariant(
-                        markingAtCursor?.label === marking.label,
-                        `Marking at cursor does not match the marking in the row:
-Received: marking{${idx},${marking.label}} !== cursor{${cursor.rowIndex},${markingAtCursor?.label}}`
-                    );
-                } catch (error) {
-                    if (error instanceof Error) console.error(error.message);
-                    else console.error(error);
-                }
-            }
-        }
-
         return (
             <TableRow
                 key={row.id}
@@ -94,8 +71,7 @@ Received: marking{${idx},${marking.label}} !== cursor{${cursor.rowIndex},${marki
                     e.stopPropagation();
                     MarkingsStore(canvasId).actions.cursor.updateCursor(
                         row.index,
-                        isInternalMarking(marking) ? marking.id : undefined,
-                        marking.boundMarkingId
+                        isInternalMarking(marking) ? marking.id : undefined
                     );
                 }}
                 {...props}
@@ -171,9 +147,6 @@ export const DataTable = forwardRef<TableVirtuosoHandle, any>(function <
                     id: row.id,
                     index: row.index,
                     marking: {
-                        ...(marking.boundMarkingId && {
-                            boundMarkingId: marking.boundMarkingId,
-                        }),
                         ...(isInternalMarking(marking) && {
                             id: marking.id,
                         }),

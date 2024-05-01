@@ -58,7 +58,7 @@ export async function loadImageWithDialog(viewport: Viewport) {
 
         if (viewport.children.length !== 0) viewport.removeChildren();
 
-        MarkingsStore(id).state.reset();
+        MarkingsStore(id).actions.markings.reset();
         ShallowViewportStore(id).state.reset();
         CanvasToolbarStore(id).state.reset();
         CachedViewportStore(id).state.reset();

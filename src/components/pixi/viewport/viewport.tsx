@@ -11,12 +11,8 @@ import { MarkingsStore } from "@/lib/stores/Markings";
 import { ReactPixiViewport } from "./react-pixi-viewport";
 import { CanvasMetadata } from "../canvas/hooks/useCanvasContext";
 import { ViewportHandlerParams } from "./event-handlers/utils";
-import {
-    handleMouseDown,
-    handleMove,
-    handleOppositeMove,
-    handleZoom,
-} from "./event-handlers";
+import { handleMove, handleOppositeMove, handleZoom } from "./event-handlers";
+import { composeObservables } from "./observables/composeObservables";
 
 export type ViewportProps = {
     children?: ReactNode;
@@ -85,9 +81,7 @@ export const Viewport = forwardRef<PixiViewport, ViewportProps>(
                         handleZoom(e, handlerParams);
                     });
 
-                    viewport.on("mousedown", e => {
-                        handleMouseDown(e, handlerParams);
-                    });
+                    composeObservables(viewport, handlerParams);
 
                     // eslint-disable-next-line no-param-reassign
                     viewport.name = id;
