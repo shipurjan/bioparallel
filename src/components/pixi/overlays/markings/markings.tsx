@@ -41,9 +41,12 @@ function MarkingText({
     position,
     textColor,
 }: MarkingTextProps) {
-    const text = label;
+    const text = label === -1 ? "" : String(label);
     const fontSize = Math.ceil(
-        +((size * 2) / (text.length === 1 ? 1 : text.length * 0.58)).toFixed(0)
+        +(
+            (size * 2) /
+            (String(text).length === 1 ? 1 : String(text).length * 0.58)
+        ).toFixed(0)
     );
     const fontName = getFontName(fontSize);
 

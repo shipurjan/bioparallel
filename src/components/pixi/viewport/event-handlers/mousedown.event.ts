@@ -57,7 +57,7 @@ export const handleMouseDown = (
 
     const interrupt = () => {
         const { temporaryMarking } = markingsStore.state;
-        if (temporaryMarking && temporaryMarking.label !== "\0") {
+        if (temporaryMarking && temporaryMarking.label !== -1) {
             const marking = markingsStore.state.markings.find(
                 m => m.label === temporaryMarking.label
             );

@@ -80,7 +80,7 @@ export async function loadMarkingsDataWithDialog(viewport: Viewport) {
             selected: false,
         }));
 
-        MarkingsStore(id).state.reset();
+        MarkingsStore(id).actions.markings.reset();
         MarkingsStore(id).actions.markings.addMany(markings);
     } catch (error) {
         if (typeof error === "string" && error === "cancel") return;

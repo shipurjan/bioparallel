@@ -13,7 +13,7 @@ export type InternalMarking = {
     id: string;
     selected: boolean;
     hidden: boolean;
-    label: string;
+    label: number;
     position: {
         x: number;
         y: number;
