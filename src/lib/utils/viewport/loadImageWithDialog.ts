@@ -13,6 +13,7 @@ import {
 import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
 import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import { CachedViewportStore } from "@/lib/stores/CachedViewport";
+import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { loadSprite } from "./loadSprite";
 import { normalizeSpriteSize } from "./normalizeSpriteSize";
 
@@ -58,7 +59,15 @@ export async function loadImageWithDialog(viewport: Viewport) {
 
         if (viewport.children.length !== 0) viewport.removeChildren();
 
+        const isOppositeCanvasEmpty =
+            MarkingsStore(getOppositeCanvasId(id)).state.markings.length === 0;
+
         MarkingsStore(id).actions.markings.reset();
+        if (isOppositeCanvasEmpty) {
+            MarkingsStore(
+                getOppositeCanvasId(id)
+            ).actions.labelGenerator.reset();
+        }
         ShallowViewportStore(id).state.reset();
         CanvasToolbarStore(id).state.reset();
         CachedViewportStore(id).state.reset();

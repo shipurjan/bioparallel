@@ -64,6 +64,9 @@ class StoreClass {
             draft.id = crypto.randomUUID();
 
             if (draft.label !== undefined) {
+                console.debug(
+                    `[Canvas ${this.id}] label is defined - ${draft.label}`
+                );
                 // Przypadek gdy ostatnio dodany marking ma już przypisany label
                 // (Najczęściej jest to sytuacja gdy wgrywamy plik z danymi markingu)
                 // Znajdź czy istnieje znacznik z takim samym labelem w przeciwnym canvasie
@@ -92,6 +95,10 @@ class StoreClass {
                 lastAddedMarking.canvasId !== canvasId;
 
             if (isLastAddedMarkingInOppositeCanvas) {
+                console.debug(
+                    `[Canvas ${this.id}] last added marking from opposite canvas`,
+                    lastAddedMarking.label
+                );
                 // Przypadek gdy ostatnio dodany marking jest z przeciwnego canvasa
                 // Weź znacznik z ostatnio dodanego markingu i powiąż go z tym markingiem
 
@@ -104,7 +111,6 @@ class StoreClass {
                     draft.label = this.labelGenerator.next().value;
                 } else {
                     draft.label = lastAddedMarking.label;
-                    this.labelGenerator.next(lastAddedMarking.label);
                     this.labelGenerator.next(lastAddedMarking.label);
                 }
 
@@ -120,6 +126,10 @@ class StoreClass {
 
                 return;
             }
+
+            console.debug(
+                `[Canvas ${this.id}] last added marking was from same canvas, generate new label`
+            );
 
             // Przypadek gdy ostatnio dodany marking jest z tego samego canvasa
             // Po prostu wygeneruj nowy znacznik
@@ -205,18 +215,27 @@ class StoreClass {
                 });
             },
         },
-        markings: {
+        labelGenerator: {
             reset: () => {
-                this.state.reset();
                 this.labelGenerator = createLabelGenerator();
+
                 const oppositeCanvasId = getOppositeCanvasId(this.id);
                 const oppositeCanvasLabels = Store(
                     oppositeCanvasId
                 ).state.markings.map(m => m.label);
-                const maxLabel = arrayMax(oppositeCanvasLabels) ?? 1;
-                console.log(maxLabel);
+
+                const maxLabel = arrayMax(oppositeCanvasLabels) ?? 0;
                 this.labelGenerator.next(maxLabel);
                 this.labelGenerator.next(maxLabel);
+            },
+        },
+        markings: {
+            reset: () => {
+                this.state.reset();
+                this.actions.labelGenerator.reset();
+                GlobalStateStore.actions.lastAddedMarking.setLastAddedMarking(
+                    null
+                );
             },
             addOne: (marking: Marking) => {
                 this.setMarkingsAndUpdateHash(

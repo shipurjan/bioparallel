@@ -1,3 +1,4 @@
+/* eslint-disable sonarjs/cognitive-complexity */
 /* eslint-disable no-throw-literal */
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { showErrorDialog } from "@/lib/errors/showErrorDialog";
@@ -7,6 +8,7 @@ import { open, confirm } from "@tauri-apps/plugin-dialog";
 import { readTextFile } from "@tauri-apps/plugin-fs";
 import { t } from "i18next";
 import { Viewport } from "pixi-viewport";
+import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { ExportObject } from "./saveMarkingsDataWithDialog";
 
 function validateFileData(_data: unknown): _data is ExportObject {
@@ -80,7 +82,15 @@ export async function loadMarkingsDataWithDialog(viewport: Viewport) {
             selected: false,
         }));
 
+        const isOppositeCanvasEmpty =
+            MarkingsStore(getOppositeCanvasId(id)).state.markings.length === 0;
+
         MarkingsStore(id).actions.markings.reset();
+        if (isOppositeCanvasEmpty) {
+            MarkingsStore(
+                getOppositeCanvasId(id)
+            ).actions.labelGenerator.reset();
+        }
         MarkingsStore(id).actions.markings.addMany(markings);
     } catch (error) {
         if (typeof error === "string" && error === "cancel") return;

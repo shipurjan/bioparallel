@@ -180,11 +180,13 @@ export const handleMouseDown = (
                     onMouseDown = () => {
                         viewport.removeEventListener("mousemove", onMouseMove);
 
-                        const { temporaryMarking, cursor } =
-                            markingsStore.state;
+                        const { temporaryMarking } = markingsStore.state;
                         if (temporaryMarking === null) return;
 
-                        if (cursor.rowIndex === Infinity) {
+                        const isCursorFinite =
+                            markingsStore.actions.cursor.isFinite();
+
+                        if (!isCursorFinite) {
                             addMarkingToStore(temporaryMarking, params);
                         } else {
                             const markingToEdit =
