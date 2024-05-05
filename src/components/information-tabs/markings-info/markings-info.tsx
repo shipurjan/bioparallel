@@ -60,7 +60,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
         }
     );
 
-    const [columns, setColumns] = useState(getColumns());
+    const [columns, setColumns] = useState(getColumns(id));
 
     const markings = useMemo(() => {
         const thisIds = thisMarkings.map(m => m.id);
@@ -106,7 +106,7 @@ export function MarkingsInfo({ tableHeight }: { tableHeight: number }) {
     }, [cursor, markings.length]);
 
     useEffect(() => {
-        setColumns(getColumns());
+        setColumns(getColumns(id));
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [GlobalSettingsStore.state.settings.language]);
 

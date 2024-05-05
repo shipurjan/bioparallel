@@ -23,7 +23,7 @@ export type InternalMarking = {
     size: number;
     type: MARKING_TYPES;
     angleRad: number | null;
-    boundMarkingId?: InternalMarking["id"];
+    boundMarkingId?: InternalMarking["id"] | undefined;
 };
 
 export type RenderableMarking = InternalMarking & {

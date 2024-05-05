@@ -249,45 +249,46 @@ class StoreClass {
                 );
             },
             removeOneById: (id: string) => {
-                this.setMarkingsAndUpdateHash(state => {
-                    return state.filter(marking => marking.id !== id);
+                this.setMarkingsAndUpdateHash(markings => {
+                    return markings.filter(marking => marking.id !== id);
                 });
             },
             removeManyById: (ids: string[]) => {
-                this.setMarkingsAndUpdateHash(
-                    produce(state => {
-                        return state.filter(
-                            marking => !ids.includes(marking.id)
-                        );
-                    })
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.filter(marking => !ids.includes(marking.id))
                 );
             },
             editOneById: (id: string, newMarking: Partial<Marking>) => {
-                this.setMarkingsAndUpdateHash(
-                    produce(state => {
-                        try {
-                            const index = state.findIndex(m => m.id === id);
-                            if (index === -1) throw new MarkingNotFoundError();
-
-                            Object.assign(state[index]!, newMarking);
-                        } catch (error) {
-                            showErrorDialog(error);
+                this.setMarkingsAndUpdateHash(markings => {
+                    return markings.map(marking => {
+                        if (marking.id === id) {
+                            return { ...marking, ...newMarking };
                         }
-                    })
-                );
+                        return marking;
+                    });
+                });
             },
             bindOneById: (id: string, boundMarkingId: string) => {
-                this.setMarkingsAndUpdateHash(
-                    produce(state => {
-                        try {
-                            const index = state.findIndex(m => m.id === id);
-                            if (index === -1) throw new MarkingNotFoundError();
-
-                            Object.assign(state[index]!, { boundMarkingId });
-                        } catch (error) {
-                            showErrorDialog(error);
-                        }
-                    })
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.map(m =>
+                        m.id === id ? { ...m, boundMarkingId } : m
+                    )
+                );
+            },
+            unbindOneById: (id: string) => {
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.map(m =>
+                        m.id === id ? { ...m, boundMarkingId: undefined } : m
+                    )
+                );
+            },
+            unbindAllWithBoundMarkingId: (boundMarkingId: string) => {
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.map(m =>
+                        m.boundMarkingId === boundMarkingId
+                            ? { ...m, boundMarkingId: undefined }
+                            : m
+                    )
                 );
             },
             selectOneById: (
