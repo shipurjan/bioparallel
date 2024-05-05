@@ -12,6 +12,7 @@ import { BaseTexture, Sprite } from "pixi.js";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { getCanvas } from "@/components/pixi/canvas/hooks/useCanvas";
 import path from "path";
+import { round } from "../math/round";
 
 type ImageInfo = {
     name: string | null;
@@ -90,7 +91,10 @@ async function getData(
             .toSorted((a, b) => a.label - b.label)
             .map(m => ({
                 label: m.label,
-                position: m.position,
+                position: {
+                    x: round(m.position.x),
+                    y: round(m.position.y),
+                },
                 type: m.type,
                 angleRad: m.angleRad,
                 backgroundColor: m.backgroundColor,

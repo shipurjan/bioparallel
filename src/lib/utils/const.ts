@@ -4,7 +4,7 @@ export const IS_DEV_ENVIRONMENT =
 
 export const ICON = {
     SIZE: 20,
-    STROKE_WIDTH: 1.5,
+    STROKE_WIDTH: 2,
 } as const;
 
 /** https://developer.mozilla.org/en-US/docs/Web/API/MouseEvent/button */

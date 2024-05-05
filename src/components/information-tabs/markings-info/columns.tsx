@@ -1,11 +1,11 @@
 "use client";
 
 import { CellContext, ColumnDef } from "@tanstack/react-table";
-import { Checkbox } from "@/components/ui/checkbox";
 import { InternalMarking } from "@/lib/stores/Markings";
 import { t } from "i18next";
-import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
+import { ICON, IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { GlobalStateStore } from "@/lib/stores/GlobalState";
+import { Link } from "lucide-react";
 
 export type ExtendedMarking = InternalMarking & {
     x: number;
@@ -69,31 +69,12 @@ const formatCell = <T,>(
 
 export const getColumns: () => Array<ColumnDef<EmptyableMarking>> = () => [
     {
-        id: "select",
-        header: ({ table }) => (
-            <Checkbox
-                checked={
-                    table.getIsAllPageRowsSelected() ||
-                    (table.getIsSomePageRowsSelected() && "indeterminate")
-                }
-                onCheckedChange={value => {
-                    const newValue = !!value;
-                    table.toggleAllPageRowsSelected(newValue);
-                }}
-            />
-        ),
-        cell: ({ row }) => (
-            <Checkbox
-                checked={row.getIsSelected()}
-                onCheckedChange={value => {
-                    const newValue = !!value;
-                    row.toggleSelected(newValue);
-                }}
-                aria-label="Select row"
-            />
-        ),
-        enableSorting: false,
-        enableHiding: false,
+        id: "isBound",
+        cell: ({ row: { original: marking } }) =>
+            isInternalMarking(marking) &&
+            marking.boundMarkingId && (
+                <Link size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
+            ),
     },
     // ID będzie pokazane tylko podczas developmentu
     ...(IS_DEV_ENVIRONMENT
