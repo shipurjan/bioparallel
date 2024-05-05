@@ -13,7 +13,6 @@ import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite
 import { arrayMax } from "@/lib/utils/array/minmax";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
-    Cursor,
     InternalMarking,
     Marking,
     MarkingsState as State,
@@ -126,12 +125,6 @@ class StoreClass {
         }) as InternalMarking;
     }
 
-    private setCursor(callback: ActionProduceCallback<State["cursor"], State>) {
-        this.state.set(draft => {
-            draft.cursor = callback(draft.cursor, draft);
-        });
-    }
-
     private setMarkingsHash(
         callback: ActionProduceCallback<State["markingsHash"], State>
     ) {
@@ -169,38 +162,6 @@ class StoreClass {
     }
 
     readonly actions = {
-        cursor: {
-            updateCursor: (
-                rowIndex: number,
-                label: Cursor["label"],
-                type: Cursor["type"],
-                id: Cursor["id"],
-                boundMarkingId: Cursor["boundMarkingId"]
-            ) => {
-                this.setCursor(() => ({
-                    rowIndex,
-                    ...(id && { id }),
-                    ...(label && { label }),
-                    ...(type && { type }),
-                    ...(boundMarkingId && { boundMarkingId }),
-                }));
-            },
-            isFinite: () => {
-                return Number.isFinite(this.state.cursor.rowIndex);
-            },
-            getMarkingAtCursor: () => {
-                return (
-                    this.state.markings.find(
-                        m => m.id === this.state.cursor.id
-                    ) ??
-                    this.state.markings.find(
-                        m =>
-                            m.boundMarkingId ===
-                            this.state.cursor.boundMarkingId
-                    )
-                );
-            },
-        },
         table: {
             setTableRows: (rows: State["tableRows"]) => {
                 this.state.set(draft => {

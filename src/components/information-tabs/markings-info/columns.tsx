@@ -87,10 +87,7 @@ export const getColumns = (
                 >
                     {isInternalMarking(marking) && marking.id && (
                         <Toggle
-                            title={t("Load forensic mark image", {
-                                ns: "tooltip",
-                            })}
-                            size="icon"
+                            size="sm-icon"
                             variant="outline"
                             pressed={false}
                             onClick={() => {
@@ -142,7 +139,7 @@ export const getColumns = (
                 formatCell(cell, ({ row: { original: marking } }) => (
                     <div className="flex flex-row gap-1">
                         <div>{marking.label}</div>
-                        <div>
+                        <div className="size-5 inline-flex items-center justify-center">
                             {isInternalMarking(marking) &&
                                 marking.boundMarkingId && (
                                     <Link

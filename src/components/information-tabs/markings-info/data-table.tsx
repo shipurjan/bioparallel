@@ -21,8 +21,6 @@ import { cn } from "@/lib/utils/shadcn";
 import { TableCell, TableHead, TableRow } from "@/components/ui/table";
 import { MarkingsStore } from "@/lib/stores/Markings";
 import { CANVAS_ID } from "@/components/pixi/canvas/hooks/useCanvasContext";
-import invariant from "tiny-invariant";
-import { IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { EmptyableMarking, isInternalMarking } from "./columns";
 
 // Original Table is wrapped with a <div> (see https://ui.shadcn.com/docs/components/table#radix-:r24:-content-manual),
@@ -42,63 +40,25 @@ TableComponent.displayName = "TableComponent";
 const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) =>
     // eslint-disable-next-line sonarjs/cognitive-complexity
     function getTableRow(props: HTMLAttributes<HTMLTableRowElement>) {
+        // eslint-disable-next-line no-void
+        void { canvasId };
         // @ts-expect-error data-index is a valid attribute
         const index = props["data-index"];
         const row = rows[index];
 
         if (!row) return null;
 
-        const cursor = MarkingsStore(canvasId).use(state => state.cursor);
-        const isCursorFinite =
-            MarkingsStore(canvasId).actions.cursor.isFinite();
-
         const marking = row.original as EmptyableMarking;
         const selected = isInternalMarking(marking) ? marking.selected : false;
         const cells = row.getVisibleCells();
 
-        const isCursorOnThisRow =
-            isCursorFinite && rows.at(cursor.rowIndex)?.index === index;
-
-        const isCursorAtTail = !isCursorFinite && index === rows.length - 1;
-
-        if (IS_DEV_ENVIRONMENT && isCursorOnThisRow) {
-            const markingAtCursor =
-                MarkingsStore(canvasId).actions.cursor.getMarkingAtCursor();
-            const isInternal = isInternalMarking(marking);
-            if (isInternal) {
-                const idx = MarkingsStore(canvasId).state.markings.findIndex(
-                    e => e.id === marking.id
-                );
-                try {
-                    invariant(
-                        markingAtCursor?.label === marking.label,
-                        `Marking at cursor does not match the marking in the row:
-Received: marking{${idx},${marking.label}} !== cursor{${cursor.rowIndex},${markingAtCursor?.label}}`
-                    );
-                } catch (error) {
-                    if (error instanceof Error) console.error(error.message);
-                    else console.error(error);
-                }
-            }
-        }
-
         return (
             <TableRow
                 key={row.id}
-                className={cn("last:border-b-0", {
-                    "ring-ring ring-4 last:ring-4": isCursorOnThisRow,
-                    "border-ring last:border-b-[1.5rem]": isCursorAtTail,
-                })}
+                className={cn("last:border-b-0")}
                 data-state={selected && "selected"}
                 onClick={e => {
                     e.stopPropagation();
-                    MarkingsStore(canvasId).actions.cursor.updateCursor(
-                        row.index,
-                        marking.label,
-                        isInternalMarking(marking) ? marking.type : undefined,
-                        isInternalMarking(marking) ? marking.id : undefined,
-                        marking.boundMarkingId
-                    );
                 }}
                 {...props}
             >
@@ -158,10 +118,7 @@ export const DataTable = forwardRef<TableVirtuosoHandle, any>(function <
         onRowSelectionChange: setRowSelection,
     });
 
-    const cursor = MarkingsStore(canvasId).use(state => state.cursor);
     const { setTableRows } = MarkingsStore(canvasId).actions.table;
-    const isCursorAtFirstItem =
-        Number.isFinite(cursor.rowIndex) && cursor.rowIndex === 0;
 
     const { rows } = table.getRowModel();
 
@@ -206,9 +163,7 @@ export const DataTable = forwardRef<TableVirtuosoHandle, any>(function <
                 fixedHeaderContent={() =>
                     table.getHeaderGroups().map(headerGroup => (
                         <TableRow
-                            className={cn("bg-card hover:bg-muted border-b-0", {
-                                "shadow-bottom": !isCursorAtFirstItem,
-                            })}
+                            className={cn("bg-card hover:bg-muted border-b-0")}
                             key={headerGroup.id}
                         >
                             {headerGroup.headers.map(header => {

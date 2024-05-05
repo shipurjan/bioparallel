@@ -42,27 +42,19 @@ export type SimplifiedTableRow = {
 export type Marking = Omit<InternalMarking, "id" | "label"> &
     Partial<Pick<InternalMarking, "label">>;
 
-export type Cursor = {
-    rowIndex: number;
-    label?: InternalMarking["label"];
-    type?: InternalMarking["type"];
-    id?: InternalMarking["id"];
-    boundMarkingId?: InternalMarking["boundMarkingId"];
-};
-
 type State = {
-    cursor: Cursor;
     tableRows: SimplifiedTableRow[];
     markingsHash: string;
     markings: InternalMarking[];
+    selectedMarking: InternalMarking | null;
     temporaryMarking: InternalMarking | null;
 };
 
 const INITIAL_STATE: State = {
-    cursor: { rowIndex: Infinity },
     tableRows: [],
     markingsHash: crypto.randomUUID(),
     temporaryMarking: null,
+    selectedMarking: null,
     markings: [],
 };
 
