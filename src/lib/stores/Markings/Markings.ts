@@ -19,24 +19,10 @@ import {
     _createMarkingsStore as createStore,
 } from "./Markings.store";
 import { GlobalStateStore } from "../GlobalState";
+import { IDGenerator } from "./IdGenerator";
 
 const useLeftStore = createStore(CANVAS_ID.LEFT);
 const useRightStore = createStore(CANVAS_ID.RIGHT);
-
-function* createLabelGenerator(
-    start = 0,
-    end = Infinity,
-    step = 1
-): Generator<InternalMarking["label"]> {
-    for (let i = start; i < end; i += step) {
-        let reset = (yield i) as number | string | undefined;
-        if (reset !== undefined) {
-            if (typeof reset === "number") i = reset - step;
-            if (typeof reset === "string" && reset === "prev") i -= step;
-            reset = undefined;
-        }
-    }
-}
 
 const { setLastAddedMarking } = GlobalStateStore.actions.lastAddedMarking;
 
@@ -45,7 +31,7 @@ class StoreClass {
 
     readonly use: typeof useLeftStore;
 
-    private labelGenerator = createLabelGenerator();
+    private labelGenerator = new IDGenerator();
 
     constructor(id: CanvasMetadata["id"]) {
         this.id = id;
@@ -64,6 +50,7 @@ class StoreClass {
             draft.id = crypto.randomUUID();
 
             if (draft.label !== undefined && draft.label !== -1) {
+                console.log("draft label is defined", draft.label);
                 // Przypadek gdy ostatnio dodany marking ma już przypisany label
                 // (Najczęściej jest to sytuacja gdy wgrywamy plik z danymi markingu)
                 // Znajdź czy istnieje znacznik z takim samym labelem w przeciwnym canvasie
@@ -91,6 +78,7 @@ class StoreClass {
                 lastAddedMarking.canvasId !== canvasId;
 
             if (isLastAddedMarkingInOppositeCanvas) {
+                console.log("last added in opposite");
                 // Przypadek gdy ostatnio dodany marking jest z przeciwnego canvasa
                 // Weź znacznik z ostatnio dodanego markingu i powiąż go z tym markingiem
 
@@ -100,10 +88,10 @@ class StoreClass {
                     ) !== -1;
 
                 if (isLabelAlreadyUsed) {
-                    draft.label = this.labelGenerator.next().value;
+                    draft.label = this.labelGenerator.generateId();
                 } else {
                     draft.label = lastAddedMarking.label;
-                    this.labelGenerator.next(lastAddedMarking.label);
+                    this.labelGenerator.setId(lastAddedMarking.label);
                 }
 
                 if (lastAddedMarking.label === draft.label) {
@@ -119,9 +107,10 @@ class StoreClass {
                 return;
             }
 
+            console.log("last added in same");
             // Przypadek gdy ostatnio dodany marking jest z tego samego canvasa
             // Po prostu wygeneruj nowy znacznik
-            draft.label = this.labelGenerator.next().value;
+            draft.label = this.labelGenerator.generateId();
         }) as InternalMarking;
     }
 
@@ -171,25 +160,29 @@ class StoreClass {
         },
         labelGenerator: {
             reset: () => {
-                this.labelGenerator = createLabelGenerator();
+                this.labelGenerator = new IDGenerator();
 
                 const oppositeCanvasId = getOppositeCanvasId(this.id);
                 const oppositeCanvasLabels = Store(
                     oppositeCanvasId
                 ).state.markings.map(m => m.label);
+                const thisCanvasLabels = this.state.markings.map(m => m.label);
 
-                const maxLabel = arrayMax(oppositeCanvasLabels) ?? 0;
-                this.labelGenerator.next(maxLabel);
-                this.labelGenerator.next(maxLabel);
+                const maxLabel =
+                    arrayMax([...oppositeCanvasLabels, ...thisCanvasLabels]) ??
+                    0;
+                this.labelGenerator.setId(maxLabel);
             },
         },
         markings: {
             reset: () => {
-                this.labelGenerator = createLabelGenerator();
+                this.labelGenerator = new IDGenerator();
+                this.state.markings.forEach(marking => {
+                    Store(
+                        getOppositeCanvasId(this.id)
+                    ).actions.markings.unbindAllWithBoundMarkingId(marking.id);
+                });
                 this.setMarkingsAndUpdateHash(() => []);
-                GlobalStateStore.actions.lastAddedMarking.setLastAddedMarking(
-                    null
-                );
             },
             addOne: (marking: Marking) => {
                 this.setMarkingsAndUpdateHash(

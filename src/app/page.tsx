@@ -8,6 +8,9 @@ import dynamic from "next/dynamic";
 import { GlobalToolbar } from "@/components/toolbar/toolbar";
 import { useTranslation } from "react-i18next";
 import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
+import { MarkingsStore } from "@/lib/stores/Markings";
+import { CANVAS_ID } from "@/components/pixi/canvas/hooks/useCanvasContext";
+import { GlobalStateStore } from "@/lib/stores/GlobalState";
 
 const Homepage = dynamic(
     () =>
@@ -31,9 +34,9 @@ export default function Home() {
             document.dispatchEvent(
                 new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
             );
-            document.dispatchEvent(
-                new Event(CUSTOM_GLOBAL_EVENTS.RESET_MARKING_CURSOR)
-            );
+            MarkingsStore(CANVAS_ID.LEFT).actions.labelGenerator.reset();
+            MarkingsStore(CANVAS_ID.RIGHT).actions.labelGenerator.reset();
+            GlobalStateStore.actions.lastAddedMarking.setLastAddedMarking(null);
         };
 
         document.addEventListener(CUSTOM_GLOBAL_EVENTS.CLEANUP, performCleanup);

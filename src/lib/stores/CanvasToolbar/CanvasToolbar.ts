@@ -5,7 +5,6 @@ import {
     CANVAS_ID,
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
-import { CUSTOM_GLOBAL_EVENTS } from "@/lib/utils/const";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     CanvasToolbarState as State,
@@ -29,15 +28,10 @@ class StoreClass {
         return this.use.getState();
     }
 
-    private setWithCleanup: typeof this.state.set = callback => {
-        this.state.set(callback);
-        document.dispatchEvent(new Event(CUSTOM_GLOBAL_EVENTS.CLEANUP));
-    };
-
     private setTextureSettings(
         callback: ActionProduceCallback<State["settings"]["texture"], State>
     ) {
-        this.setWithCleanup(draft => {
+        this.state.set(draft => {
             draft.settings.texture = callback(draft.settings.texture, draft);
         });
     }
@@ -45,7 +39,7 @@ class StoreClass {
     private setMarkingsSettings(
         callback: ActionProduceCallback<State["settings"]["markings"], State>
     ) {
-        this.setWithCleanup(draft => {
+        this.state.set(draft => {
             draft.settings.markings = callback(draft.settings.markings, draft);
         });
     }
