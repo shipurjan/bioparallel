@@ -12,15 +12,43 @@ import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite
 import { ExportObject } from "./saveMarkingsDataWithDialog";
 
 function validateFileData(_data: unknown): _data is ExportObject {
-    const data = _data as ExportObject;
+    const filedata = _data as ExportObject;
     return (
-        typeof data === "object" &&
-        data !== null &&
-        "software" in data &&
-        "name" in data.software &&
-        data.software.name === "bioparallel" &&
-        "version" in data.software
+        typeof filedata === "object" &&
+        filedata !== null &&
+        "software" in filedata.metadata &&
+        "name" in filedata.metadata.software &&
+        filedata.metadata.software.name === "bioparallel" &&
+        "version" in filedata.metadata.software
     );
+}
+
+function inferMarking(
+    marking: ExportObject["data"]["markings"][0],
+    markingStyleTypes: ExportObject["data"]["marking_types"]
+): Marking {
+    const {
+        background_color: backgroundColor,
+        size,
+        text_color: textColor,
+        type,
+    } = markingStyleTypes.find(t => t.typeId === marking.typeId)!;
+
+    const { typeId, angleRad, ...props } = marking;
+
+    // eslint-disable-next-line no-void
+    void { typeId };
+
+    return {
+        backgroundColor,
+        textColor,
+        size,
+        type,
+        hidden: false,
+        selected: false,
+        angleRad: angleRad ?? null,
+        ...props,
+    };
 }
 
 export async function loadMarkingsDataWithDialog(viewport: Viewport) {
@@ -47,16 +75,16 @@ export async function loadMarkingsDataWithDialog(viewport: Viewport) {
         if (id === null) throw new Error(`Canvas ID: ${id} not found`);
 
         const file = await readTextFile(fileResponse.path);
-        const data: unknown = JSON.parse(file);
-        if (!validateFileData(data)) {
+        const filedata: unknown = JSON.parse(file);
+        if (!validateFileData(filedata)) {
             throw new Error("Invalid markings data file");
         }
 
         const appVersion = await getVersion();
 
-        if (data.software.version !== appVersion) {
+        if (filedata.metadata.software.version !== appVersion) {
             const confirmed = confirm(
-                `The markings data was created with a different version of the application (${data.software.version}). Loading it might not work.\n\nAre you sure you want to load it?`,
+                `The markings data was created with a different version of the application (${filedata.metadata.software.version}). Loading it might not work.\n\nAre you sure you want to load it?`,
                 {
                     kind: "warning",
                     title: fileResponse?.name ?? "Are you sure?",
@@ -76,11 +104,11 @@ export async function loadMarkingsDataWithDialog(viewport: Viewport) {
             if (!confirmed) throw "cancel";
         }
 
-        const markings: Marking[] = data.markings.map(marking => ({
-            ...marking,
-            hidden: false,
-            selected: false,
-        }));
+        const markingStyleTypes = filedata.data.marking_types;
+
+        const markings: Marking[] = filedata.data.markings.map(marking =>
+            inferMarking(marking, markingStyleTypes)
+        );
 
         const isOppositeCanvasEmpty =
             MarkingsStore(getOppositeCanvasId(id)).state.markings.length === 0;

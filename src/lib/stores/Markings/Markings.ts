@@ -185,8 +185,8 @@ class StoreClass {
         },
         markings: {
             reset: () => {
-                this.state.reset();
-                this.actions.labelGenerator.reset();
+                this.labelGenerator = createLabelGenerator();
+                this.setMarkingsAndUpdateHash(() => []);
                 GlobalStateStore.actions.lastAddedMarking.setLastAddedMarking(
                     null
                 );
