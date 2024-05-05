@@ -77,7 +77,7 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) =>
 function SortingIndicator({ isSorted }: { isSorted: SortDirection | false }) {
     if (!isSorted) return null;
     return (
-        <div>
+        <div className="relative w-0 right-0">
             {
                 {
                     asc: "↑",
