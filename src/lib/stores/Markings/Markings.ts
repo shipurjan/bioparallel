@@ -11,6 +11,8 @@ import { MarkingNotFoundError } from "@/lib/errors/custom-errors/MarkingNotFound
 import { showErrorDialog } from "@/lib/errors/showErrorDialog";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { arrayMax } from "@/lib/utils/array/minmax";
+// eslint-disable-next-line import/no-cycle
+import { EmptyableMarking } from "@/components/information-tabs/markings-info/columns";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     InternalMarking,
@@ -50,7 +52,6 @@ class StoreClass {
             draft.id = crypto.randomUUID();
 
             if (draft.label !== undefined && draft.label !== -1) {
-                console.log("draft label is defined", draft.label);
                 // Przypadek gdy ostatnio dodany marking ma już przypisany label
                 // (Najczęściej jest to sytuacja gdy wgrywamy plik z danymi markingu)
                 // Znajdź czy istnieje znacznik z takim samym labelem w przeciwnym canvasie
@@ -78,7 +79,6 @@ class StoreClass {
                 lastAddedMarking.canvasId !== canvasId;
 
             if (isLastAddedMarkingInOppositeCanvas) {
-                console.log("last added in opposite");
                 // Przypadek gdy ostatnio dodany marking jest z przeciwnego canvasa
                 // Weź znacznik z ostatnio dodanego markingu i powiąż go z tym markingiem
 
@@ -107,7 +107,6 @@ class StoreClass {
                 return;
             }
 
-            console.log("last added in same");
             // Przypadek gdy ostatnio dodany marking jest z tego samego canvasa
             // Po prostu wygeneruj nowy znacznik
             draft.label = this.labelGenerator.generateId();
@@ -150,14 +149,15 @@ class StoreClass {
         });
     }
 
+    private setSelectedMarking(
+        callback: ActionProduceCallback<State["selectedMarking"], State>
+    ) {
+        this.state.set(draft => {
+            draft.selectedMarking = callback(draft.selectedMarking, draft);
+        });
+    }
+
     readonly actions = {
-        table: {
-            setTableRows: (rows: State["tableRows"]) => {
-                this.state.set(draft => {
-                    draft.tableRows = rows;
-                });
-            },
-        },
         labelGenerator: {
             reset: () => {
                 this.labelGenerator = new IDGenerator();
@@ -185,11 +185,16 @@ class StoreClass {
                 this.setMarkingsAndUpdateHash(() => []);
             },
             addOne: (marking: Marking) => {
+                const inferredMarking = this.getInferredMarking(
+                    this.id,
+                    marking
+                );
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
-                        state.push(this.getInferredMarking(this.id, marking));
+                        state.push(inferredMarking);
                     })
                 );
+                return inferredMarking;
             },
             addMany: (markings: Marking[]) => {
                 this.setMarkingsAndUpdateHash(
@@ -290,6 +295,15 @@ class StoreClass {
                         }
                     })
                 );
+            },
+        },
+        selectedMarking: {
+            setSelectedMarking: (marking: EmptyableMarking | null) => {
+                if (marking === null) {
+                    this.setSelectedMarking(() => null);
+                    return;
+                }
+                this.setSelectedMarking(() => marking);
             },
         },
     };

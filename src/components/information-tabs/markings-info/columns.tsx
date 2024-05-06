@@ -1,7 +1,6 @@
 "use client";
 
 import { CellContext, ColumnDef } from "@tanstack/react-table";
-import { InternalMarking, MarkingsStore } from "@/lib/stores/Markings";
 import { t } from "i18next";
 import { ICON, IS_DEV_ENVIRONMENT } from "@/lib/utils/const";
 import { GlobalStateStore } from "@/lib/stores/GlobalState";
@@ -9,21 +8,19 @@ import { Link, Trash2 } from "lucide-react";
 import { Toggle } from "@/components/ui/toggle";
 import { CanvasMetadata } from "@/components/pixi/canvas/hooks/useCanvasContext";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
+// eslint-disable-next-line import/no-cycle
+import { InternalMarking, MarkingsStore } from "@/lib/stores/Markings";
 
 export type ExtendedMarking = InternalMarking & {
     x: number;
     y: number;
 };
 
-export type EmptyMarking = Record<string, never>;
 export type EmptyBoundMarking = {
     boundMarkingId: NonNullable<InternalMarking["boundMarkingId"]>;
     label: InternalMarking["label"];
 };
-export type EmptyableMarking =
-    | InternalMarking
-    | EmptyMarking
-    | EmptyBoundMarking;
+export type EmptyableMarking = InternalMarking | EmptyBoundMarking;
 type EmptyableCellContext = CellContext<EmptyableMarking, unknown>;
 type DataCellContext = CellContext<InternalMarking, unknown>;
 
@@ -39,10 +36,6 @@ export function isEmptyBoundMarking(
     return !isInternalMarking(cell) && "boundMarkingId" in cell;
 }
 
-export function isEmptyMarking(cell: EmptyableMarking): cell is EmptyMarking {
-    return Object.keys(cell).length === 0 && cell.constructor === Object;
-}
-
 const formatCell = <T,>(
     context: EmptyableCellContext,
     callback: (context: DataCellContext) => T,
@@ -52,10 +45,6 @@ const formatCell = <T,>(
 
     if (isInternalMarking(row)) {
         return callback(context as DataCellContext);
-    }
-
-    if (isEmptyMarking(row)) {
-        return "ㅤ";
     }
 
     if (isEmptyBoundMarking(row)) {
