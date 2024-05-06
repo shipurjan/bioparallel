@@ -13,6 +13,7 @@ import {
     MarkingsStoreClass,
 } from "@/lib/stores/Markings";
 import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
+import { isInternalMarking } from "@/components/information-tabs/markings-info/columns";
 import { getNormalizedPosition } from "../../overlays/utils/get-viewport-local-position";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
 
@@ -50,7 +51,7 @@ export function createMarking(
     angleRad: Marking["angleRad"],
     position: Marking["position"],
     label?: InternalMarking["label"]
-): Marking & Partial<InternalMarking> {
+): Marking {
     const { size, backgroundColor, textColor } =
         DashboardToolbarStore.state.settings.marking;
 
@@ -84,8 +85,7 @@ export function addMarkingToStore(
     switch (markingType) {
         case MARKING_TYPES.POINT: {
             const marking = createMarking(markingType, null, markingPos, label);
-            addMarking(marking);
-            break;
+            return addMarking(marking);
         }
         case MARKING_TYPES.RAY: {
             const marking = createMarking(
@@ -94,11 +94,44 @@ export function addMarkingToStore(
                 markingPos,
                 label
             );
-            addMarking(marking);
-            break;
+            return addMarking(marking);
         }
         default:
             markingType satisfies never;
             throw new Error(`Unknown marking type: ${markingType}`);
     }
+}
+
+export function addOrEditMarking(
+    marking: InternalMarking,
+    params: ViewportHandlerParams
+) {
+    const { markingsStore } = params;
+    const { selectedMarking } = markingsStore.state;
+
+    if (selectedMarking === null) {
+        addMarkingToStore(marking, params);
+        return;
+    }
+
+    if (isInternalMarking(selectedMarking)) {
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { id, label, ...newProps } = marking;
+
+        markingsStore.actions.markings.editOneById(
+            selectedMarking.id,
+            newProps
+        );
+        return;
+    }
+
+    const newMarking = addMarkingToStore(
+        {
+            ...marking,
+            boundMarkingId: selectedMarking.boundMarkingId,
+            label: selectedMarking.label,
+        },
+        params
+    );
+    markingsStore.actions.selectedMarking.setSelectedMarking(newMarking);
 }

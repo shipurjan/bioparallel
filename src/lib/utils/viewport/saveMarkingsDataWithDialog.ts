@@ -12,6 +12,7 @@ import { BaseTexture, Sprite } from "pixi.js";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { getCanvas } from "@/components/pixi/canvas/hooks/useCanvas";
 import path from "path";
+import { round } from "../math/round";
 
 type ImageInfo = {
     name: string | null;
@@ -28,20 +29,28 @@ type SoftwareInfo = {
     version: string;
 };
 
+type MarkingStyleType = {
+    typeId: number;
+    type: InternalMarking["type"];
+    background_color: InternalMarking["backgroundColor"];
+    text_color: InternalMarking["textColor"];
+    size: InternalMarking["size"];
+};
+
 export type ExportObject = {
-    software: SoftwareInfo;
-    image: ImageInfo | null;
-    comparedImage: ImageInfo | null;
-    markings: Pick<
-        InternalMarking,
-        | "label"
-        | "position"
-        | "type"
-        | "angleRad"
-        | "backgroundColor"
-        | "size"
-        | "textColor"
-    >[];
+    metadata: {
+        software: SoftwareInfo;
+        image: ImageInfo | null;
+        compared_image: ImageInfo | null;
+    };
+    data: {
+        marking_types: MarkingStyleType[];
+        markings: ({ typeId: MarkingStyleType["typeId"] } & Pick<
+            InternalMarking,
+            "label" | "position"
+        > &
+            Partial<Pick<InternalMarking, "angleRad">>)[];
+    };
 };
 
 function getImageData(picture: Sprite | undefined): ImageInfo | null {
@@ -66,6 +75,72 @@ function getImageData(picture: Sprite | undefined): ImageInfo | null {
     };
 }
 
+function getMarkingTypes(markings: InternalMarking[]): MarkingStyleType[] {
+    const markingTypes: MarkingStyleType[] = [];
+
+    let typeId = 0;
+
+    markings.forEach(marking => {
+        const { backgroundColor, textColor, size, type } = marking;
+
+        const existingType = markingTypes.find(styleType => {
+            return (
+                styleType.background_color === backgroundColor &&
+                styleType.text_color === textColor &&
+                styleType.type === type &&
+                styleType.size === size
+            );
+        });
+
+        if (!existingType) {
+            markingTypes.push({
+                typeId,
+                type,
+                background_color: backgroundColor,
+                text_color: textColor,
+                size,
+            });
+            typeId += 1;
+        }
+    });
+
+    return markingTypes;
+}
+
+function getReducedMarkings(
+    markings: InternalMarking[],
+    styleTypes: MarkingStyleType[]
+): ExportObject["data"]["markings"] {
+    return markings.map(marking => {
+        const { backgroundColor, textColor, size, type } = marking;
+
+        const markingType = styleTypes.find(styleType => {
+            return (
+                styleType.background_color === backgroundColor &&
+                styleType.text_color === textColor &&
+                styleType.type === type &&
+                styleType.size === size
+            );
+        });
+
+        if (!markingType) {
+            throw new Error(
+                `Could not find marking type for marking with background color ${backgroundColor}, text color ${textColor}, size ${size} and type ${type}`
+            );
+        }
+
+        return {
+            typeId: markingType.typeId,
+            label: marking.label,
+            position: {
+                x: round(marking.position.x),
+                y: round(marking.position.y),
+            },
+            ...(marking.angleRad !== null && { angleRad: marking.angleRad }),
+        };
+    });
+}
+
 async function getData(
     viewport: Viewport,
     picture?: Sprite,
@@ -79,24 +154,22 @@ async function getData(
 
     const appVersion = await getVersion();
 
+    const markingStyleTypes = getMarkingTypes(markings);
+    const reducedMarkings = getReducedMarkings(markings, markingStyleTypes);
+
     const exportObject: ExportObject = {
-        software: {
-            name: "bioparallel",
-            version: appVersion,
+        metadata: {
+            software: {
+                name: "bioparallel",
+                version: appVersion,
+            },
+            image: getImageData(picture),
+            compared_image: getImageData(oppositePicture),
         },
-        image: getImageData(picture),
-        comparedImage: getImageData(oppositePicture),
-        markings: markings
-            .toSorted((a, b) => a.label - b.label)
-            .map(m => ({
-                label: m.label,
-                position: m.position,
-                type: m.type,
-                angleRad: m.angleRad,
-                backgroundColor: m.backgroundColor,
-                size: m.size,
-                textColor: m.textColor,
-            })),
+        data: {
+            marking_types: markingStyleTypes,
+            markings: reducedMarkings,
+        },
     };
 
     return JSON.stringify(exportObject, null, 2);

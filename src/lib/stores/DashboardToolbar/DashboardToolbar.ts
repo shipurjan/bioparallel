@@ -15,23 +15,19 @@ class StoreClass {
         return this.use.getState();
     }
 
-    private setWithCleanup: typeof this.state.set = callback => {
-        this.state.set(callback);
-        document.dispatchEvent(new Event(CUSTOM_GLOBAL_EVENTS.CLEANUP));
-    };
-
     private setCursorSettings(
         callback: ActionProduceCallback<State["settings"]["cursor"], State>
     ) {
-        this.setWithCleanup(draft => {
+        this.state.set(draft => {
             draft.settings.cursor = callback(draft.settings.cursor, draft);
         });
+        document.dispatchEvent(new Event(CUSTOM_GLOBAL_EVENTS.CLEANUP));
     }
 
     private setViewportSettings(
         callback: ActionProduceCallback<State["settings"]["viewport"], State>
     ) {
-        this.setWithCleanup(draft => {
+        this.state.set(draft => {
             draft.settings.viewport = callback(draft.settings.viewport, draft);
         });
     }
@@ -39,7 +35,7 @@ class StoreClass {
     private setMarkingSettings(
         callback: ActionProduceCallback<State["settings"]["marking"], State>
     ) {
-        this.setWithCleanup(draft => {
+        this.state.set(draft => {
             draft.settings.marking = callback(draft.settings.marking, draft);
         });
     }

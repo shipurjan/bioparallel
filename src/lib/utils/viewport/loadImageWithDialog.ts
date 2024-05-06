@@ -68,6 +68,7 @@ export async function loadImageWithDialog(viewport: Viewport) {
                 getOppositeCanvasId(id)
             ).actions.labelGenerator.reset();
         }
+        MarkingsStore(id).actions.labelGenerator.reset();
         ShallowViewportStore(id).state.reset();
         CanvasToolbarStore(id).state.reset();
         CachedViewportStore(id).state.reset();

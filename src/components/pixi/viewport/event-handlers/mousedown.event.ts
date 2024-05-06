@@ -6,54 +6,168 @@ import {
 import { CUSTOM_GLOBAL_EVENTS, MOUSE_BUTTONS } from "@/lib/utils/const";
 import { Marking, MARKING_TYPES } from "@/lib/stores/Markings";
 import { getAngle } from "@/lib/utils/math/getAngle";
+import { isInternalMarking } from "@/components/information-tabs/markings-info/columns";
 import {
     ViewportHandlerParams,
-    addMarkingToStore,
+    addOrEditMarking,
     createMarking,
     getNormalizedMousePosition,
 } from "./utils";
+
+type HandlerParams = {
+    e: FederatedPointerEvent;
+    markingType: MARKING_TYPES;
+    interrupt: () => void;
+    params: ViewportHandlerParams;
+};
+
+let onMouseMove: (e: FederatedPointerEvent) => void = () => {};
+let onMouseUp: (e: FederatedPointerEvent) => void = () => {};
+let onMouseDown: (e: FederatedPointerEvent) => void = () => {};
 
 function setTemporaryMarkingToEitherNewOrExisting(
     newMarking: Marking | null,
     params: ViewportHandlerParams
 ) {
     const { markingsStore } = params;
-    const { getMarkingAtCursor } = markingsStore.actions.cursor;
+    const { selectedMarking } = markingsStore.state;
     const { editOneById: editMarkingById } = markingsStore.actions.markings;
     const { setTemporaryMarking } = markingsStore.actions.temporaryMarking;
 
-    const isCursorFinite = markingsStore.actions.cursor.isFinite();
-    const markingToEdit = getMarkingAtCursor();
+    const isSelectedMarkingInternal =
+        selectedMarking && isInternalMarking(selectedMarking);
 
-    if (isCursorFinite && markingToEdit) {
-        editMarkingById(markingToEdit.id, { hidden: true });
+    if (isSelectedMarkingInternal) {
+        editMarkingById(selectedMarking.id, { hidden: true });
     }
 
     setTemporaryMarking(
         newMarking,
-        isCursorFinite && markingToEdit ? markingToEdit.label : undefined
+        isSelectedMarkingInternal ? selectedMarking.label : undefined
     );
+}
+
+function handlePointMarking({
+    e,
+    markingType,
+    interrupt,
+    params,
+}: HandlerParams) {
+    const { viewport, markingsStore } = params;
+    const { updateTemporaryMarking } = markingsStore.actions.temporaryMarking;
+
+    setTemporaryMarkingToEitherNewOrExisting(
+        createMarking(
+            markingType,
+            null,
+            getNormalizedMousePosition(e, viewport)
+        ),
+        params
+    );
+
+    onMouseMove = (e: FederatedPointerEvent) => {
+        updateTemporaryMarking({
+            position: getNormalizedMousePosition(e, viewport),
+        });
+    };
+
+    onMouseUp = () => {
+        viewport.removeEventListener("mousemove", onMouseMove);
+
+        const { temporaryMarking } = markingsStore.state;
+        if (!temporaryMarking) return;
+
+        addOrEditMarking(temporaryMarking, params);
+
+        document.dispatchEvent(
+            new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
+        );
+        document.removeEventListener(
+            CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
+            interrupt
+        );
+    };
+
+    viewport.addEventListener("mousemove", onMouseMove);
+    viewport.addEventListener("mouseup", onMouseUp, { once: true });
+}
+
+function handleRayMarking({
+    e,
+    markingType,
+    interrupt,
+    params,
+}: HandlerParams) {
+    const { viewport, markingsStore, cachedViewportStore } = params;
+    const { updateTemporaryMarking } = markingsStore.actions.temporaryMarking;
+
+    setTemporaryMarkingToEitherNewOrExisting(
+        createMarking(markingType, 0, getNormalizedMousePosition(e, viewport)),
+        params
+    );
+
+    onMouseMove = (e: FederatedPointerEvent) => {
+        updateTemporaryMarking({
+            position: getNormalizedMousePosition(e, viewport),
+        });
+    };
+
+    onMouseUp = () => {
+        viewport.removeEventListener("mousemove", onMouseMove);
+
+        const { setRayPosition } = cachedViewportStore.actions.viewport;
+        const mousePos = getNormalizedMousePosition(e, viewport);
+        setRayPosition(mousePos);
+
+        onMouseMove = (e: FederatedPointerEvent) => {
+            const mousePos = getNormalizedMousePosition(e, viewport);
+            const { rayPosition } = cachedViewportStore.state;
+            updateTemporaryMarking({
+                angleRad: getAngle(mousePos, rayPosition),
+            });
+        };
+
+        onMouseDown = () => {
+            viewport.removeEventListener("mousemove", onMouseMove);
+
+            const { temporaryMarking } = markingsStore.state;
+            if (!temporaryMarking) return;
+
+            addOrEditMarking(temporaryMarking, params);
+
+            document.dispatchEvent(
+                new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
+            );
+            document.removeEventListener(
+                CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
+                interrupt
+            );
+        };
+
+        viewport.addEventListener("mousemove", onMouseMove);
+        viewport.addEventListener("mousedown", onMouseDown, {
+            once: true,
+        });
+    };
+
+    viewport.addEventListener("mousemove", onMouseMove);
+    viewport.addEventListener("mouseup", onMouseUp, { once: true });
 }
 
 export const handleMouseDown = (
     e: FederatedPointerEvent,
     params: ViewportHandlerParams
 ) => {
-    const { viewport, cachedViewportStore, markingsStore } = params;
+    const { viewport, markingsStore } = params;
 
     if (viewport.children.length < 1) return;
 
     const { mode: cursorMode } = DashboardToolbarStore.state.settings.cursor;
 
-    const { setTemporaryMarking, updateTemporaryMarking } =
-        markingsStore.actions.temporaryMarking;
+    const { setTemporaryMarking } = markingsStore.actions.temporaryMarking;
 
     const { temporaryMarking } = markingsStore.state;
     if (temporaryMarking !== null) return;
-
-    let onMouseMove: (e: FederatedPointerEvent) => void = () => {};
-    let onMouseUp: (e: FederatedPointerEvent) => void = () => {};
-    let onMouseDown: (e: FederatedPointerEvent) => void = () => {};
 
     const interrupt = () => {
         const { temporaryMarking } = markingsStore.state;
@@ -84,173 +198,16 @@ export const handleMouseDown = (
         const { type: markingType } =
             DashboardToolbarStore.state.settings.marking;
 
+        const args = { e, params, markingType, interrupt };
+
         switch (markingType) {
             case MARKING_TYPES.POINT: {
-                setTemporaryMarkingToEitherNewOrExisting(
-                    createMarking(
-                        markingType,
-                        null,
-                        getNormalizedMousePosition(e, viewport)
-                    ),
-                    params
-                );
-
-                onMouseMove = (e: FederatedPointerEvent) => {
-                    updateTemporaryMarking({
-                        position: getNormalizedMousePosition(e, viewport),
-                    });
-                };
-
-                onMouseUp = () => {
-                    viewport.removeEventListener("mousemove", onMouseMove);
-
-                    const { temporaryMarking } = markingsStore.state;
-                    if (temporaryMarking) {
-                        const isCursorFinite =
-                            markingsStore.actions.cursor.isFinite();
-
-                        if (!isCursorFinite) {
-                            addMarkingToStore(temporaryMarking, params);
-                        } else {
-                            const markingToEdit =
-                                markingsStore.actions.cursor.getMarkingAtCursor();
-
-                            if (markingToEdit) {
-                                // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                const { id, selected, label, ...newProps } =
-                                    temporaryMarking;
-
-                                markingsStore.actions.markings.editOneById(
-                                    markingToEdit.id,
-                                    newProps
-                                );
-                            } else {
-                                const { cursor } = markingsStore.state;
-                                addMarkingToStore(
-                                    {
-                                        ...temporaryMarking,
-                                        ...(cursor.boundMarkingId && {
-                                            boundMarkingId:
-                                                cursor.boundMarkingId,
-                                        }),
-                                        ...(cursor.label && {
-                                            label: cursor.label,
-                                        }),
-                                    },
-                                    params
-                                );
-                            }
-                        }
-                    }
-
-                    document.dispatchEvent(
-                        new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
-                    );
-                    document.removeEventListener(
-                        CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
-                        interrupt
-                    );
-                };
-
-                viewport.addEventListener("mousemove", onMouseMove);
-                viewport.addEventListener("mouseup", onMouseUp, { once: true });
+                handlePointMarking(args);
                 break;
             }
 
             case MARKING_TYPES.RAY: {
-                setTemporaryMarkingToEitherNewOrExisting(
-                    createMarking(
-                        markingType,
-                        0,
-                        getNormalizedMousePosition(e, viewport)
-                    ),
-                    params
-                );
-
-                onMouseMove = (e: FederatedPointerEvent) => {
-                    updateTemporaryMarking({
-                        position: getNormalizedMousePosition(e, viewport),
-                    });
-                };
-
-                onMouseUp = () => {
-                    viewport.removeEventListener("mousemove", onMouseMove);
-
-                    const { setRayPosition } =
-                        cachedViewportStore.actions.viewport;
-                    const mousePos = getNormalizedMousePosition(e, viewport);
-                    setRayPosition(mousePos);
-
-                    onMouseMove = (e: FederatedPointerEvent) => {
-                        const mousePos = getNormalizedMousePosition(
-                            e,
-                            viewport
-                        );
-                        const { rayPosition } = cachedViewportStore.state;
-                        updateTemporaryMarking({
-                            angleRad: getAngle(mousePos, rayPosition),
-                        });
-                    };
-
-                    onMouseDown = () => {
-                        viewport.removeEventListener("mousemove", onMouseMove);
-
-                        const { temporaryMarking } = markingsStore.state;
-                        if (temporaryMarking) {
-                            const isCursorFinite =
-                                markingsStore.actions.cursor.isFinite();
-                            if (!isCursorFinite) {
-                                addMarkingToStore(temporaryMarking, params);
-                            } else {
-                                const markingToEdit =
-                                    markingsStore.actions.cursor.getMarkingAtCursor();
-
-                                if (markingToEdit) {
-                                    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-                                    const { id, selected, label, ...newProps } =
-                                        temporaryMarking;
-
-                                    markingsStore.actions.markings.editOneById(
-                                        markingToEdit.id,
-                                        newProps
-                                    );
-                                } else {
-                                    const { cursor } = markingsStore.state;
-                                    addMarkingToStore(
-                                        {
-                                            ...temporaryMarking,
-                                            ...(cursor.boundMarkingId && {
-                                                boundMarkingId:
-                                                    cursor.boundMarkingId,
-                                            }),
-                                            ...(cursor.label && {
-                                                label: cursor.label,
-                                            }),
-                                        },
-                                        params
-                                    );
-                                }
-                            }
-                        }
-
-                        document.dispatchEvent(
-                            new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
-                        );
-                        document.removeEventListener(
-                            CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
-                            interrupt
-                        );
-                    };
-
-                    viewport.addEventListener("mousemove", onMouseMove);
-                    viewport.addEventListener("mousedown", onMouseDown, {
-                        once: true,
-                    });
-                };
-
-                viewport.addEventListener("mousemove", onMouseMove);
-                viewport.addEventListener("mouseup", onMouseUp, { once: true });
-
+                handleRayMarking(args);
                 break;
             }
             default:
