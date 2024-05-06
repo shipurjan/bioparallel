@@ -11,33 +11,20 @@ import { MarkingNotFoundError } from "@/lib/errors/custom-errors/MarkingNotFound
 import { showErrorDialog } from "@/lib/errors/showErrorDialog";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { arrayMax } from "@/lib/utils/array/minmax";
+// eslint-disable-next-line import/no-cycle
+import { EmptyableMarking } from "@/components/information-tabs/markings-info/columns";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
-    Cursor,
     InternalMarking,
     Marking,
     MarkingsState as State,
     _createMarkingsStore as createStore,
 } from "./Markings.store";
 import { GlobalStateStore } from "../GlobalState";
+import { IDGenerator } from "./IdGenerator";
 
 const useLeftStore = createStore(CANVAS_ID.LEFT);
 const useRightStore = createStore(CANVAS_ID.RIGHT);
-
-function* createLabelGenerator(
-    start = 0,
-    end = Infinity,
-    step = 1
-): Generator<InternalMarking["label"]> {
-    for (let i = start; i < end; i += step) {
-        let reset = (yield i) as number | string | undefined;
-        if (reset !== undefined) {
-            if (typeof reset === "number") i = reset - step;
-            if (typeof reset === "string" && reset === "prev") i -= step;
-            reset = undefined;
-        }
-    }
-}
 
 const { setLastAddedMarking } = GlobalStateStore.actions.lastAddedMarking;
 
@@ -46,7 +33,7 @@ class StoreClass {
 
     readonly use: typeof useLeftStore;
 
-    private labelGenerator = createLabelGenerator();
+    private labelGenerator = new IDGenerator();
 
     constructor(id: CanvasMetadata["id"]) {
         this.id = id;
@@ -101,10 +88,10 @@ class StoreClass {
                     ) !== -1;
 
                 if (isLabelAlreadyUsed) {
-                    draft.label = this.labelGenerator.next().value;
+                    draft.label = this.labelGenerator.generateId();
                 } else {
                     draft.label = lastAddedMarking.label;
-                    this.labelGenerator.next(lastAddedMarking.label);
+                    this.labelGenerator.setId(lastAddedMarking.label);
                 }
 
                 if (lastAddedMarking.label === draft.label) {
@@ -122,14 +109,8 @@ class StoreClass {
 
             // Przypadek gdy ostatnio dodany marking jest z tego samego canvasa
             // Po prostu wygeneruj nowy znacznik
-            draft.label = this.labelGenerator.next().value;
+            draft.label = this.labelGenerator.generateId();
         }) as InternalMarking;
-    }
-
-    private setCursor(callback: ActionProduceCallback<State["cursor"], State>) {
-        this.state.set(draft => {
-            draft.cursor = callback(draft.cursor, draft);
-        });
     }
 
     private setMarkingsHash(
@@ -168,74 +149,52 @@ class StoreClass {
         });
     }
 
+    private setSelectedMarking(
+        callback: ActionProduceCallback<State["selectedMarking"], State>
+    ) {
+        this.state.set(draft => {
+            draft.selectedMarking = callback(draft.selectedMarking, draft);
+        });
+    }
+
     readonly actions = {
-        cursor: {
-            updateCursor: (
-                rowIndex: number,
-                label: Cursor["label"],
-                type: Cursor["type"],
-                id: Cursor["id"],
-                boundMarkingId: Cursor["boundMarkingId"]
-            ) => {
-                this.setCursor(() => ({
-                    rowIndex,
-                    ...(id && { id }),
-                    ...(label && { label }),
-                    ...(type && { type }),
-                    ...(boundMarkingId && { boundMarkingId }),
-                }));
-            },
-            isFinite: () => {
-                return Number.isFinite(this.state.cursor.rowIndex);
-            },
-            getMarkingAtCursor: () => {
-                return (
-                    this.state.markings.find(
-                        m => m.id === this.state.cursor.id
-                    ) ??
-                    this.state.markings.find(
-                        m =>
-                            m.boundMarkingId ===
-                            this.state.cursor.boundMarkingId
-                    )
-                );
-            },
-        },
-        table: {
-            setTableRows: (rows: State["tableRows"]) => {
-                this.state.set(draft => {
-                    draft.tableRows = rows;
-                });
-            },
-        },
         labelGenerator: {
             reset: () => {
-                this.labelGenerator = createLabelGenerator();
+                this.labelGenerator = new IDGenerator();
 
                 const oppositeCanvasId = getOppositeCanvasId(this.id);
                 const oppositeCanvasLabels = Store(
                     oppositeCanvasId
                 ).state.markings.map(m => m.label);
+                const thisCanvasLabels = this.state.markings.map(m => m.label);
 
-                const maxLabel = arrayMax(oppositeCanvasLabels) ?? 0;
-                this.labelGenerator.next(maxLabel);
-                this.labelGenerator.next(maxLabel);
+                const maxLabel =
+                    arrayMax([...oppositeCanvasLabels, ...thisCanvasLabels]) ??
+                    0;
+
+                this.labelGenerator.setId(maxLabel);
             },
         },
         markings: {
             reset: () => {
-                this.state.reset();
-                this.actions.labelGenerator.reset();
-                GlobalStateStore.actions.lastAddedMarking.setLastAddedMarking(
-                    null
-                );
+                this.state.markings.forEach(marking => {
+                    Store(
+                        getOppositeCanvasId(this.id)
+                    ).actions.markings.unbindAllWithBoundMarkingId(marking.id);
+                });
+                this.setMarkingsAndUpdateHash(() => []);
             },
             addOne: (marking: Marking) => {
+                const inferredMarking = this.getInferredMarking(
+                    this.id,
+                    marking
+                );
                 this.setMarkingsAndUpdateHash(
                     produce(state => {
-                        state.push(this.getInferredMarking(this.id, marking));
+                        state.push(inferredMarking);
                     })
                 );
+                return inferredMarking;
             },
             addMany: (markings: Marking[]) => {
                 this.setMarkingsAndUpdateHash(
@@ -249,45 +208,46 @@ class StoreClass {
                 );
             },
             removeOneById: (id: string) => {
-                this.setMarkingsAndUpdateHash(state => {
-                    return state.filter(marking => marking.id !== id);
+                this.setMarkingsAndUpdateHash(markings => {
+                    return markings.filter(marking => marking.id !== id);
                 });
             },
             removeManyById: (ids: string[]) => {
-                this.setMarkingsAndUpdateHash(
-                    produce(state => {
-                        return state.filter(
-                            marking => !ids.includes(marking.id)
-                        );
-                    })
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.filter(marking => !ids.includes(marking.id))
                 );
             },
             editOneById: (id: string, newMarking: Partial<Marking>) => {
-                this.setMarkingsAndUpdateHash(
-                    produce(state => {
-                        try {
-                            const index = state.findIndex(m => m.id === id);
-                            if (index === -1) throw new MarkingNotFoundError();
-
-                            Object.assign(state[index]!, newMarking);
-                        } catch (error) {
-                            showErrorDialog(error);
+                this.setMarkingsAndUpdateHash(markings => {
+                    return markings.map(marking => {
+                        if (marking.id === id) {
+                            return { ...marking, ...newMarking };
                         }
-                    })
-                );
+                        return marking;
+                    });
+                });
             },
             bindOneById: (id: string, boundMarkingId: string) => {
-                this.setMarkingsAndUpdateHash(
-                    produce(state => {
-                        try {
-                            const index = state.findIndex(m => m.id === id);
-                            if (index === -1) throw new MarkingNotFoundError();
-
-                            Object.assign(state[index]!, { boundMarkingId });
-                        } catch (error) {
-                            showErrorDialog(error);
-                        }
-                    })
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.map(m =>
+                        m.id === id ? { ...m, boundMarkingId } : m
+                    )
+                );
+            },
+            unbindOneById: (id: string) => {
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.map(m =>
+                        m.id === id ? { ...m, boundMarkingId: undefined } : m
+                    )
+                );
+            },
+            unbindAllWithBoundMarkingId: (boundMarkingId: string) => {
+                this.setMarkingsAndUpdateHash(markings =>
+                    markings.map(m =>
+                        m.boundMarkingId === boundMarkingId
+                            ? { ...m, boundMarkingId: undefined }
+                            : m
+                    )
                 );
             },
             selectOneById: (
@@ -335,6 +295,15 @@ class StoreClass {
                         }
                     })
                 );
+            },
+        },
+        selectedMarking: {
+            setSelectedMarking: (marking: EmptyableMarking | null) => {
+                if (marking === null) {
+                    this.setSelectedMarking(() => null);
+                    return;
+                }
+                this.setSelectedMarking(() => marking);
             },
         },
     };

@@ -25,6 +25,7 @@
         --secondary-foreground: 124 33% 5.69%;
         --destructive-foreground: 120 22.5% 90.41%;
         --radius: 0;
+        --ds-background-selected: #61bd6780;
     }
 
     .dark {
@@ -47,6 +48,7 @@
         --primary-foreground: 124 31% 5.6%;
         --secondary-foreground: 124 31% 97.8%;
         --destructive-foreground: 120 3.45% 5.69%;
+        --ds-background-selected: #61bd6780;
     }
 }
 
@@ -59,10 +61,10 @@
     }
     input[type="color"] {
         border: none;
-        padding: 0!important;
+        padding: 0 !important;
     }
     input[type="color"]::-webkit-color-swatch-wrapper {
-        padding: 0!important;
+        padding: 0 !important;
     }
     input[type="color"]::-webkit-color-swatch {
         @apply rounded-md;
