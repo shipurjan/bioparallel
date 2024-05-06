@@ -171,12 +171,12 @@ class StoreClass {
                 const maxLabel =
                     arrayMax([...oppositeCanvasLabels, ...thisCanvasLabels]) ??
                     0;
+
                 this.labelGenerator.setId(maxLabel);
             },
         },
         markings: {
             reset: () => {
-                this.labelGenerator = new IDGenerator();
                 this.state.markings.forEach(marking => {
                     Store(
                         getOppositeCanvasId(this.id)
