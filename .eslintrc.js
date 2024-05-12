@@ -42,6 +42,7 @@ module.exports = {
     },
 
     rules: {
+        "dot-notation": "off",
         "default-case": "error",
         "@typescript-eslint/prefer-enum-initializers": "error",
         "@typescript-eslint/no-duplicate-enum-values": "error",
