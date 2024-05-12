@@ -13,7 +13,6 @@ export const enum MARKING_TYPES {
 
 export type InternalMarking = {
     id: string;
-    selected: boolean;
     hidden: boolean;
     label: number;
     position: {

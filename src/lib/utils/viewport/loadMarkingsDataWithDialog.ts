@@ -45,7 +45,6 @@ function inferMarking(
         size,
         type,
         hidden: false,
-        selected: false,
         angleRad: angleRad ?? null,
         ...props,
     };

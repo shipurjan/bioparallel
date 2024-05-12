@@ -34,16 +34,24 @@ function setTemporaryMarkingToEitherNewOrExisting(
     const { editOneById: editMarkingById } = markingsStore.actions.markings;
     const { setTemporaryMarking } = markingsStore.actions.temporaryMarking;
 
-    const isSelectedMarkingInternal =
-        selectedMarking && isInternalMarking(selectedMarking);
+    const isInternal = selectedMarking && isInternalMarking(selectedMarking);
 
-    if (isSelectedMarkingInternal) {
-        editMarkingById(selectedMarking.id, { hidden: true });
+    if (isInternal) {
+        const { size, backgroundColor, textColor } =
+            DashboardToolbarStore.state.settings.marking;
+
+        editMarkingById(selectedMarking.id, {
+            size,
+            backgroundColor,
+            textColor,
+            hidden: true,
+        });
     }
 
     setTemporaryMarking(
         newMarking,
-        isSelectedMarkingInternal ? selectedMarking.label : undefined
+        isInternal ? selectedMarking.label : undefined,
+        isInternal ? selectedMarking.id : undefined
     );
 }
 

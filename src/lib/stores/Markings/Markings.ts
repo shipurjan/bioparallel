@@ -7,8 +7,6 @@ import {
     CANVAS_ID,
     CanvasMetadata,
 } from "@/components/pixi/canvas/hooks/useCanvasContext";
-import { MarkingNotFoundError } from "@/lib/errors/custom-errors/MarkingNotFoundError";
-import { showErrorDialog } from "@/lib/errors/showErrorDialog";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { arrayMax } from "@/lib/utils/array/minmax";
 // eslint-disable-next-line import/no-cycle
@@ -250,39 +248,19 @@ class StoreClass {
                     )
                 );
             },
-            selectOneById: (
-                id: string,
-                callback: (
-                    oldSelected: Marking["selected"]
-                ) => Marking["selected"]
-            ) => {
-                this.setMarkingsAndUpdateHash(
-                    produce(state => {
-                        try {
-                            const index = state.findIndex(m => m.id === id);
-                            if (index === -1) throw new MarkingNotFoundError();
-
-                            state[index]!.selected = callback(
-                                state[index]!.selected
-                            );
-                        } catch (error) {
-                            showErrorDialog(error);
-                        }
-                    })
-                );
-            },
         },
         temporaryMarking: {
             setTemporaryMarking: (
                 marking: Marking | null,
-                label?: InternalMarking["label"]
+                label?: InternalMarking["label"],
+                id?: InternalMarking["id"]
             ) => {
                 if (marking === null) {
                     this.setTemporaryMarking(() => null);
                     return;
                 }
                 this.setTemporaryMarking(() => ({
-                    id: "\0",
+                    id: id ?? "\0",
                     label: label ?? -1,
                     ...marking,
                 }));

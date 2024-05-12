@@ -76,7 +76,9 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) => {
 
         const marking = row.original as EmptyableMarking;
         const { selectedMarking } = MarkingsStore(canvasId).state;
-        const selected = isInternalMarking(marking) ? marking.selected : false;
+        const selected = isInternalMarking(marking)
+            ? selectedMarking === marking
+            : false;
         const cells = row.getVisibleCells();
 
         const isSelected =
@@ -192,14 +194,17 @@ export const DataTable = function <TData, TValue>({
         if (virtuoso === null) return;
 
         const getIndex = () => {
-            if (selectedMarking === null)
+            if (selectedMarking === null) {
+                if (prevDataLength === data.length) return -1;
                 return rows.findIndex(row => row.original === data.at(-1));
+            }
 
             return rows.findIndex(row => row.original === selectedMarking);
         };
 
         const index = getIndex();
         if (index === -1) return;
+
         sleep(0).then(() => {
             virtuoso.scrollToIndex({
                 index,
@@ -217,70 +222,63 @@ export const DataTable = function <TData, TValue>({
     }, [data.length]);
 
     return (
-        <>
-            <div className="flex-1 text-center text-sm text-muted-foreground">
-                {table.getFilteredSelectedRowModel().rows.length} of{" "}
-                {table.getFilteredRowModel().rows.length} row(s) selected
-            </div>
-            <TableVirtuoso
-                ref={ref}
-                followOutput
-                style={{
-                    height,
-                    scrollbarGutter: "stable both-edges",
-                }}
-                totalCount={rows.length}
-                components={{
-                    Table: TableComponent,
-                    TableRow: TableRowComponent(rows, canvasId),
-                }}
-                fixedHeaderContent={() =>
-                    table.getHeaderGroups().map(headerGroup => (
-                        <TableRow
-                            className={cn("bg-card hover:bg-muted border-b-0")}
-                            key={headerGroup.id}
-                        >
-                            {headerGroup.headers.map(header => {
-                                return (
-                                    <TableHead
-                                        key={header.id}
-                                        colSpan={header.colSpan}
-                                        style={{
-                                            width: header.getSize(),
-                                        }}
-                                    >
-                                        {header.isPlaceholder ? null : (
-                                            <div
-                                                className="flex items-center"
-                                                {...{
-                                                    style: header.column.getCanSort()
-                                                        ? {
-                                                              cursor: "pointer",
-                                                              userSelect:
-                                                                  "none",
-                                                          }
-                                                        : {},
-                                                    onClick:
-                                                        header.column.getToggleSortingHandler(),
-                                                }}
-                                            >
-                                                {flexRender(
-                                                    header.column.columnDef
-                                                        .header,
-                                                    header.getContext()
-                                                )}
-                                                <SortingIndicator
-                                                    isSorted={header.column.getIsSorted()}
-                                                />
-                                            </div>
-                                        )}
-                                    </TableHead>
-                                );
-                            })}
-                        </TableRow>
-                    ))
-                }
-            />
-        </>
+        <TableVirtuoso
+            ref={ref}
+            followOutput
+            style={{
+                height,
+                scrollbarGutter: "stable both-edges",
+            }}
+            totalCount={rows.length}
+            components={{
+                Table: TableComponent,
+                TableRow: TableRowComponent(rows, canvasId),
+            }}
+            fixedHeaderContent={() =>
+                table.getHeaderGroups().map(headerGroup => (
+                    <TableRow
+                        className={cn("bg-card hover:bg-muted border-b-0")}
+                        key={headerGroup.id}
+                    >
+                        {headerGroup.headers.map(header => {
+                            return (
+                                <TableHead
+                                    key={header.id}
+                                    colSpan={header.colSpan}
+                                    style={{
+                                        width: header.getSize(),
+                                    }}
+                                >
+                                    {header.isPlaceholder ? null : (
+                                        <div
+                                            className="flex items-center"
+                                            role="button"
+                                            tabIndex={0}
+                                            onClick={header.column.getToggleSortingHandler()}
+                                            style={
+                                                header.column.getCanSort()
+                                                    ? {
+                                                          cursor: "pointer",
+                                                          userSelect: "none",
+                                                      }
+                                                    : undefined
+                                            }
+                                        >
+                                            {flexRender(
+                                                header.column.columnDef.header,
+                                                header.getContext()
+                                            )}
+                                            <SortingIndicator
+                                                isSorted={header.column.getIsSorted()}
+                                            />
+                                        </div>
+                                    )}
+                                </TableHead>
+                            );
+                        })}
+                    </TableRow>
+                ))
+            }
+        />
     );
 };

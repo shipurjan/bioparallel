@@ -121,6 +121,17 @@ export const getColumns = (
                   },
               ] as Array<ColumnDef<EmptyableMarking>>)
             : []),
+        // ID będzie pokazane tylko podczas developmentu
+        ...(IS_DEV_ENVIRONMENT
+            ? ([
+                  {
+                      accessorKey: "size",
+                      header: "Size",
+                      cell: cell =>
+                          formatCell(cell, ({ row }) => row.original.size),
+                  },
+              ] as Array<ColumnDef<EmptyableMarking>>)
+            : []),
         {
             accessorKey: "label",
             header: t("Marking.Keys.label", { ns: "object" }),
