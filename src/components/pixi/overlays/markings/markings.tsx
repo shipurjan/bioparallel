@@ -6,8 +6,10 @@ import { memo, useCallback, useEffect, useState } from "react";
 import {
     InternalMarking,
     MARKING_TYPES,
+    MarkingsStore,
     RenderableMarking,
 } from "@/lib/stores/Markings";
+import { isInternalMarking } from "@/components/information-tabs/markings-info/columns";
 import { useGlobalViewport } from "../../viewport/hooks/useGlobalViewport";
 import { CanvasMetadata } from "../../canvas/hooks/useCanvasContext";
 import { useGlobalApp } from "../../app/hooks/useGlobalApp";
@@ -52,14 +54,17 @@ function MarkingText({
 
     return (
         <BitmapText
+            fontSize={fontSize}
+            fontName={fontName}
             visible={visible}
             text={text}
+            tint={textColor}
             x={position.x}
             y={position.y}
             anchor={[0.5, 0.43]}
             style={{
-                fontSize,
                 fontName,
+                fontSize,
                 tint: textColor,
             }}
         />
@@ -75,6 +80,10 @@ export const Markings = memo(
     ({ canvasMetadata, showMarkingLabels, markings }: MarkingsProps) => {
         const viewport = useGlobalViewport(canvasMetadata.id);
         const app = useGlobalApp(canvasMetadata.id);
+
+        const selectedMarking = MarkingsStore(canvasMetadata.id).use(
+            state => state.selectedMarking
+        );
 
         const [renderableMarkings, setRenderableMarkings] = useState<
             RenderableMarking[]
@@ -121,10 +130,15 @@ export const Markings = memo(
                 g.clear();
                 g.removeChildren();
                 renderableMarkings.forEach(marking => {
+                    const selected =
+                        selectedMarking && isInternalMarking(selectedMarking)
+                            ? selectedMarking.id === marking.id
+                            : false;
                     switch (marking.type) {
                         case MARKING_TYPES.POINT:
                             drawPointMarking(
                                 g,
+                                selected,
                                 marking,
                                 showMarkingLabels,
                                 lineWidth,
@@ -134,6 +148,7 @@ export const Markings = memo(
                         case MARKING_TYPES.RAY:
                             drawRayMarking(
                                 g,
+                                selected,
                                 marking,
                                 showMarkingLabels,
                                 lineWidth,
@@ -150,7 +165,7 @@ export const Markings = memo(
                     }
                 });
             },
-            [renderableMarkings, showMarkingLabels]
+            [renderableMarkings, selectedMarking, showMarkingLabels]
         );
 
         return (

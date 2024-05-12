@@ -17,7 +17,7 @@ import { round } from "../math/round";
 type ImageInfo = {
     name: string | null;
     path: string | null;
-    md5: string;
+    sha256: string;
     size: {
         width: number;
         height: number;
@@ -67,7 +67,7 @@ function getImageData(picture: Sprite | undefined): ImageInfo | null {
         // @ts-expect-error custom property should exist
         path: picture.path,
         // @ts-expect-error custom property should exist
-        md5: picture.hash,
+        sha256: picture.hash,
         size: {
             width: texture.width,
             height: texture.height,
