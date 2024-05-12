@@ -1,6 +1,5 @@
 import * as PIXI from "pixi.js";
 import { readFile } from "@tauri-apps/plugin-fs";
-import md5 from "md5";
 
 export async function loadSprite(data: string | Uint8Array, name?: string) {
     const imageBytes = await (async () => {
@@ -19,7 +18,11 @@ export async function loadSprite(data: string | Uint8Array, name?: string) {
     if (!imageBytes)
         throw new Error("Failed to receive a byte representation of a file");
 
-    const hash = md5(imageBytes);
+    const hashBuffer = await window.crypto.subtle.digest("SHA-256", imageBytes);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray
+        .map(item => item.toString(16).padStart(2, "0"))
+        .join("");
 
     const bitmap = await createImageBitmap(new Blob([imageBytes]));
     const sprite = new PIXI.Sprite(PIXI.Texture.from(bitmap));
