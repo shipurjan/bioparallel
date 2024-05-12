@@ -72,10 +72,10 @@ export function isVisible(
 
 export const drawPointMarking = (
     g: PixiGraphics,
+    selected: boolean,
     {
         hidden,
         visible,
-        selected,
         backgroundColor,
         textColor,
         position: { x, y },
@@ -86,6 +86,12 @@ export const drawPointMarking = (
     shadowWidth: number = 0.5
 ) => {
     if (!visible || hidden) return;
+
+    if (selected) {
+        g.lineStyle(1, textColor);
+        g.beginFill(0x0000ff, 0.5);
+        g.drawRect(x - size - 2, y - size - 2, size * 2 + 4, size * 2 + 4);
+    }
 
     g.lineStyle(shadowWidth, textColor);
     g.drawCircle(x, y, size);
@@ -99,19 +105,14 @@ export const drawPointMarking = (
         g.endHole();
         g.drawCircle(x, y, size - lineWidth - 2 - shadowWidth);
     }
-
-    if (selected) {
-        g.lineStyle(1, textColor);
-        g.drawRect(x - size - 1, y - size - 1, size * 2 + 2, size * 2 + 2);
-    }
 };
 
 export const drawRayMarking = (
     g: PixiGraphics,
+    selected: boolean,
     {
         hidden,
         visible,
-        selected,
         backgroundColor,
         textColor,
         position: { x, y },
@@ -124,6 +125,12 @@ export const drawRayMarking = (
     lineLength: number = 4
 ) => {
     if (!visible || hidden) return;
+
+    if (selected) {
+        g.lineStyle(1, textColor);
+        g.beginFill(0x0000ff, 0.5);
+        g.drawRect(x - size - 2, y - size - 2, size * 2 + 4, size * 2 + 4);
+    }
 
     if (angleRad !== null) {
         const a = new PixiGraphics();
@@ -138,11 +145,6 @@ export const drawRayMarking = (
         a.lineStyle(lineWidth, backgroundColor);
         a.lineTo(x, y + lineLength * size);
         a.position.set(x, y);
-
-        if (selected) {
-            a.lineStyle(1, textColor);
-            a.drawRect(x - size, y - size, 2 * size, a.height + size);
-        }
 
         g.addChild(a);
     }

@@ -57,7 +57,6 @@ export function createMarking(
 
     return {
         ...(label !== undefined && { label }),
-        selected: false,
         hidden: false,
         size,
         position,
@@ -115,13 +114,18 @@ export function addOrEditMarking(
     }
 
     if (isInternalMarking(selectedMarking)) {
+        const { size, backgroundColor, textColor } =
+            DashboardToolbarStore.state.settings.marking;
+
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
         const { id, label, ...newProps } = marking;
 
-        markingsStore.actions.markings.editOneById(
-            selectedMarking.id,
-            newProps
-        );
+        markingsStore.actions.markings.editOneById(selectedMarking.id, {
+            ...newProps,
+            size,
+            backgroundColor,
+            textColor,
+        });
         return;
     }
 

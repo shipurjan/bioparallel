@@ -5,7 +5,6 @@ const d: Dictionary = {
         Name: "Marking",
         Keys: {
             id: "ID",
-            selected: "Selected",
             hidden: "Hidden",
             label: "Label",
             angleRad: "Angle",
