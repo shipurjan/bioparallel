@@ -4,7 +4,6 @@ import {
     CachedViewportZoom,
 } from "@/lib/stores/CachedViewport";
 import { round } from "@/lib/utils/math/round";
-import { showErrorDialog } from "@/lib/errors/showErrorDialog";
 import {
     Delta,
     ViewportHandlerParams,
@@ -50,7 +49,6 @@ export const handleOppositeMove = (
             break;
         }
         default: {
-            showErrorDialog(`Unknown event type: ${event.type}`, "warning");
             break;
         }
     }

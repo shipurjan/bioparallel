@@ -44,6 +44,14 @@ class StoreClass {
         });
     }
 
+    private setViewportSettings(
+        callback: ActionProduceCallback<State["settings"]["viewport"], State>
+    ) {
+        this.state.set(draft => {
+            draft.settings.viewport = callback(draft.settings.viewport, draft);
+        });
+    }
+
     readonly actions = {
         settings: {
             texture: {
@@ -64,6 +72,17 @@ class StoreClass {
                     this.setMarkingsSettings(
                         produce(markings => {
                             markings.showLabels = showLabel;
+                        })
+                    );
+                },
+            },
+            viewport: {
+                setShowViewportInformation: (
+                    showInformation: State["settings"]["viewport"]["showInformation"]
+                ) => {
+                    this.setViewportSettings(
+                        produce(viewport => {
+                            viewport.showInformation = showInformation;
                         })
                     );
                 },

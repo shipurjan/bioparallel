@@ -79,7 +79,7 @@ export const getColumns = (
                             size="sm-icon"
                             variant="outline"
                             pressed={false}
-                            onClick={() => {
+                            onClickCapture={() => {
                                 if (marking.boundMarkingId) {
                                     MarkingsStore(
                                         oppositeId

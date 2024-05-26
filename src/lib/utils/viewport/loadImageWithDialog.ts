@@ -14,11 +14,16 @@ import { ShallowViewportStore } from "@/lib/stores/ShallowViewport";
 import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import { CachedViewportStore } from "@/lib/stores/CachedViewport";
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
+import { DashboardToolbarStore } from "@/lib/stores/DashboardToolbar";
 import { loadSprite } from "./loadSprite";
 import { normalizeSpriteSize } from "./normalizeSpriteSize";
 
 export async function loadImageWithDialog(viewport: Viewport) {
     try {
+        DashboardToolbarStore.actions.settings.viewport.setLockScaleSync(false);
+        DashboardToolbarStore.actions.settings.viewport.setLockedViewport(
+            false
+        );
         const imageData = await open({
             title: t("Load forensic mark image", {
                 ns: "tooltip",
