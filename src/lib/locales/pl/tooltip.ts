@@ -10,6 +10,7 @@ const d: Dictionary = {
     "Lock viewports": "Zablokuj widoki ze sobą",
     "Synchronize viewports with scale": "Synchronizuj prędkość ruchu ze skalą",
     "Toggle marking labels": "Przełącz szczegóły adnotacji",
+    "Toggle viewport information": "Przełącz informacje viewportu",
     "Toggle scale mode": "Przełącz tryb skalowania",
 };
 

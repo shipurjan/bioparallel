@@ -108,8 +108,7 @@ const TableRowComponent = <TData,>(rows: Row<TData>[], canvasId: CANVAS_ID) => {
                     "text-foreground/60": isEmptyBoundMarking(marking),
                 })}
                 data-state={selected && "selected"}
-                onClick={e => {
-                    e.stopPropagation();
+                onClickCapture={() => {
                     if (selectedMarking?.label === marking.label) {
                         // odznacz
                         MarkingsStore(

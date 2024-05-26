@@ -10,6 +10,9 @@ type Settings = {
     markings: {
         showLabels: boolean;
     };
+    viewport: {
+        showInformation: boolean;
+    };
 };
 
 type State = {
@@ -23,6 +26,9 @@ const INITIAL_STATE: State = {
         },
         markings: {
             showLabels: true,
+        },
+        viewport: {
+            showInformation: true,
         },
     },
 };

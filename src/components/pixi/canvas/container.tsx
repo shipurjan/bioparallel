@@ -5,10 +5,12 @@ import { ImageUp } from "lucide-react";
 import { ICON } from "@/lib/utils/const";
 import { loadImageWithDialog } from "@/lib/utils/viewport/loadImageWithDialog";
 import { useTranslation } from "react-i18next";
+import { CanvasToolbarStore } from "@/lib/stores/CanvasToolbar";
 import { useCanvasContext } from "./hooks/useCanvasContext";
 import { CanvasToolbar } from "./canvas-toolbar";
 import { Canvas } from "./canvas";
 import { useGlobalViewport } from "../viewport/hooks/useGlobalViewport";
+import { CanvasInfo } from "./canvas-info";
 
 export type CanvasContainerProps = HTMLAttributes<HTMLDivElement>;
 export function CanvasContainer({ ...props }: CanvasContainerProps) {
@@ -31,6 +33,10 @@ export function CanvasContainer({ ...props }: CanvasContainerProps) {
 
     const isViewportHidden =
         viewport === null || viewport.children.length === 0;
+
+    const showCanvasInformation = CanvasToolbarStore(id).use(
+        state => state.settings.viewport.showInformation
+    );
 
     return (
         <div
@@ -55,6 +61,7 @@ export function CanvasContainer({ ...props }: CanvasContainerProps) {
                 </Toggle>
             )}
             <div className={cn("size-full", { hidden: isViewportHidden })}>
+                {showCanvasInformation && <CanvasInfo />}
                 <CanvasToolbar />
                 <Canvas
                     aria-label="canvas"
