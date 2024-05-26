@@ -10,6 +10,7 @@ import {
     ImageUp,
     Save,
     FileInput,
+    Info,
 } from "lucide-react";
 import { ICON } from "@/lib/utils/const";
 import { ToolbarGroup } from "@/components/toolbar/group";
@@ -34,11 +35,15 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
     const { id } = useCanvasContext();
     const store = CanvasToolbarStore(id);
 
-    const { markings } = store.use(state => state.settings);
+    const { markings: markingsSettings, viewport: viewportSettings } =
+        store.use(state => state.settings);
 
-    const { markings: markingsActions } = store.actions.settings;
+    const { markings: markingsActions, viewport: viewportActions } =
+        store.actions.settings;
 
     const { setShowLabels } = markingsActions;
+
+    const { setShowViewportInformation } = viewportActions;
 
     const viewport = useGlobalViewport(id, { autoUpdate: true });
 
@@ -150,12 +155,12 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                         ns: "tooltip",
                     })}
                     size="icon"
-                    pressed={markings.showLabels}
+                    pressed={markingsSettings.showLabels}
                     onClick={() => {
-                        setShowLabels(!markings.showLabels);
+                        setShowLabels(!markingsSettings.showLabels);
                     }}
                 >
-                    {markings.showLabels ? (
+                    {markingsSettings.showLabels ? (
                         <Flag
                             size={ICON.SIZE}
                             strokeWidth={ICON.STROKE_WIDTH}
@@ -166,6 +171,21 @@ export function CanvasToolbar({ className, ...props }: CanvasToolbarProps) {
                             strokeWidth={ICON.STROKE_WIDTH}
                         />
                     )}
+                </Toggle>
+                <Toggle
+                    variant="outline"
+                    title={t("Toggle viewport information", {
+                        ns: "tooltip",
+                    })}
+                    size="icon"
+                    pressed={viewportSettings.showInformation}
+                    onClick={() => {
+                        setShowViewportInformation(
+                            !viewportSettings.showInformation
+                        );
+                    }}
+                >
+                    <Info size={ICON.SIZE} strokeWidth={ICON.STROKE_WIDTH} />
                 </Toggle>
             </ToolbarGroup>
         </div>

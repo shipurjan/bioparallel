@@ -10,7 +10,10 @@ import {
 import { getOppositeCanvasId } from "@/components/pixi/canvas/utils/get-opposite-canvas-id";
 import { arrayMax } from "@/lib/utils/array/minmax";
 // eslint-disable-next-line import/no-cycle
-import { EmptyableMarking } from "@/components/information-tabs/markings-info/columns";
+import {
+    EmptyableMarking,
+    isInternalMarking,
+} from "@/components/information-tabs/markings-info/columns";
 import { ActionProduceCallback } from "../immer.helpers";
 import {
     InternalMarking,
@@ -209,6 +212,13 @@ class StoreClass {
                 this.setMarkingsAndUpdateHash(markings => {
                     return markings.filter(marking => marking.id !== id);
                 });
+                if (
+                    this.state.selectedMarking !== null &&
+                    isInternalMarking(this.state.selectedMarking) &&
+                    this.state.selectedMarking.id === id
+                ) {
+                    this.setSelectedMarking(() => null);
+                }
             },
             removeManyById: (ids: string[]) => {
                 this.setMarkingsAndUpdateHash(markings =>

@@ -83,17 +83,17 @@ function handlePointMarking({
         viewport.removeEventListener("mousemove", onMouseMove);
 
         const { temporaryMarking } = markingsStore.state;
-        if (!temporaryMarking) return;
+        if (temporaryMarking) {
+            addOrEditMarking(temporaryMarking, params);
 
-        addOrEditMarking(temporaryMarking, params);
-
-        document.dispatchEvent(
-            new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
-        );
-        document.removeEventListener(
-            CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
-            interrupt
-        );
+            document.dispatchEvent(
+                new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
+            );
+            document.removeEventListener(
+                CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
+                interrupt
+            );
+        }
     };
 
     viewport.addEventListener("mousemove", onMouseMove);
@@ -139,17 +139,17 @@ function handleRayMarking({
             viewport.removeEventListener("mousemove", onMouseMove);
 
             const { temporaryMarking } = markingsStore.state;
-            if (!temporaryMarking) return;
+            if (temporaryMarking) {
+                addOrEditMarking(temporaryMarking, params);
 
-            addOrEditMarking(temporaryMarking, params);
-
-            document.dispatchEvent(
-                new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
-            );
-            document.removeEventListener(
-                CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
-                interrupt
-            );
+                document.dispatchEvent(
+                    new Event(CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING)
+                );
+                document.removeEventListener(
+                    CUSTOM_GLOBAL_EVENTS.INTERRUPT_MARKING,
+                    interrupt
+                );
+            }
         };
 
         viewport.addEventListener("mousemove", onMouseMove);

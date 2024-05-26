@@ -50,10 +50,24 @@ class StoreClass {
                         })
                     );
                 },
+                setLockedViewport: (state: boolean) => {
+                    this.setViewportSettings(
+                        produce(settings => {
+                            settings.locked = state;
+                        })
+                    );
+                },
                 toggleLockScaleSync: () => {
                     this.setViewportSettings(
                         produce(settings => {
                             settings.scaleSync = !settings.scaleSync;
+                        })
+                    );
+                },
+                setLockScaleSync: (state: boolean) => {
+                    this.setViewportSettings(
+                        produce(settings => {
+                            settings.scaleSync = state;
                         })
                     );
                 },

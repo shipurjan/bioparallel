@@ -54,6 +54,7 @@ export type i18nTooltip = Recordify<
     | "Fit width"
     | "Toggle scale mode"
     | "Toggle marking labels"
+    | "Toggle viewport information"
 >;
 
 export type i18nDescription = Recordify<"Prerendering radius">;
