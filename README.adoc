@@ -1,6 +1,8 @@
 = bioparallel
 
-Application for forensic trace comparison
+Application for forensic trace comparison. 
+
+Currently only supported on Windows.
 
 image::./docs/bioparallel.png[]
 
